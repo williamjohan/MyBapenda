@@ -48,9 +48,11 @@ class _SplashScreenState extends State<SplashScreen>
         if (state is SplashNavigateOnboarding) {
           context.go(AppRoutes.onboarding);
         }
-
         if (state is SplashNavigateHome) {
           context.go(AppRoutes.home);
+        }
+        if (state is SplashNavigateLogin) {
+          context.go(AppRoutes.login);
         }
       },
       child: _SplashView(

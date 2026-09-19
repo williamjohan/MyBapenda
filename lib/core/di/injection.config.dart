@@ -15,8 +15,13 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import '../../data/datasources/auth/auth_remote_datasource.dart' as _i60;
+import '../../data/repositories/auth/auth_repository_impl.dart' as _i24;
+import '../../domain/repositories/auth/auth_repository.dart' as _i660;
+import '../../domain/usecases/auth/auth_usecase.dart' as _i826;
 import '../../domain/usecases/check_billboard_usecase.dart' as _i647;
 import '../../domain/usecases/post_report_usecase.dart' as _i438;
+import '../../presentation/features/auth/cubit/auth_cubit.dart' as _i224;
 import '../../presentation/features/home/cubit/home_cubit.dart' as _i900;
 import '../../presentation/features/result/cubit/check_result_cubit.dart'
     as _i64;
@@ -74,6 +79,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i817.DioAuthInterceptor(gh<_i233.AppSecureStorage>()));
     gh.lazySingleton<_i361.Dio>(
         () => registerModule.getDio(gh<_i817.DioAuthInterceptor>()));
+    gh.lazySingleton<_i60.AuthRemoteDataSource>(
+        () => _i60.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i919.UpdateService>(() => _i919.UpdateService(
           gh<_i361.Dio>(),
           gh<_i438.UpdateVersionService>(),
@@ -82,6 +89,14 @@ extension GetItInjectableX on _i174.GetIt {
           updateService: gh<_i919.UpdateService>(),
           permissionService: gh<_i164.IPermissionService>(),
         ));
+    gh.lazySingleton<_i660.AuthRepository>(() => _i24.AuthRepositoryImpl(
+          gh<_i60.AuthRemoteDataSource>(),
+          gh<_i233.AppSecureStorage>(),
+        ));
+    gh.lazySingleton<_i826.AuthUseCase>(
+        () => _i826.AuthUseCase(gh<_i660.AuthRepository>()));
+    gh.lazySingleton<_i224.AuthCubit>(
+        () => _i224.AuthCubit(authUseCase: gh<_i826.AuthUseCase>()));
     return this;
   }
 }
