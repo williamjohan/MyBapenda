@@ -10,6 +10,7 @@ import '../core/di/injection.dart';
 import '../domain/entities/billboard_entity.dart';
 import '../presentation/features/auth/cubit/auth_cubit.dart';
 import '../presentation/features/auth/cubit/auth_state.dart';
+import '../presentation/features/cek_reklame/screens/reklame_dashboard_screen.dart';
 import '../presentation/features/detail/pages/detail_page.dart';
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
@@ -100,6 +101,12 @@ class AppRouter {
                 },
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.reklameDashboard,
+        name: AppRoutes.reklameDashboard,
+        builder: (context, state) => const ReklameDashboardPage(),
       ),
 
       GoRoute(

@@ -72,7 +72,7 @@ class HomePage extends StatelessWidget {
         title: 'Cek Reklame',
         subtitle: 'Lapor & verifikasi',
         onTap: () {
-          context.push(AppRoutes.history);
+          context.push(AppRoutes.reklameDashboard);
         },
         enabled: true,
       ),
