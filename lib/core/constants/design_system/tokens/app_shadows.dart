@@ -1,6 +1,5 @@
+import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:flutter/material.dart';
-import 'package:surabayatax/core/design_system/tokens/app_colors.dart';
-
 /// Design System Shadows
 class AppShadows {
   AppShadows._();

@@ -1,5 +1,7 @@
+import 'package:bapendacore/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/home_bapenda_core_header.dart';
@@ -23,7 +25,7 @@ class HomePage extends StatelessWidget {
         final userRole = state.userRole;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF5F6F8), 
+          backgroundColor: const Color(0xFFF5F6F8),
           drawer: HomeBapendaCoreDrawer(
             userName: userName,
             userRole: userRole,
@@ -37,18 +39,15 @@ class HomePage extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 // 1. HEADER
-                HomeBapendaCoreHeader(
-                  userName: userName,
-                  userRole: userRole,
-                ),
-                
+                HomeBapendaCoreHeader(userName: userName, userRole: userRole),
+
                 // 2. BODY / CARDS
                 Padding(
                   padding: EdgeInsets.only(top: headerOverlapHeight),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height:8),
+                      const SizedBox(height: 8),
                       HomeBapendaCoreFeatureGrid(
                         items: _buildFeatureItems(context),
                       ),
@@ -73,7 +72,7 @@ class HomePage extends StatelessWidget {
         title: 'Cek Reklame',
         subtitle: 'Lapor & verifikasi',
         onTap: () {
-          // TODO: Gunakan go_router
+          context.push(AppRoutes.history);
         },
         enabled: true,
       ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bapendacore/presentation/features/history/screens/history_screen.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,7 @@ class AppRouter {
         return AppRoutes.home;
       }
 
-      return null; 
+      return null;
     },
 
     routes: [
@@ -99,6 +100,12 @@ class AppRouter {
                 },
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.history,
+        name: AppRoutes.history,
+        builder: (context, state) => const HistoryScreen(),
       ),
 
       GoRoute(
