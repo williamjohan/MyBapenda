@@ -1,5 +1,6 @@
-// core/utils/app_logger.dart
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// lib/core/utils/app_logger.dart
+// TODO: [FIREBASE_SETUP] Uncomment import di bawah jika google-services.json & Firebase Options sudah dikonfigurasi.
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
@@ -40,7 +41,8 @@ class AppLogger {
     if (kDebugMode) {
       _logger.i(message);
     } else {
-      FirebaseCrashlytics.instance.log('[INFO] $message');
+      // TODO: [FIREBASE_SETUP] Uncomment baris di bawah jika Firebase Crashlytics sudah aktif
+      // FirebaseCrashlytics.instance.log('[INFO] $message');
     }
   }
 
@@ -48,9 +50,9 @@ class AppLogger {
   /// Hanya aktif di fase Development.
   static void debug(dynamic message) {
     _logger.d(message);
-    // 🚀 BREADCRUMB: Catat jejak di latar belakang saat mode Release
     if (!kDebugMode) {
-      FirebaseCrashlytics.instance.log("🐛 [DEBUG]: $message");
+      // TODO: [FIREBASE_SETUP] Uncomment baris di bawah jika Firebase Crashlytics sudah aktif
+      // FirebaseCrashlytics.instance.log("🐛 [DEBUG]: $message");
     }
   }
 
@@ -59,7 +61,8 @@ class AppLogger {
     if (kDebugMode) {
       _logger.w(message);
     } else {
-      FirebaseCrashlytics.instance.log('[WARNING] $message');
+      // TODO: [FIREBASE_SETUP] Uncomment baris di bawah jika Firebase Crashlytics sudah aktif
+      // FirebaseCrashlytics.instance.log('[WARNING] $message');
     }
   }
 
@@ -71,14 +74,15 @@ class AppLogger {
 
     // 2. Lempar ke Dashboard Crashlytics HANYA jika bukan di mode Debug
     if (!kDebugMode) {
+      // TODO: [FIREBASE_SETUP] Uncomment blok di bawah jika Firebase Crashlytics sudah aktif
+      /*
       FirebaseCrashlytics.instance.recordError(
-        error ??
-            message, // Kirim object error aslinya (DioException, TypeError, dll)
-        stackTrace, // Baris kode spesifik yang meledak
-        reason: message, // Pesan kustom kita (misal: "Gagal download dokumen")
-        fatal:
-            false, // Set true HANYA jika error ini membuat aplikasi Force Close
+        error ?? message, // Kirim object error aslinya (DioException, TypeError, dll)
+        stackTrace,       // Baris kode spesifik yang meledak
+        reason: message,  // Pesan kustom kita (misal: "Gagal download dokumen")
+        fatal: false,     // Set true HANYA jika error ini membuat aplikasi Force Close
       );
+      */
     }
   }
 }

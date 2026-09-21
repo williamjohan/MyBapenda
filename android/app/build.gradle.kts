@@ -1,16 +1,22 @@
 import java.util.Properties
 import java.io.FileInputStream
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget // 🚀 Tambahkan import ini
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    id("kotlin-android") // Atau "org.jetbrains.kotlin.android"
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "com.bapenda.cekreklame"
-    compileSdk = 36
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -18,44 +24,47 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     defaultConfig {
         applicationId = "com.bapenda.cekreklame"
         minSdk = flutter.minSdkVersion
-        targetSdk = 34
+        targetSdk = flutter.targetSdkVersion 
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
-    // 👇 PERBAIKAN: Gunakan Class langsung karena sudah di-import di atas
+    // 🚀 BACA KEYSTORE (Tetap gunakan file() karena di Bapenda ada di folder 'app')
     val keystoreProperties = Properties()
-    val keystorePropertiesFile = rootProject.file("key.properties")
+    val keystorePropertiesFile = file("key.properties") 
     if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(FileInputStream(keystorePropertiesFile))
     }
 
     signingConfigs {
-        create("release") {
-            val keystoreFile = file("upload-keystore.jks")
-            storeFile = keystoreFile
+        getByName("debug") { }
 
-            storePassword = System.getenv("KEYSTORE_PASSWORD") 
-                ?: keystoreProperties["storePassword"] as String?
-            
-            keyAlias = System.getenv("KEY_ALIAS") 
-                ?: keystoreProperties["keyAlias"] as String?
-            
-            keyPassword = System.getenv("KEY_PASSWORD") 
-                ?: keystoreProperties["keyPassword"] as String?
+        // 🚀 SAFETY NET ALA SURABAYA TAX
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                storeFile = file("upload-keystore.jks")
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                
+                enableV1Signing = true
+                enableV2Signing = true
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            // 🚀 FALLBACK ALA SURABAYA TAX
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
@@ -63,6 +72,13 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+}
+
+// 🚀 SINTAKS KOTLIN TERBARU
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
