@@ -41,5 +41,5 @@ class AuthRepositoryImpl implements AuthRepository {
       _securePreference.getMustChangePassword();
 
   @override
-  Future<void> logout() => _securePreference.clearAllSecureData();
+  Future<void> logout() => _securePreference.clearSessionData();
 }

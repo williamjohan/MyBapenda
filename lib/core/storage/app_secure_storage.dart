@@ -16,7 +16,7 @@ class AppSecureStorage {
   static const String _keyRefreshToken = 'SECURE_REFRESH_TOKEN';
 
   // Keys untuk Remember Me
-  static const String _keyRememberNpwpd = 'SECURE_REMEMBER_NPWPD';
+  static const String _keyRememberNip = 'SECURE_REMEMBER_NIP';
   static const String _keyRememberPassword = 'SECURE_REMEMBER_PASSWORD';
 
   // Keys ubah password paksa (force change password)
@@ -52,15 +52,16 @@ class AppSecureStorage {
   // =============================================================
 
   Future<void> saveRememberMeCredentials({
-    required String npwpd,
+    required String nip,
     required String password,
   }) async {
-    await _secureStorage.write(key: _keyRememberNpwpd, value: npwpd);
+    await _secureStorage.write(key: _keyRememberNip, value: nip);
+
     await _secureStorage.write(key: _keyRememberPassword, value: password);
   }
 
-  Future<String?> getRememberMeNpwpd() async {
-    return await _secureStorage.read(key: _keyRememberNpwpd);
+  Future<String?> getRememberMeNip() async {
+    return await _secureStorage.read(key: _keyRememberNip);
   }
 
   Future<String?> getRememberMePassword() async {
@@ -68,7 +69,7 @@ class AppSecureStorage {
   }
 
   Future<void> clearRememberMeCredentials() async {
-    await _secureStorage.delete(key: _keyRememberNpwpd);
+    await _secureStorage.delete(key: _keyRememberNip);
     await _secureStorage.delete(key: _keyRememberPassword);
   }
 

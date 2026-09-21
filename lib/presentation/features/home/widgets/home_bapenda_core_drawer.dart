@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors_new.dart';
 
 /// Drawer opened from the home header hamburger icon.
@@ -17,16 +18,23 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: AppThemeColors.defaultSurface,
-      child: SafeArea(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: Drawer(
+        backgroundColor: AppThemeColors.defaultSurface,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(gradient: AppThemeColors.primaryGradient),
+              padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
+              decoration: const BoxDecoration(
+                gradient: AppThemeColors.primaryGradient,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -51,14 +59,22 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
                 ],
               ),
             ),
+
             const SizedBox(height: 8),
+
             ListTile(
-              leading: Icon(Icons.home_outlined, color: AppThemeColors.secondaryText),
+              leading: Icon(
+                Icons.home_outlined,
+                color: AppThemeColors.secondaryText,
+              ),
               title: const Text('Beranda'),
               onTap: () => Navigator.of(context).pop(),
             ),
+
             const Spacer(),
+
             const Divider(height: 1),
+
             ListTile(
               leading: const Icon(Icons.logout, color: AppThemeColors.danger),
               title: const Text(
@@ -67,6 +83,7 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
               ),
               onTap: onLogout,
             ),
+
             const SizedBox(height: 8),
           ],
         ),
