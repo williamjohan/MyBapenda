@@ -4,6 +4,7 @@ import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../shared/widgets/bapenda_sliver_header.dart';
 import '../cubit/history_cubit.dart';
 import '../cubit/history_state.dart';
 import '../widgets/history_card.dart';
@@ -90,10 +91,29 @@ class _HistoryViewState extends State<_HistoryView> {
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            _buildHeader(context),
+            BapendaSliverHeader(
+              title: 'Riwayat Pemeriksaan',
+              showBackButton: true, 
+              subtitle: BlocBuilder<HistoryCubit, HistoryState>(
+                builder: (context, state) {
+                  final count = state is HistoryLoaded ? state.filtered.length : null;
+                  return Text(
+                    count != null ? '$count reklame ditemukan' : 'Memuat data…',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12.5,
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                  );
+                },
+              ),
+            ),
+            
+            // 🚀 FIX: KEMBALIKAN KOLOM SEARCH DAN FILTER TANGGAL
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              sliver: SliverToBoxAdapter(child: _buildSearchAndFilter(context)),
+              sliver: SliverToBoxAdapter(
+                child: _buildSearchAndFilter(context),
+              ),
             ),
             BlocBuilder<HistoryCubit, HistoryState>(
               builder: (context, state) {
@@ -165,57 +185,7 @@ class _HistoryViewState extends State<_HistoryView> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
-      expandedHeight: 128,
-      backgroundColor: AppThemeColors.brown,
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: AppThemeColors.headerGradient,
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 50, 20, 16),
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Riwayat Pemeriksaan',
-                  style: GoogleFonts.lora(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                BlocBuilder<HistoryCubit, HistoryState>(
-                  builder: (context, state) {
-                    final count = state is HistoryLoaded
-                        ? state.filtered.length
-                        : null;
-                    return Text(
-                      count != null
-                          ? '$count reklame ditemukan'
-                          : 'Memuat data…',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12.5,
-                        color: Colors.white.withValues(alpha: 0.85),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  
 
   Widget _buildSearchAndFilter(BuildContext context) {
     return Column(

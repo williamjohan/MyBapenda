@@ -57,8 +57,7 @@ class HomePage extends StatelessWidget {
                         items: _buildFeatureItems(context),
                       ),
                       const SizedBox(height: 16),
-                      // TODO: Widget Total Pendapatan & Volume Kendaraan
-                      const SizedBox(height: 32),
+
                     ],
                   ),
                 ),
@@ -77,7 +76,7 @@ class HomePage extends StatelessWidget {
         title: 'Cek Reklame',
         subtitle: 'Lapor & verifikasi',
         onTap: () {
-          context.push(AppRoutes.history);
+          context.push(AppRoutes.reklameDashboard);
         },
         enabled: true,
       ),
