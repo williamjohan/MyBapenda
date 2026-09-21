@@ -36,6 +36,8 @@ import '../../presentation/features/auth/cubit/auth_cubit.dart' as _i224;
 import '../../presentation/features/camera/cubit/camera_cubit.dart' as _i755;
 import '../../presentation/features/history/cubit/history_cubit.dart' as _i1024;
 import '../../presentation/features/home/cubit/home_cubit.dart' as _i900;
+import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
+    as _i679;
 import '../network/dio_auth_interceptor.dart' as _i817;
 import '../network/network_cubit.dart' as _i11;
 import '../services/app_integrity_service.dart' as _i30;
@@ -65,6 +67,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs,
       preResolve: true,
     );
+    gh.factory<_i679.SplashCubit>(() => _i679.SplashCubit());
     gh.lazySingleton<_i558.FlutterSecureStorage>(
         () => registerModule.secureStorage);
     gh.lazySingleton<_i895.Connectivity>(() => registerModule.connectivity);

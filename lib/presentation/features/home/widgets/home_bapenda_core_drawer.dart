@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors_new.dart';
+import '../../profile/widgets/logout_bottom_widget.dart';
 
-/// Drawer opened from the home header hamburger icon.
-/// Placeholder items only — wire to GoRouter routes as needed.
 class HomeBapendaCoreDrawer extends StatelessWidget {
   const HomeBapendaCoreDrawer({
     super.key,
@@ -15,6 +14,29 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
   final String userName;
   final String userRole;
   final VoidCallback? onLogout;
+
+  void _showLogoutConfirmation(BuildContext context) {
+    // 1. Tutup Drawer terlebih dahulu agar UI tidak bertumpuk
+    Navigator.of(context).pop();
+
+    // 2. Munculkan Bottom Sheet Konfirmasi
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent, // Wajib transparan agar radius atas terlihat
+      isScrollControlled: true,
+      builder: (bottomSheetContext) => LogoutBottomSheet(
+        onConfirmLogout: () {
+          // 3. Tutup Bottom Sheet
+          Navigator.of(bottomSheetContext).pop();
+          
+          // 4. Eksekusi logika AuthCubit yang dilempar dari parent (HomePage)
+          if (onLogout != null) {
+            onLogout!(); 
+          }
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +103,8 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
                 'Keluar',
                 style: TextStyle(color: AppThemeColors.danger),
               ),
-              onTap: onLogout,
+              // 🚀 Arahkan onTap ke fungsi interceptor yang kita buat di atas
+              onTap: () => _showLogoutConfirmation(context), 
             ),
 
             const SizedBox(height: 8),

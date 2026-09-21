@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-// TODO: Sesuaikan path
 import '../../../core/constants/app_colors_new.dart';
 
 class BapendaSliverHeader extends StatelessWidget {
