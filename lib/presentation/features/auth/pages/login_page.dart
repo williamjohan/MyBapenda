@@ -1,4 +1,6 @@
 import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:bapendacore/core/di/injection.dart';
+import 'package:bapendacore/core/storage/app_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,8 +19,35 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final nipController = TextEditingController();
   final passwordController = TextEditingController();
+  final _secureStorage = getIt<AppSecureStorage>();
 
   bool obscurePassword = true;
+  bool rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedCredentials();
+  }
+
+  Future<void> _loadRememberedCredentials() async {
+    final nip = await _secureStorage.getRememberMeNip();
+    final password = await _secureStorage.getRememberMePassword();
+
+    if (!mounted) return;
+
+    if (nip != null &&
+        nip.isNotEmpty &&
+        password != null &&
+        password.isNotEmpty) {
+      nipController.text = nip;
+      passwordController.text = password;
+
+      setState(() {
+        rememberMe = true;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -27,15 +56,28 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
 
     FocusScope.of(context).unfocus();
-    context.read<AuthCubit>().login(
-      nipController.text.trim(),
-      passwordController.text,
-    );
+
+    final authCubit = context.read<AuthCubit>();
+
+    await authCubit.login(nipController.text.trim(), passwordController.text);
+
+    final state = authCubit.state;
+
+    if (state is AuthAuthenticated) {
+      if (rememberMe) {
+        await _secureStorage.saveRememberMeCredentials(
+          nip: nipController.text.trim(),
+          password: passwordController.text,
+        );
+      } else {
+        await _secureStorage.clearRememberMeCredentials();
+      }
+    }
   }
 
   @override
@@ -103,8 +145,20 @@ class _LoginPageState extends State<LoginPage> {
                         nipController: nipController,
                         passwordController: passwordController,
                         obscurePassword: obscurePassword,
-                        onToggleObscure: () =>
-                            setState(() => obscurePassword = !obscurePassword),
+
+                        rememberMe: rememberMe,
+                        onRememberMeChanged: (value) {
+                          setState(() {
+                            rememberMe = value;
+                          });
+                        },
+
+                        onToggleObscure: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+
                         onSubmit: _submit,
                       ),
                       const SizedBox(height: 24),
@@ -171,8 +225,10 @@ class _LoginCard extends StatelessWidget {
   final TextEditingController nipController;
   final TextEditingController passwordController;
   final bool obscurePassword;
+  final bool rememberMe;
+  final ValueChanged<bool> onRememberMeChanged;
   final VoidCallback onToggleObscure;
-  final VoidCallback onSubmit;
+  final Future<void> Function() onSubmit;
 
   const _LoginCard({
     required this.formKey,
@@ -181,6 +237,8 @@ class _LoginCard extends StatelessWidget {
     required this.obscurePassword,
     required this.onToggleObscure,
     required this.onSubmit,
+    required this.rememberMe,
+    required this.onRememberMeChanged,
   });
 
   OutlineInputBorder _border(Color color, double width) => OutlineInputBorder(
@@ -272,24 +330,45 @@ class _LoginCard extends StatelessWidget {
                   ? 'Kata sandi wajib diisi'
                   : null,
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.only(top: 8),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  'Lupa kata sandi?',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppThemeColors.primary,
+            Row(
+              children: [
+                Expanded(
+                  child: CheckboxListTile(
+                    value: rememberMe,
+                    onChanged: (value) {
+                      onRememberMeChanged(value ?? false);
+                    },
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    dense: true,
+                    visualDensity: VisualDensity.compact,
+                    title: Text(
+                      'Ingat saya',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        color: AppThemeColors.secondaryText,
+                      ),
+                    ),
+                    activeColor: AppThemeColors.primary,
                   ),
                 ),
-              ),
+                TextButton(
+                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.only(top: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'Lupa kata sandi?',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppThemeColors.primary,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             BlocBuilder<AuthCubit, AuthState>(
@@ -299,7 +378,11 @@ class _LoginCard extends StatelessWidget {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: isLoading ? null : onSubmit,
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            onSubmit();
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppThemeColors.primary,
                       disabledBackgroundColor: AppThemeColors.primary

@@ -1,3 +1,4 @@
+import 'package:bapendacore/presentation/features/auth/cubit/auth_cubit.dart';
 import 'package:bapendacore/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,8 +30,12 @@ class HomePage extends StatelessWidget {
           drawer: HomeBapendaCoreDrawer(
             userName: userName,
             userRole: userRole,
-            onLogout: () {
-              // TODO: Panggil method logout di AuthCubit
+            onLogout: () async {
+              await context.read<AuthCubit>().logout();
+
+              if (context.mounted) {
+                context.go(AppRoutes.login);
+              }
             },
           ),
           body: SingleChildScrollView(
