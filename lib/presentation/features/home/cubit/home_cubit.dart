@@ -1,3 +1,4 @@
+import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/services/permission/i_permission_service.dart';
@@ -10,54 +11,53 @@ import 'home_action.dart';
 class HomeCubit extends Cubit<HomeState> {
   final UpdateService updateService;
   final IPermissionService permissionService;
-  
+  final AuthUseCase authUseCase;
 
   HomeCubit({
     required this.updateService,
     required this.permissionService,
+    required this.authUseCase,
   }) : super(const HomeState());
 
   Future<void> onPageOpened() async {
     if (isClosed) return;
+
     emit(state.copyWith(isCheckingUpdate: true));
-    
+
     try {
-      // --- AREA MOCK PROFIL (Nanti diganti dengan fetch dari Hive/Prefs) ---
-      await Future.delayed(const Duration(milliseconds: 500)); 
-      if (isClosed) return; // Proteksi setelah await
-      
-      const mockUserName = 'William Saliba';
-      const mockUserRole = 'Divisi IT';
-      // --------------------------------------------------------------------
+      final profile = await authUseCase.getCurrentUserProfile();
+      if (isClosed) return;
 
       final updateInfo = await updateService.getAvailableUpdate();
       if (isClosed) return;
-      
+
       emit(
         state.copyWith(
           isCheckingUpdate: false,
           updateInfo: updateInfo,
           action: updateInfo != null ? HomeShowUpdateDialog(updateInfo) : null,
-          userName: mockUserName,
-          userRole: mockUserRole,
+          userName: profile?.nama ?? 'Guest',
+          userRole: profile?.jabatan ?? 'Bapenda Core',
         ),
       );
     } catch (e, stackTrace) {
       AppLogger.error('Failed to load home data', e, stackTrace);
-      
+
       if (isClosed) return;
-      emit(state.copyWith(
-        isCheckingUpdate: false,
-        userName: 'Guest',
-        userRole: 'Bapenda Core',
-      ));
+
+      emit(
+        state.copyWith(
+          isCheckingUpdate: false,
+          userName: 'Guest',
+          userRole: 'Bapenda Core',
+        ),
+      );
     }
   }
 
-
   void onManualCheckUpdate() {
     if (isClosed) return;
-    
+
     final info = state.updateInfo;
     if (info != null) {
       emit(state.copyWith(action: HomeShowUpdateDialog(info)));

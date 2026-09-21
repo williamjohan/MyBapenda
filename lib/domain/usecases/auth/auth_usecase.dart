@@ -1,4 +1,5 @@
 import 'package:bapendacore/domain/entities/auth/auth_entity.dart';
+import 'package:bapendacore/domain/entities/users/user_entity.dart';
 import 'package:bapendacore/domain/repositories/auth/auth_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -17,4 +18,7 @@ class AuthUseCase {
   Future<void> logout() => repository.logout();
   Future<bool> getCurrentSession() => repository.getCurrentSession();
   Future<bool> getMustChangePassword() => repository.getMustChangePassword();
+
+  Future<UserEntity?> getCurrentUserProfile() =>
+      repository.getCurrentUserProfile();
 }

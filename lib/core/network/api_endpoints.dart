@@ -10,6 +10,11 @@ class ApiEndpoints {
   static const String logout = '/auth/logout'; 
   static const String validasiKontak = '/api/wajibpajak/validasi-kontak';
   static const String register = '/api/wajibpajak/buat-permohonan';
+  
+  // ==========================================
+  // PROFILE
+  // ==========================================
+  static const String profile = '/api/profile';
 
 
   static const String historyList = '/api/cekreklame/lihat-history';

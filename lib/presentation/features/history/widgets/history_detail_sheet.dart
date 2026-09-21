@@ -120,7 +120,7 @@ class _HistoryDetailSheet extends StatelessWidget {
               icon: Icons.schedule_rounded,
               label: 'Waktu pemeriksaan',
               value:
-                  '${formatTanggalId(item.insDate)} • ${formatJamId(item.insDate)}',
+                  '${formatTanggalId(item.insDate)} / ${formatJamId(item.insDate)}',
             ),
             _DetailRow(
               icon: Icons.badge_outlined,

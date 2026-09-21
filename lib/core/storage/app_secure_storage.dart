@@ -22,6 +22,10 @@ class AppSecureStorage {
   // Keys ubah password paksa (force change password)
   static const String _keyMustChangePassword = 'SECURE_MUST_CHANGE_PASSWORD';
 
+  // Keys untuk menyimpan data user profile
+  static const String _keyCurrentNip = 'SECURE_CURRENT_NIP';
+  static const String _keyUserProfile = 'SECURE_USER_PROFILE';
+
   // =============================================================
   // 1. TOKEN MANAGEMENT (SESSION)
   // =============================================================
@@ -45,6 +49,26 @@ class AppSecureStorage {
 
   Future<String?> getRefreshToken() async {
     return await _secureStorage.read(key: _keyRefreshToken);
+  }
+
+  Future<void> saveCurrentNip(String nip) async {
+    await _secureStorage.write(key: _keyCurrentNip, value: nip);
+  }
+
+  Future<String?> getCurrentNip() async {
+    return _secureStorage.read(key: _keyCurrentNip);
+  }
+
+  Future<void> saveUserProfile(String json) async {
+    await _secureStorage.write(key: _keyUserProfile, value: json);
+  }
+
+  Future<String?> getUserProfile() async {
+    return _secureStorage.read(key: _keyUserProfile);
+  }
+
+  Future<void> clearUserProfile() async {
+    await _secureStorage.delete(key: _keyUserProfile);
   }
 
   // =============================================================
@@ -102,6 +126,8 @@ class AppSecureStorage {
     await _secureStorage.delete(key: _keyAccessToken);
     await _secureStorage.delete(key: _keyRefreshToken);
     await _secureStorage.delete(key: _keyMustChangePassword);
+    await _secureStorage.delete(key: _keyCurrentNip);
+    await _secureStorage.delete(key: _keyUserProfile);
   }
 
   /// Menghapus SELURUH data (Sesi + Kredensial).

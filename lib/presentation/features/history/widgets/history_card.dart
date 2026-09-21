@@ -349,7 +349,7 @@ class _UkuranBadge extends StatelessWidget {
           ),
           const SizedBox(width: 5),
           Text(
-            hasValue ? ukuran! : 'Belum diukur',
+            hasValue ? 'Sudah Diukur' : 'Belum diukur',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 9.5,
               fontWeight: FontWeight.w700,
