@@ -1,6 +1,7 @@
 import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:bapendacore/domain/entities/history/history_entity.dart';
+import 'package:bapendacore/presentation/features/history/widgets/authenticated_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,7 +13,13 @@ class HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasUkuran = item.hasUkuran;
+    debugPrint('========== HISTORY CARD ==========');
+    debugPrint('Alamat     : ${item.alamat}');
+    debugPrint('Ukuran     : ${item.ukuran}');
+    debugPrint('Photo URL  : ${item.photoUrl}');
+    debugPrint('Has Photo  : ${item.hasPhoto}');
+    debugPrint('Has Ukuran : ${item.hasUkuran}');
+    debugPrint('===================================');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -260,9 +267,7 @@ class _Thumbnail extends StatelessWidget {
 
   const _Thumbnail({required this.url});
 
-  bool get _hasUrl {
-    return url != null && url!.trim().isNotEmpty;
-  }
+  bool get _hasUrl => url != null && url!.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -277,26 +282,20 @@ class _Thumbnail extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: _hasUrl
-            ? Image.network(
-                url!,
+            ? AuthenticatedImage(
+                url: url!,
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-
-                  return Container(
-                    color: AppThemeColors.grey7,
-                    child: const Center(
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 1.8),
-                      ),
+                placeholder: () => Container(
+                  color: AppThemeColors.grey7,
+                  child: const Center(
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 1.8),
                     ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return _fallback();
-                },
+                  ),
+                ),
+                errorWidget: (_, __) => _fallback(),
               )
             : _fallback(),
       ),

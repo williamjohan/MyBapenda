@@ -1,6 +1,7 @@
 import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:bapendacore/domain/entities/history/history_entity.dart';
+import 'package:bapendacore/presentation/features/history/widgets/authenticated_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -99,8 +100,9 @@ class _HistoryDetailSheet extends StatelessWidget {
             _DetailRow(
               icon: Icons.straighten_rounded,
               label: 'Ukuran reklame',
-              value:
-                  item.hasUkuran ? item.ukuran! : 'Belum ada hasil pengukuran',
+              value: item.hasUkuran
+                  ? item.ukuran!
+                  : 'Belum ada hasil pengukuran',
               valueColor: item.hasUkuran
                   ? AppThemeColors.success
                   : AppThemeColors.tertiaryText,
@@ -160,6 +162,7 @@ class _HistoryDetailSheet extends StatelessWidget {
 
 class _PhotoPreview extends StatelessWidget {
   final String? url;
+
   const _PhotoPreview({required this.url});
 
   bool get _hasUrl => url != null && url!.trim().isNotEmpty;
@@ -167,6 +170,7 @@ class _PhotoPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final heroTag = 'history_photo_${url ?? 'none'}';
+
     return GestureDetector(
       onTap: _hasUrl ? () => _openFullScreen(context, heroTag) : null,
       child: Hero(
@@ -177,24 +181,20 @@ class _PhotoPreview extends StatelessWidget {
             width: double.infinity,
             height: 180,
             child: _hasUrl
-                ? Image.network(
-                    url!,
+                ? AuthenticatedImage(
+                    url: url!,
                     fit: BoxFit.cover,
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return Container(
-                        color: AppThemeColors.grey7,
-                        child: const Center(
-                          child: SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
+                    placeholder: () => Container(
+                      color: AppThemeColors.grey7,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) =>
-                        _placeholder(),
+                      ),
+                    ),
+                    errorWidget: (_, __) => _placeholder(),
                   )
                 : _placeholder(),
           ),
@@ -242,6 +242,7 @@ class _PhotoPreview extends StatelessWidget {
 class _FullScreenPhoto extends StatelessWidget {
   final String url;
   final String heroTag;
+
   const _FullScreenPhoto({required this.url, required this.heroTag});
 
   @override
@@ -256,7 +257,12 @@ class _FullScreenPhoto extends StatelessWidget {
               child: InteractiveViewer(
                 minScale: 0.8,
                 maxScale: 4,
-                child: Image.network(url, fit: BoxFit.contain),
+                child: AuthenticatedImage(
+                  url: url,
+                  fit: BoxFit.contain,
+                  placeholder: () => _loading(),
+                  errorWidget: (_, __) => _errorPlaceholder(),
+                ),
               ),
             ),
           ),
@@ -264,12 +270,46 @@ class _FullScreenPhoto extends StatelessWidget {
             top: MediaQuery.of(context).padding.top + 8,
             right: 16,
             child: IconButton(
-              icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+              icon: const Icon(
+                Icons.close_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _loading() {
+    return const SizedBox(
+      width: 32,
+      height: 32,
+      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+    );
+  }
+
+  Widget _errorPlaceholder() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.image_not_supported_outlined,
+          color: Colors.white54,
+          size: 42,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Tidak ada foto',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 13,
+            color: Colors.white70,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
