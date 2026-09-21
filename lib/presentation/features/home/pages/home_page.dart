@@ -31,11 +31,7 @@ class HomePage extends StatelessWidget {
             userName: userName,
             userRole: userRole,
             onLogout: () async {
-              await context.read<AuthCubit>().logout();
-
-              if (context.mounted) {
-                context.go(AppRoutes.login);
-              }
+              context.read<AuthCubit>().logout();
             },
           ),
           body: SingleChildScrollView(

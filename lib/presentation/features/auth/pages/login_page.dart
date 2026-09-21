@@ -131,13 +131,14 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Masuk untuk melanjutkan pemeriksaan reklame',
+                        'Masuk untuk melanjutkan menggunakan aplikasi',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
                           color: AppThemeColors.secondaryText,
                           height: 1.4,
                         ),
+                        maxLines: 2,
                       ),
                       const SizedBox(height: 32),
                       _LoginCard(
@@ -163,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Bapenda Kota Surabaya',
+                        '©Bapenda Kota Surabaya',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 12,
@@ -352,22 +353,7 @@ class _LoginCard extends StatelessWidget {
                     activeColor: AppThemeColors.primary,
                   ),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.only(top: 8),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    'Lupa kata sandi?',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppThemeColors.primary,
-                    ),
-                  ),
-                ),
+                
               ],
             ),
             const SizedBox(height: 12),
