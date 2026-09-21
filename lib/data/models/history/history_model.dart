@@ -5,33 +5,54 @@ import 'package:bapendacore/domain/entities/history/history_entity.dart';
 part 'history_model.g.dart';
 
 @JsonSerializable()
+class HistoryPhotoModel {
+  final String? imageUrl;
+  final String? namaFile;
+  final String? ukuranFile;
+  final String? tipeFile;
+  final String? contentType;
+
+  const HistoryPhotoModel({
+    this.imageUrl,
+    this.namaFile,
+    this.ukuranFile,
+    this.tipeFile,
+    this.contentType,
+  });
+
+  factory HistoryPhotoModel.fromJson(Map<String, dynamic> json) =>
+      _$HistoryPhotoModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HistoryPhotoModelToJson(this);
+}
+
+@JsonSerializable()
 class HistoryModel {
   final String key;
-
   final String longitude;
-
   final String latitude;
-
   final String alamat;
 
-  final String insDate;
+  final double? panjang;
+  final double? lebar;
+  final double? tinggi;
 
+  final String insDate;
   final String insBy;
 
-  final String? ukuran;
-
-  @JsonKey(name: 'foto')
-  final String? photoUrl;
+  final HistoryPhotoModel? foto;
 
   const HistoryModel({
     required this.key,
     required this.longitude,
     required this.latitude,
     required this.alamat,
+    this.panjang,
+    this.lebar,
+    this.tinggi,
     required this.insDate,
     required this.insBy,
-    this.ukuran,
-    this.photoUrl,
+    this.foto,
   });
 
   factory HistoryModel.fromJson(Map<String, dynamic> json) =>
@@ -50,10 +71,12 @@ extension HistoryModelX on HistoryModel {
       longitude: longitude,
       latitude: latitude,
       alamat: alamat,
+      panjang: panjang,
+      lebar: lebar,
+      tinggi: tinggi,
       insDate: parsedDate,
       insBy: insBy,
-      ukuran: ukuran,
-      photoUrl: photoUrl,
+      photoUrl: foto?.imageUrl,
     );
   }
 }
