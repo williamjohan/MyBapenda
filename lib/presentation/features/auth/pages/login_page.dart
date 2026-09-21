@@ -85,99 +85,104 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppThemeColors.defaultBackground,
       resizeToAvoidBottomInset: true,
-      body: BlocListener<AuthCubit, AuthState>(
-        listener: (context, state) {
-          if (state is AuthFailure) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppThemeColors.danger,
-                  content: Text(state.message),
-                ),
-              );
-          }
-          // Navigasi ke home otomatis lewat redirect di GoRouter
-          // begitu state jadi AuthAuthenticated.
-        },
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // ConstrainedBox + SingleChildScrollView: content centers on
-              // tall screens, and scrolls instead of overflowing on short
-              // screens or when the keyboard opens.
-              return SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight - 56,
+      body: GestureDetector (
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      
+        behavior: HitTestBehavior.opaque,
+        child: BlocListener<AuthCubit, AuthState>(
+          listener: (context, state) {
+            if (state is AuthFailure) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: AppThemeColors.danger,
+                    content: Text(state.message),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const _Brandmark(),
-                      const SizedBox(height: 28),
-                      Text(
-                        'Selamat datang kembali',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.lora(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w600,
-                          color: AppThemeColors.titleText,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Masuk untuk melanjutkan menggunakan aplikasi',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          color: AppThemeColors.secondaryText,
-                          height: 1.4,
-                        ),
-                        maxLines: 2,
-                      ),
-                      const SizedBox(height: 32),
-                      _LoginCard(
-                        formKey: _formKey,
-                        nipController: nipController,
-                        passwordController: passwordController,
-                        obscurePassword: obscurePassword,
-
-                        rememberMe: rememberMe,
-                        onRememberMeChanged: (value) {
-                          setState(() {
-                            rememberMe = value;
-                          });
-                        },
-
-                        onToggleObscure: () {
-                          setState(() {
-                            obscurePassword = !obscurePassword;
-                          });
-                        },
-
-                        onSubmit: _submit,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        '©Bapenda Kota Surabaya',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          color: AppThemeColors.secondaryText.withValues(
-                            alpha: 0.8,
+                );
+            }
+            // Navigasi ke home otomatis lewat redirect di GoRouter
+            // begitu state jadi AuthAuthenticated.
+          },
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // ConstrainedBox + SingleChildScrollView: content centers on
+                // tall screens, and scrolls instead of overflowing on short
+                // screens or when the keyboard opens.
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - 56,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const _Brandmark(),
+                        const SizedBox(height: 28),
+                        Text(
+                          'Selamat datang kembali',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.lora(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                            color: AppThemeColors.titleText,
+                            height: 1.2,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Text(
+                          'Masuk untuk melanjutkan menggunakan aplikasi',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            color: AppThemeColors.secondaryText,
+                            height: 1.4,
+                          ),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 32),
+                        _LoginCard(
+                          formKey: _formKey,
+                          nipController: nipController,
+                          passwordController: passwordController,
+                          obscurePassword: obscurePassword,
+        
+                          rememberMe: rememberMe,
+                          onRememberMeChanged: (value) {
+                            setState(() {
+                              rememberMe = value;
+                            });
+                          },
+        
+                          onToggleObscure: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword;
+                            });
+                          },
+        
+                          onSubmit: _submit,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          '©Bapenda Kota Surabaya',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12,
+                            color: AppThemeColors.secondaryText.withValues(
+                              alpha: 0.8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
