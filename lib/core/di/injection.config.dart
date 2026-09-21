@@ -102,10 +102,6 @@ extension GetItInjectableX on _i174.GetIt {
         _i470.CekReklameRepositoryImpl(gh<_i771.CekReklameRemoteDataSource>()));
     gh.lazySingleton<_i169.HistoryRepository>(
         () => _i52.HistoryRepositoryImpl(gh<_i265.HistoryRemoteDataSource>()));
-    gh.factory<_i900.HomeCubit>(() => _i900.HomeCubit(
-          updateService: gh<_i919.UpdateService>(),
-          permissionService: gh<_i164.IPermissionService>(),
-        ));
     gh.lazySingleton<_i660.AuthRepository>(() => _i24.AuthRepositoryImpl(
           gh<_i60.AuthRemoteDataSource>(),
           gh<_i233.AppSecureStorage>(),
@@ -119,6 +115,11 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i826.AuthUseCase(gh<_i660.AuthRepository>()));
     gh.lazySingleton<_i1023.HistoryUseCase>(
         () => _i1023.HistoryUseCase(gh<_i169.HistoryRepository>()));
+    gh.factory<_i900.HomeCubit>(() => _i900.HomeCubit(
+          updateService: gh<_i919.UpdateService>(),
+          permissionService: gh<_i164.IPermissionService>(),
+          authUseCase: gh<_i826.AuthUseCase>(),
+        ));
     gh.lazySingleton<_i224.AuthCubit>(
         () => _i224.AuthCubit(authUseCase: gh<_i826.AuthUseCase>()));
     gh.factory<_i1024.HistoryCubit>(
