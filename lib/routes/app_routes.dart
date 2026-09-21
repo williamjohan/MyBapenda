@@ -8,7 +8,7 @@ class AppRoutes {
   static const String detail = '/detail';
   static const String login = '/login';
   static const String splashscreen = '/splashscreen';
-  static const String results = '/results';
+  static const String results = '/reklame-results';
   static const String reklameDashboard = '/reklame-dashboard';
   static const String history = '/history';
 }

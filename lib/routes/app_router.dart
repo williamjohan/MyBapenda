@@ -11,6 +11,7 @@ import '../domain/entities/billboard_entity.dart';
 import '../presentation/features/auth/cubit/auth_cubit.dart';
 import '../presentation/features/auth/cubit/auth_state.dart';
 import '../presentation/features/cek_reklame/screens/reklame_dashboard_screen.dart';
+import '../presentation/features/cek_reklame/screens/reklame_result_screen.dart';
 import '../presentation/features/detail/pages/detail_page.dart';
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
@@ -18,6 +19,11 @@ import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
 import '../presentation/features/splashscreen/pages/splash_page.dart';
 import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
+
+// 🚀 IMPORT CAMERA MODULE
+import '../presentation/features/camera/cubit/camera_cubit.dart';
+import '../presentation/features/camera/pages/camera_page.dart';
+
 import 'app_routes.dart';
 
 class AppRouter {
@@ -109,6 +115,19 @@ class AppRouter {
         builder: (context, state) => const ReklameDashboardPage(),
       ),
 
+      // 🚀 ROUTE BARU: CAMERA PAGE
+      GoRoute(
+        path: AppRoutes.camera,
+        name: AppRoutes.camera,
+        builder: (context, state) {
+          return BlocProvider<CameraCubit>(
+            // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
+            create: (_) => getIt<CameraCubit>()..start(), 
+            child: const CameraPage(),
+          );
+        },
+      ),
+
       GoRoute(
         path: AppRoutes.history,
         name: AppRoutes.history,
@@ -123,6 +142,17 @@ class AppRouter {
           return BillboardDetailScreen(billboard: billboard);
         },
       ),
+
+      GoRoute(
+        path: AppRoutes.results,
+        name: AppRoutes.results,
+        builder: (context, state) {
+          // Tangkap extra data (alamat) jika ada
+          final address = state.extra as String?;
+          return ReklameResultPage(address: address);
+        },
+      ),
+      
     ],
   );
 }

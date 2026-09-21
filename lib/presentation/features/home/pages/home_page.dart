@@ -52,8 +52,7 @@ class HomePage extends StatelessWidget {
                         items: _buildFeatureItems(context),
                       ),
                       const SizedBox(height: 16),
-                      // TODO: Widget Total Pendapatan & Volume Kendaraan
-                      const SizedBox(height: 32),
+
                     ],
                   ),
                 ),

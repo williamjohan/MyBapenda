@@ -13,4 +13,5 @@ class ApiEndpoints {
 
 
   static const String historyList = '/api/cekreklame/lihat-history';
+  static const String uploadReklame = '/api/cekreklame/upload-reklame';
 }

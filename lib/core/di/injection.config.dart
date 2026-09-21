@@ -16,20 +16,26 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../data/datasources/auth/auth_remote_datasource.dart' as _i60;
+import '../../data/datasources/cek_reklame/cek_reklame_remote_data_source.dart'
+    as _i771;
 import '../../data/datasources/history/history_remote_datasource.dart' as _i265;
 import '../../data/repositories/auth/auth_repository_impl.dart' as _i24;
+import '../../data/repositories/cek_reklame/cek_reklame_repository_impl.dart'
+    as _i470;
+import '../../data/repositories/geocoding/geocoding_repository_impl.dart'
+    as _i793;
 import '../../data/repositories/history/history_repository_impl.dart' as _i52;
 import '../../domain/repositories/auth/auth_repository.dart' as _i660;
+import '../../domain/repositories/cek_reklame/i_cek_reklame_repository.dart'
+    as _i127;
+import '../../domain/repositories/geocoding/geocoding_repository.dart' as _i904;
 import '../../domain/repositories/history/history_repository.dart' as _i169;
 import '../../domain/usecases/auth/auth_usecase.dart' as _i826;
-import '../../domain/usecases/check_billboard_usecase.dart' as _i647;
 import '../../domain/usecases/history/history_usecase.dart' as _i1023;
-import '../../domain/usecases/post_report_usecase.dart' as _i438;
 import '../../presentation/features/auth/cubit/auth_cubit.dart' as _i224;
+import '../../presentation/features/camera/cubit/camera_cubit.dart' as _i755;
 import '../../presentation/features/history/cubit/history_cubit.dart' as _i1024;
 import '../../presentation/features/home/cubit/home_cubit.dart' as _i900;
-import '../../presentation/features/result/cubit/check_result_cubit.dart'
-    as _i64;
 import '../network/dio_auth_interceptor.dart' as _i817;
 import '../network/network_cubit.dart' as _i11;
 import '../services/app_integrity_service.dart' as _i30;
@@ -70,14 +76,12 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i1018.PermissionServiceImpl());
     gh.lazySingleton<_i594.AppPreferences>(
         () => _i594.AppPreferences(gh<_i460.SharedPreferences>()));
-    gh.factory<_i64.CheckResultCubit>(() => _i64.CheckResultCubit(
-          gh<_i647.CheckBillboardUseCase>(),
-          gh<_i438.PostReportUsecase>(),
-        ));
     gh.lazySingleton<_i30.AppIntegrityService>(
         () => _i30.AppIntegrityServiceImpl());
     gh.lazySingleton<_i233.AppSecureStorage>(
         () => _i233.AppSecureStorage(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i904.GeocodingRepository>(
+        () => _i793.GeocodingRepositoryImpl());
     gh.lazySingleton<_i11.NetworkCubit>(
         () => _i11.NetworkCubit(gh<_i895.Connectivity>()));
     gh.lazySingleton<_i817.DioAuthInterceptor>(
@@ -86,12 +90,16 @@ extension GetItInjectableX on _i174.GetIt {
         () => registerModule.getDio(gh<_i817.DioAuthInterceptor>()));
     gh.lazySingleton<_i265.HistoryRemoteDataSource>(
         () => _i265.HistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i771.CekReklameRemoteDataSource>(
+        () => _i771.CekReklameRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i60.AuthRemoteDataSource>(
         () => _i60.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i919.UpdateService>(() => _i919.UpdateService(
           gh<_i361.Dio>(),
           gh<_i438.UpdateVersionService>(),
         ));
+    gh.lazySingleton<_i127.CekReklameRepository>(() =>
+        _i470.CekReklameRepositoryImpl(gh<_i771.CekReklameRemoteDataSource>()));
     gh.lazySingleton<_i169.HistoryRepository>(
         () => _i52.HistoryRepositoryImpl(gh<_i265.HistoryRemoteDataSource>()));
     gh.factory<_i900.HomeCubit>(() => _i900.HomeCubit(
@@ -101,6 +109,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i660.AuthRepository>(() => _i24.AuthRepositoryImpl(
           gh<_i60.AuthRemoteDataSource>(),
           gh<_i233.AppSecureStorage>(),
+        ));
+    gh.factory<_i755.CameraCubit>(() => _i755.CameraCubit(
+          gh<_i164.IPermissionService>(),
+          gh<_i904.GeocodingRepository>(),
+          gh<_i127.CekReklameRepository>(),
         ));
     gh.lazySingleton<_i826.AuthUseCase>(
         () => _i826.AuthUseCase(gh<_i660.AuthRepository>()));

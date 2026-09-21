@@ -2,17 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/constants/app_colors_new.dart'; 
+// TODO: Sesuaikan path
+import '../../../core/constants/app_colors_new.dart';
 
 class BapendaSliverHeader extends StatelessWidget {
   final String title;
-  
-  /// Bisa diisi Text biasa, atau BlocBuilder jika datanya reaktif
-  final Widget? subtitle; 
-  
+  final Widget? subtitle;
   final bool showBackButton;
-  
-  /// Tinggi header saat di-scroll ke paling atas (expanded)
   final double expandedHeight;
 
   const BapendaSliverHeader({
@@ -20,79 +16,110 @@ class BapendaSliverHeader extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.showBackButton = false,
-    this.expandedHeight = 90.0, // Proporsional untuk menampung teks & ikon
+    // Diperpendek sedikit (dari 130 ke 110) karena sekarang kontennya hanya 1 baris
+    this.expandedHeight = 110.0, 
   });
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+    
+    // Tinggi minimum saat di-scroll (sticky)
+    const toolbarHeight = 64.0; 
+    
+    final minHeight = toolbarHeight + topPadding;
+    final maxHeight = expandedHeight + topPadding;
+
     return SliverAppBar(
       pinned: true,
+      toolbarHeight: toolbarHeight,
       expandedHeight: expandedHeight,
-      backgroundColor: AppThemeColors.brown, // Warna solid saat di-scroll ke atas
+      backgroundColor: AppThemeColors.brown,
       elevation: 0,
-      systemOverlayStyle: SystemUiOverlayStyle.light, 
-            automaticallyImplyLeading: false, 
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: AppThemeColors.headerGradient, // Seragam dengan History
-          ),
-          child: SafeArea(
-            bottom: false, // Menghindari padding aman di bawah notch/status bar
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16), 
+      // Matikan tombol panah bawaan agar kita bisa mengaturnya sejajar dengan teks
+      automaticallyImplyLeading: false, 
+      
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          final currentHeight = constraints.biggest.height;
+          
+          // Rasio untuk mengecilkan font secara halus saat di-scroll (1.0 = terbuka, 0.0 = sticky)
+          final expandRatio = ((currentHeight - minHeight) / (maxHeight - minHeight)).clamp(0.0, 1.0);
+          
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              // 1. Latar Belakang Gradien
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: AppThemeColors.headerGradient,
+                ),
+              ),
+              
+              // 2. KUNCI UTAMA: Row yang dipaku di tepi bawah (bottom: 10)
+              // Saat AppBar mengecil, Row ini akan ikut terangkat ke atas secara otomatis.
+              Positioned(
+                left: 8.0,
+                bottom: 10.0, 
+                right: 16.0,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    // Tombol Panah
                     if (showBackButton)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5, right: 0), 
-                        child: Material(
-                          color: Colors.transparent,
-                          shape: const CircleBorder(),
-                          clipBehavior: Clip.hardEdge,
-                          child: IconButton(
-                            onPressed: () => Navigator.of(context).maybePop(),
-                            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-                            splashColor: Colors.white.withValues(alpha: 0.2),
-                            highlightColor: Colors.white.withValues(alpha: 0.1),
-                          ),
+                      Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.hardEdge,
+                        child: IconButton(
+                          onPressed: () => Navigator.of(context).maybePop(),
+                          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+                          splashColor: Colors.white.withValues(alpha: 0.2),
+                          highlightColor: Colors.white.withValues(alpha: 0.1),
                         ),
                       )
                     else
-                      const SizedBox(width: 20), // Jarak kiri jika tidak ada panah
-                      
+                      const SizedBox(width: 12), // Jarak kiri jika tidak ada panah
+
+                    // Teks Judul & Subjudul
                     Expanded(
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min, // Mencegah overflow
                         children: [
                           Text(
                             title,
                             style: GoogleFonts.lora(
-                              fontSize: 22,
+                              // Teks sedikit mengecil (dari 22 ke 19) saat di-scroll
+                              fontSize: Tween<double>(begin: 19.0, end: 22.0).transform(expandRatio),
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                               height: 1.2,
                             ),
                           ),
                           if (subtitle != null) ...[
-                            const SizedBox(height: 4),
-                            subtitle!,
+                            // Jarak antar teks mengecil saat di-scroll
+                            SizedBox(height: Tween<double>(begin: 0.0, end: 2.0).transform(expandRatio)),
+                            DefaultTextStyle(
+                              style: GoogleFonts.plusJakartaSans(
+                                // Subtitle mengecil (dari 11.5 ke 12.5) saat di-scroll
+                                fontSize: Tween<double>(begin: 11.5, end: 12.5).transform(expandRatio),
+                                color: Colors.white.withValues(alpha: 0.85),
+                              ),
+                              child: subtitle!,
+                            ),
                           ],
                         ],
                       ),
                     ),
-                    const SizedBox(width: 16), // Jarak aman di sebelah kanan
                   ],
                 ),
               ),
-            ),
-          ),
-        ),
+            ],
+          );
+        },
       ),
     );
   }

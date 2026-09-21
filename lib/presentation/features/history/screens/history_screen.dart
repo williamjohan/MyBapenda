@@ -93,7 +93,7 @@ class _HistoryViewState extends State<_HistoryView> {
           slivers: [
             BapendaSliverHeader(
               title: 'Riwayat Pemeriksaan',
-              showBackButton: true, // Asumsi user bisa kembali ke dashboard
+              showBackButton: true, 
               subtitle: BlocBuilder<HistoryCubit, HistoryState>(
                 builder: (context, state) {
                   final count = state is HistoryLoaded ? state.filtered.length : null;
@@ -105,6 +105,14 @@ class _HistoryViewState extends State<_HistoryView> {
                     ),
                   );
                 },
+              ),
+            ),
+            
+            // 🚀 FIX: KEMBALIKAN KOLOM SEARCH DAN FILTER TANGGAL
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              sliver: SliverToBoxAdapter(
+                child: _buildSearchAndFilter(context),
               ),
             ),
             BlocBuilder<HistoryCubit, HistoryState>(

@@ -1,61 +1,37 @@
-// // camera_state.dart
-// import 'dart:ui';
+import 'dart:io';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-// import 'package:camera/camera.dart';
+part 'camera_state.freezed.dart';
 
-// sealed class CameraState {}
+enum CameraStatus {
+  initial,
+  permissionDenied,
+  permissionPermanentlyDenied,
+  loading,
+  ready,
+  capturing,
+  reviewing, // Layar beralih ke CameraReviewPage
+  submitting, // Proses upload ke API
+  success,
+  error,
+}
 
-// class CameraInitial extends CameraState {}
-
-// class CameraPermissionRequesting extends CameraState {}
-
-// class CameraLoading extends CameraState {}
-
-// class CameraPermissionDenied extends CameraState {}
-
-// class CameraPermissionPermanentlyDenied extends CameraState {}
-
-// class CameraReady extends CameraState {
-//   final CameraController controller;
-//   final FlashMode flashMode;
-//   final double zoom;
-//   CameraReady(this.controller, this.flashMode, this.zoom);
-// }
-
-// class CameraCapturing extends CameraState {}
-
-// class CameraProcessing extends CameraState {
-//   final String message;
-//   CameraProcessing(this.message);
-// }
-
-// class CameraFailure extends CameraState {
-//   final String message;
-//   CameraFailure(this.message);
-// }
-
-// class CameraFocused extends CameraState {
-//   final CameraController controller;
-//   final Offset focusPoint;
-//   final FlashMode flashMode;
-//   final double zoom;
-
-//   CameraFocused({
-//     required this.controller,
-//     required this.focusPoint,
-//     required this.flashMode,
-//     required this.zoom,
-//   });
-// }
-
-// class CameraCaptureSuccess extends CameraState {
-//   final String imagePath;
-//   final double latitude;
-//   final double longitude;
-
-//   CameraCaptureSuccess({
-//     required this.imagePath,
-//     required this.latitude,
-//     required this.longitude,
-//   });
-// }
+@freezed
+class CameraState with _$CameraState {
+  const factory CameraState({
+    @Default(CameraStatus.initial) CameraStatus status,
+    
+    // Data Capture & API
+    File? originalFile,
+    File? compressedFile,
+    String? latitude,
+    String? longitude,
+    String? address,
+    String? errorMessage,
+    
+    // Data UI (Fokus Kamera)
+    @Default(false) bool showFocus,
+    @Default(0.0) double focusX,
+    @Default(0.0) double focusY,
+  }) = _CameraState;
+}

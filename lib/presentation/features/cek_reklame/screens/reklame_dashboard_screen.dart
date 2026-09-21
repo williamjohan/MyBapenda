@@ -13,7 +13,7 @@ class ReklameDashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F8), // Putih tulang
+      backgroundColor: const Color(0xFFF5F6F8), 
       // Hapus properti 'appBar:' standar
       
       body: CustomScrollView(
@@ -44,7 +44,7 @@ class ReklameDashboardPage extends StatelessWidget {
                     description: 'Foto lokasi & laporkan billboard yang ditemukan di lapangan secara presisi',
                     ctaLabel: 'Mulai Ambil Gambar',
                     onTap: () {
-                      // TODO: navigasi
+                      context.pushNamed(AppRoutes.camera);
                     },
                   ),
                   
