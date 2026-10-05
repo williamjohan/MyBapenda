@@ -12,22 +12,6 @@ class CekReklameRepositoryImpl implements CekReklameRepository {
 
   CekReklameRepositoryImpl(this.remoteDataSource);
 
-  // @override
-  // Future<Either<Failure, bool>> uploadReklame({
-  //   required File file,
-  //   required String latitude,
-  //   required String longitude,
-  //   required String alamat,
-  // }) {
-  //   return executeSafeApiCall<bool>(() async {
-  //     return await remoteDataSource.uploadReklame(
-  //       file: file,
-  //       latitude: latitude,
-  //       longitude: longitude,
-  //       alamat: alamat,
-  //     );
-  //   });
-  // }
 
   @override
   Future<Either<Failure, bool>> uploadReklame(CekReklameUploadRequest request) {

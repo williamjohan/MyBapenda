@@ -17,4 +17,13 @@ class AppRoutes {
   static const String surveyData = '/survey-data';
   static const String surveyReview = '/survey-review';
   static const String surveyInfo = '/survey-info';
+
+
+
+/// VA & QRIS
+   static const String nop = '/va-qris';
+  static const String billing = '/va-qris/tagihan';
+  static const String qris = '/va-qris/qris';
+  static const String va = '/va-qris/va';
+  static const String success = '/va-qris/sukses';
 }

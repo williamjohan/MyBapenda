@@ -77,12 +77,31 @@ class HomePage extends StatelessWidget {
         enabled: true,
       ),
       HomeFeatureMenuItem(
-        icon: Icons.receipt_long_outlined,
+        //  Menggunakan ikon truk pengiriman untuk surat jalan/pengiriman
+        icon: Icons.local_shipping_outlined, 
         title: 'Pantau Surat Pengiriman',
         subtitle: 'Segera hadir',
         onTap: () {},
         enabled: false,
       ),
+      HomeFeatureMenuItem(
+        //  Menggunakan ikon grafik statistik untuk memantau aktivitas
+        icon: Icons.analytics_outlined, 
+        title: 'Aktivitas Pajak',
+        subtitle: 'Segera hadir',
+        onTap: () {},
+        enabled: false,
+      ),
+      HomeFeatureMenuItem(
+        //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
+        icon: Icons.qr_code_scanner_outlined, 
+        title: 'Create VA & Qris',
+        subtitle: 'Tagih via QRIS / VA',
+        onTap: () {
+          context.push(AppRoutes.nop);
+        },
+        enabled: true,
+      ),
     ];
   }
-}
+  }
