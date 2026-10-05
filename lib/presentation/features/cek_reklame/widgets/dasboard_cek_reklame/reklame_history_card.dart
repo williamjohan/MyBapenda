@@ -1,7 +1,7 @@
 // lib/presentation/features/reklame/widgets/reklame_history_tile.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/constants/app_colors_new.dart';
 
 class ReklameHistoryTile extends StatelessWidget {
   const ReklameHistoryTile({

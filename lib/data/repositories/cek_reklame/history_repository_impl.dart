@@ -1,7 +1,7 @@
-import 'package:bapendacore/data/datasources/history/history_remote_datasource.dart';
 import 'package:bapendacore/data/models/history/history_model.dart';
 import 'package:bapendacore/domain/repositories/history/history_repository.dart';
 import 'package:injectable/injectable.dart';
+import '../../datasources/cek_reklame/history_remote_datasource.dart';
 
 @LazySingleton(as: HistoryRepository)
 class HistoryRepositoryImpl implements HistoryRepository {

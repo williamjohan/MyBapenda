@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/history/history_entity.dart';
 import 'package:equatable/equatable.dart';
+import '../../../../../domain/entities/cek_reklames/history/history_entity.dart';
 
 abstract class HistoryState extends Equatable {
   const HistoryState();

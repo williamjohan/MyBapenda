@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart'; // Import header baru
-import '../widgets/reklame_history_tile.dart';
-import '../widgets/reklame_primary_card.dart';
+import '../widgets/dasboard_cek_reklame/reklame_history_card.dart';
+import '../widgets/dasboard_cek_reklame/reklame_primary_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ReklameDashboardPage extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bapendacore/presentation/features/history/screens/history_screen.dart';
+import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
@@ -13,12 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/di/injection.dart';
-import '../domain/entities/billboard_entity.dart';
 import '../presentation/features/auth/cubit/auth_cubit.dart';
 import '../presentation/features/auth/cubit/auth_state.dart';
-import '../presentation/features/cek_reklame/screens/reklame_dashboard_screen.dart';
-import '../presentation/features/cek_reklame/screens/reklame_result_screen.dart';
-import '../presentation/features/detail/pages/detail_page.dart';
+import '../presentation/features/cek_reklame/screens/cek_reklame_dashboard_screen.dart';
+import '../presentation/features/cek_reklame/screens/ambil_gambar_reklame/reklame_result_screen.dart';
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
 import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
@@ -138,14 +136,14 @@ class AppRouter {
         builder: (context, state) => const HistoryScreen(),
       ),
 
-      GoRoute(
-        path: AppRoutes.detail,
-        name: AppRoutes.detail,
-        builder: (context, state) {
-          final billboard = state.extra as BillboardEntity;
-          return BillboardDetailScreen(billboard: billboard);
-        },
-      ),
+      // GoRoute(
+      //   path: AppRoutes.detail,
+      //   name: AppRoutes.detail,
+      //   builder: (context, state) {
+      //     final billboard = state.extra as BillboardEntity;
+      //     return BillboardDetailScreen(billboard: billboard);
+      //   },
+      // ),
 
       GoRoute(
         path: AppRoutes.surveyPermohonanBaru,
