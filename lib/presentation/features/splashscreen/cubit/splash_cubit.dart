@@ -1,6 +1,5 @@
-// lib/presentation/features/splashscreen/cubit/splash_cubit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:injectable/injectable.dart'; // 🚀 IMPORT INJECTABLE
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'splash_state.dart';
 

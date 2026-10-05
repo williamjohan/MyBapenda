@@ -11,6 +11,7 @@ import '../../../../core/enums/app_permission_enum.dart';
 import '../../../../core/services/permission/i_permission_service.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/app_image_compress_utils.dart';
+import '../../../../data/models/cek_reklame/cek_reklame_model.dart';
 import '../../../../domain/entities/coordinate_entity.dart';
 import '../../../../domain/repositories/cek_reklame/i_cek_reklame_repository.dart';
 import '../../../../domain/repositories/geocoding/geocoding_repository.dart';
@@ -162,19 +163,21 @@ class CameraCubit extends Cubit<CameraState> {
     
     emit(state.copyWith(status: CameraStatus.submitting));
 
-    final result = await cekReklameRepository.uploadReklame(
+   final payload = CekReklameUploadRequest(
       file: state.compressedFile!,
       latitude: state.latitude!,
       longitude: state.longitude!,
       alamat: state.address ?? 'Tidak diketahui',
     );
 
+  final result = await cekReklameRepository.uploadReklame(payload);
+
     if (isClosed) return;
 
     result.fold(
       (failure) {
         emit(state.copyWith(
-          status: CameraStatus.reviewing, // Kembalikan ke Review agar bisa diklik ulang
+          status: CameraStatus.reviewing,
           errorMessage: failure.message,
         ));
       },

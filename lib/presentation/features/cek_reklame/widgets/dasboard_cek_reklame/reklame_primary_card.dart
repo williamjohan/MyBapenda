@@ -1,7 +1,7 @@
 // lib/presentation/features/reklame/widgets/reklame_primary_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/constants/app_colors_new.dart';
 
 class ReklamePrimaryActionCard extends StatelessWidget {
   const ReklamePrimaryActionCard({

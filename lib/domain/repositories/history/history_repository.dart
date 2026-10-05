@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/history/history_entity.dart';
+import '../../entities/cek_reklames/history/history_entity.dart';
 
 class HistoryListResult {
   final List<HistoryEntity> items;

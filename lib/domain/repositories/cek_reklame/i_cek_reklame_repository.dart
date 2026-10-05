@@ -1,12 +1,8 @@
-import 'dart:io';
 import 'package:dartz/dartz.dart';
 import '../../../core/errors/failure.dart';
+import '../../../data/models/cek_reklame/cek_reklame_model.dart';
+
 
 abstract class CekReklameRepository {
-  Future<Either<Failure, bool>> uploadReklame({
-    required File file,
-    required String latitude,
-    required String longitude,
-    required String alamat,
-  });
+  Future<Either<Failure, bool>> uploadReklame(CekReklameUploadRequest request);
 }
