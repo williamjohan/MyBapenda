@@ -2,6 +2,12 @@ import 'dart:async';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_review_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_page.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -134,6 +140,95 @@ class AppRouter {
         path: AppRoutes.history,
         name: AppRoutes.history,
         builder: (context, state) => const HistoryScreen(),
+      ),
+
+      // GoRoute(
+      //   path: AppRoutes.detail,
+      //   name: AppRoutes.detail,
+      //   builder: (context, state) {
+      //     final billboard = state.extra as BillboardEntity;
+      //     return BillboardDetailScreen(billboard: billboard);
+      //   },
+      // ),
+
+      GoRoute(
+        path: AppRoutes.surveyPermohonanBaru,
+        name: AppRoutes.surveyPermohonanBaru,
+        builder: (context, state) => const SurveyPermohonanBaruPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.surveyInfo,
+        name: AppRoutes.surveyInfo,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({String nomor, List<Map<String, dynamic>> sisiList});
+          return SurveyInfoPage(
+            nomorPelayanan: args.nomor,
+            sisiList: args.sisiList,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveySisi,
+        name: AppRoutes.surveySisi,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({
+                    String nomor,
+                    List<Map<String, dynamic>> sisiList,
+                    Map<String, dynamic> info,
+                  });
+          return SurveySisiPage(
+            nomorPelayanan: args.nomor,
+            sisiList: args.sisiList,
+            info: args.info,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveyReview,
+        name: AppRoutes.surveyReview,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({
+                    String nomor,
+                    List<Map<String, dynamic>> sisiList,
+                    Map<int, SurveyResult> results,
+                    Map<String, dynamic> info,
+                  });
+          return SurveyReviewPage(
+            nomorPelayanan: args.nomor,
+            sisiList: args.sisiList,
+            results: args.results,
+            info: args.info,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveyFoto,
+        name: AppRoutes.surveyFoto,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({Map<String, dynamic> sisi, SurveyResult? result});
+          return SurveyFotoPage(sisi: args.sisi, initialResult: args.result);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveyData,
+        name: AppRoutes.surveyData,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({
+                    Map<String, dynamic> sisi,
+                    Map<String, dynamic>? initial,
+                  });
+          return SurveyDataPage(sisi: args.sisi, initial: args.initial);
+        },
       ),
 
       GoRoute(

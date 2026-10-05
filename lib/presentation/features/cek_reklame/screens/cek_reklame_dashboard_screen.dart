@@ -1,4 +1,5 @@
 // lib/presentation/features/reklame/pages/reklame_dashboard_page.dart
+import 'package:bapendacore/presentation/features/cek_reklame/widgets/reklame_survey_baru_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
@@ -58,6 +59,19 @@ class ReklameDashboardPage extends StatelessWidget {
                       context.pushNamed(AppRoutes.history);
                     },
                   ),
+
+                  const SizedBox(height: 16),
+
+                  ReklameSurveyBaruCard(
+                    icon: Icons.add_rounded,
+                    title: 'Survey Permohonan Baru',
+                    subtitle: 'Buat laporan survey reklame baru',
+                    onTap: () {
+                      context.pushNamed(AppRoutes.surveyPermohonanBaru);
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
