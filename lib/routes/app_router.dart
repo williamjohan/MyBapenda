@@ -1,5 +1,12 @@
 import 'dart:async';
+
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_review_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_page.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +124,7 @@ class AppRouter {
         builder: (context, state) {
           return BlocProvider<CameraCubit>(
             // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
-            create: (_) => getIt<CameraCubit>()..start(), 
+            create: (_) => getIt<CameraCubit>()..start(),
             child: const CameraPage(),
           );
         },
@@ -139,6 +146,86 @@ class AppRouter {
       // ),
 
       GoRoute(
+        path: AppRoutes.surveyPermohonanBaru,
+        name: AppRoutes.surveyPermohonanBaru,
+        builder: (context, state) => const SurveyPermohonanBaruPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.surveyInfo,
+        name: AppRoutes.surveyInfo,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({String nomor, List<Map<String, dynamic>> sisiList});
+          return SurveyInfoPage(
+            nomorPelayanan: args.nomor,
+            sisiList: args.sisiList,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveySisi,
+        name: AppRoutes.surveySisi,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({
+                    String nomor,
+                    List<Map<String, dynamic>> sisiList,
+                    Map<String, dynamic> info,
+                  });
+          return SurveySisiPage(
+            nomorPelayanan: args.nomor,
+            sisiList: args.sisiList,
+            info: args.info,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveyReview,
+        name: AppRoutes.surveyReview,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({
+                    String nomor,
+                    List<Map<String, dynamic>> sisiList,
+                    Map<int, SurveyResult> results,
+                    Map<String, dynamic> info,
+                  });
+          return SurveyReviewPage(
+            nomorPelayanan: args.nomor,
+            sisiList: args.sisiList,
+            results: args.results,
+            info: args.info,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveyFoto,
+        name: AppRoutes.surveyFoto,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({Map<String, dynamic> sisi, SurveyResult? result});
+          return SurveyFotoPage(sisi: args.sisi, initialResult: args.result);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveyData,
+        name: AppRoutes.surveyData,
+        builder: (context, state) {
+          final args =
+              state.extra
+                  as ({
+                    Map<String, dynamic> sisi,
+                    Map<String, dynamic>? initial,
+                  });
+          return SurveyDataPage(sisi: args.sisi, initial: args.initial);
+        },
+      ),
+
+      GoRoute(
         path: AppRoutes.results,
         name: AppRoutes.results,
         builder: (context, state) {
@@ -147,7 +234,6 @@ class AppRouter {
           return ReklameResultPage(address: address);
         },
       ),
-      
     ],
   );
 }

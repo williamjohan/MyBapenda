@@ -45,13 +45,20 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return BlocListener<SplashCubit, SplashState>(
       listener: (context, state) {
+        debugPrint('SPLASH LISTENER: ${state.runtimeType}');
+
         if (state is SplashNavigateOnboarding) {
+          debugPrint('GO ONBOARDING');
           context.go(AppRoutes.onboarding);
         }
+
         if (state is SplashNavigateHome) {
+          debugPrint('GO HOME');
           context.go(AppRoutes.home);
         }
+
         if (state is SplashNavigateLogin) {
+          debugPrint('GO LOGIN');
           context.go(AppRoutes.login);
         }
       },
