@@ -1,11 +1,12 @@
 import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:bapendacore/core/utils/date_format_id.dart';
-import 'package:bapendacore/domain/entities/history/history_entity.dart';
-import 'package:bapendacore/presentation/features/history/widgets/authenticated_image.dart';
+import 'package:bapendacore/presentation/features/cek_reklame/widgets/history/authenticated_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../../domain/entities/cek_reklames/history/history_entity.dart';
 
 Future<void> showHistoryDetailSheet(BuildContext context, HistoryEntity item) {
   return showModalBottomSheet(

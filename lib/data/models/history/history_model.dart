@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
-import 'package:bapendacore/domain/entities/history/history_entity.dart';
+import '../../../domain/entities/cek_reklames/history/history_entity.dart';
 
 part 'history_model.g.dart';
 

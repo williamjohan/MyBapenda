@@ -1,7 +1,7 @@
-import 'package:bapendacore/domain/entities/history/history_entity.dart';
 import 'package:bapendacore/domain/usecases/history/history_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../../domain/entities/cek_reklames/history/history_entity.dart';
 import 'history_state.dart';
 
 const int _pageSize = 20;

@@ -4,12 +4,12 @@ import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../shared/widgets/bapenda_sliver_header.dart';
-import '../cubit/history_cubit.dart';
-import '../cubit/history_state.dart';
-import '../widgets/history_card.dart';
-import '../widgets/history_detail_sheet.dart';
-import '../widgets/history_shimmer.dart';
+import '../../../../shared/widgets/bapenda_sliver_header.dart';
+import '../../cubit/history_cek_reklame/history_cubit.dart';
+import '../../cubit/history_cek_reklame/history_state.dart';
+import '../../widgets/history/history_card.dart';
+import '../../widgets/history/history_detail_sheet.dart';
+import '../../widgets/history/history_shimmer.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});

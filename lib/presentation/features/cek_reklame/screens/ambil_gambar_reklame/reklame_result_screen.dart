@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors_new.dart'; 
-import '../../../../routes/app_routes.dart';
+import '../../../../../core/constants/app_colors_new.dart'; 
+import '../../../../../routes/app_routes.dart';
 
 class ReklameResultPage extends StatelessWidget {
   // Kita bisa menerima data lemparan dari CameraPage untuk ditampilkan
