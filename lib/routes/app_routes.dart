@@ -11,4 +11,12 @@ class AppRoutes {
   static const String results = '/reklame-results';
   static const String reklameDashboard = '/reklame-dashboard';
   static const String history = '/history';
+
+
+/// VA & QRIS
+   static const String nop = '/va-qris';
+  static const String billing = '/va-qris/tagihan';
+  static const String qris = '/va-qris/qris';
+  static const String va = '/va-qris/va';
+  static const String success = '/va-qris/sukses';
 }

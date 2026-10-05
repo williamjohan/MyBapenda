@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
@@ -18,6 +20,11 @@ import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
 import '../presentation/features/camera/cubit/camera_cubit.dart';
 import '../presentation/features/camera/pages/camera_page.dart';
+import '../presentation/features/va_qris/pages/payment_success_page.dart';
+import '../presentation/features/va_qris/pages/qris_payment_page.dart';
+import '../presentation/features/va_qris/pages/va_payment_page.dart';
+import '../presentation/features/va_qris/pages/va_qris_billing_page.dart';
+import '../presentation/features/va_qris/pages/va_qris_nop_page.dart';
 
 import 'app_routes.dart';
 
@@ -110,14 +117,14 @@ class AppRouter {
         builder: (context, state) => const ReklameDashboardPage(),
       ),
 
-      // 🚀 ROUTE BARU: CAMERA PAGE
+      //  CAMERA PAGE
       GoRoute(
         path: AppRoutes.camera,
         name: AppRoutes.camera,
         builder: (context, state) {
           return BlocProvider<CameraCubit>(
             // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
-            create: (_) => getIt<CameraCubit>()..start(), 
+            create: (_) => getIt<CameraCubit>()..start(),
             child: const CameraPage(),
           );
         },
@@ -129,15 +136,6 @@ class AppRouter {
         builder: (context, state) => const HistoryScreen(),
       ),
 
-      // GoRoute(
-      //   path: AppRoutes.detail,
-      //   name: AppRoutes.detail,
-      //   builder: (context, state) {
-      //     final billboard = state.extra as BillboardEntity;
-      //     return BillboardDetailScreen(billboard: billboard);
-      //   },
-      // ),
-
       GoRoute(
         path: AppRoutes.results,
         name: AppRoutes.results,
@@ -147,7 +145,62 @@ class AppRouter {
           return ReklameResultPage(address: address);
         },
       ),
-      
+
+      // ======================================================
+      // VA & QRIS
+      // TODO(tech-debt): `extra` hilang saat deep link / restore state.
+      // Setelah VaQrisCubit ada, kirim NOP/id saja lalu muat dari state.
+      // Jika extra tidak sesuai, kembali ke layar input NOP.
+      // ======================================================
+      GoRoute(
+        path: AppRoutes.nop,
+        name: AppRoutes.nop,
+        builder: (context, state) => const VaQrisNopPage(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.billing,
+        name: AppRoutes.billing,
+        builder: (context, state) {
+          final billing = state.extra;
+          return billing is TaxBillingEntity
+              ? VaQrisBillingPage(billing: billing)
+              : const VaQrisNopPage();
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.qris,
+        name: AppRoutes.qris,
+        builder: (context, state) {
+          final session = state.extra;
+          return session is PaymentSessionEntity
+              ? QrisPaymentPage(session: session)
+              : const VaQrisNopPage();
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.va,
+        name: AppRoutes.va,
+        builder: (context, state) {
+          final session = state.extra;
+          return session is PaymentSessionEntity
+              ? VaPaymentPage(session: session)
+              : const VaQrisNopPage();
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.success,
+        name: AppRoutes.success,
+        builder: (context, state) {
+          final session = state.extra;
+          return session is PaymentSessionEntity
+              ? PaymentSuccessPage(session: session)
+              : const VaQrisNopPage();
+        },
+      ),
     ],
   );
 }
