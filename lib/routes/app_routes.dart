@@ -26,4 +26,12 @@ class AppRoutes {
   static const String qris = '/va-qris/qris';
   static const String va = '/va-qris/va';
   static const String success = '/va-qris/sukses';
+
+
+// MY TASK
+  static const String myTask = '/my-task';
+  static const String myTaskDetail = '/my-task/detail';
+  static const String myTaskWork = '/my-task/kerjakan';
+  static const String myTaskSuccess = '/my-task/terkirim';
 }
+

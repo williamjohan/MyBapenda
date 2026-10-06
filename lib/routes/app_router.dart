@@ -14,12 +14,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/di/injection.dart';
+import '../domain/entities/my_task/task_entity.dart';
 import '../presentation/features/auth/cubit/auth_cubit.dart';
 import '../presentation/features/auth/cubit/auth_state.dart';
 import '../presentation/features/cek_reklame/screens/cek_reklame_dashboard_screen.dart';
 import '../presentation/features/cek_reklame/screens/ambil_gambar_reklame/reklame_result_screen.dart';
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
+import '../presentation/features/my_task/pages/my_task_dashboard_page.dart';
+import '../presentation/features/my_task/pages/my_task_detail_page.dart';
+import '../presentation/features/my_task/pages/my_task_success_page.dart';
+import '../presentation/features/my_task/pages/my_task_work_page.dart';
 import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
 import '../presentation/features/splashscreen/pages/splash_page.dart';
 import '../presentation/features/onboarding/pages/onboarding_page.dart';
@@ -294,6 +299,42 @@ class AppRouter {
           return session is PaymentSessionEntity
               ? PaymentSuccessPage(session: session)
               : const VaQrisNopPage();
+        },
+      ),
+
+       GoRoute(
+        path: AppRoutes.myTask,
+        name: AppRoutes.myTask,
+        builder: (context, state) => const MyTaskDashboardPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.myTaskDetail,
+        name: AppRoutes.myTaskDetail,
+        builder: (context, state) {
+          final task = state.extra;
+          return task is TaskEntity
+              ? MyTaskDetailPage(task: task)
+              : const MyTaskDashboardPage();
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.myTaskWork,
+        name: AppRoutes.myTaskWork,
+        builder: (context, state) {
+          final task = state.extra;
+          return task is TaskEntity
+              ? MyTaskWorkPage(task: task)
+              : const MyTaskDashboardPage();
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.myTaskSuccess,
+        name: AppRoutes.myTaskSuccess,
+        builder: (context, state) {
+          final task = state.extra;
+          return task is TaskEntity
+              ? MyTaskSuccessPage(task: task)
+              : const MyTaskDashboardPage();
         },
       ),
     ],

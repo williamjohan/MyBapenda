@@ -87,10 +87,12 @@ class HomePage extends StatelessWidget {
       HomeFeatureMenuItem(
         //  Menggunakan ikon grafik statistik untuk memantau aktivitas
         icon: Icons.analytics_outlined, 
-        title: 'Aktivitas Pajak',
+        title: 'My Task & Activity',
         subtitle: 'Segera hadir',
-        onTap: () {},
-        enabled: false,
+        onTap: () {
+          context.push(AppRoutes.myTask);
+        },
+        enabled: true,
       ),
       HomeFeatureMenuItem(
         //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
