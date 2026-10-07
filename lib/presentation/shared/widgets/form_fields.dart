@@ -166,3 +166,73 @@ class BapendaDateField extends StatelessWidget {
     );
   }
 }
+
+/// Input angka: hanya 0-9, titik, dan koma. Karakter lain (termasuk hasil
+/// paste) otomatis dibuang.
+class BapendaNumberField extends StatelessWidget {
+  final String label;
+  final String? hint;
+  final String? suffixText;
+  final TextEditingController? controller;
+  final bool readOnly;
+
+  const BapendaNumberField({
+    super.key,
+    required this.label,
+    this.hint,
+    this.suffixText,
+    this.controller,
+    this.readOnly = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BapendaTextField(
+      label: label,
+      hint: hint,
+      suffixText: suffixText,
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+    );
+  }
+}
+
+class BapendaTimeField extends StatelessWidget {
+  final String label;
+  final String? valueText;
+  final String hint;
+  final VoidCallback? onTap;
+
+  const BapendaTimeField({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.valueText,
+    this.hint = 'Pilih jam',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _labeled(
+      label,
+      InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: InputDecorator(
+          decoration: _dec(
+            null,
+            readOnly: onTap == null,
+          ).copyWith(suffixIcon: const Icon(Icons.schedule_rounded, size: 18)),
+          child: Text(
+            valueText ?? hint,
+            style: valueText == null
+                ? _valueStyle.copyWith(color: const Color(0xFF9AA5B1))
+                : _valueStyle,
+          ),
+        ),
+      ),
+    );
+  }
+}

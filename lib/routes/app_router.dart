@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_absen_page.dart';
+import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_laporan_page.dart';
+import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_page.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
@@ -175,6 +178,51 @@ class AppRouter {
         ),
       ),
 
+      GoRoute(
+        path: AppRoutes.balaiRw,
+        name: AppRoutes.balaiRw,
+        builder: (context, state) => const BalaiRwPage(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.balaiRwAbsen,
+        name: AppRoutes.balaiRwAbsen,
+        builder: (context, state) {
+          final a =
+              state.extra
+                  as ({
+                    BalaiRwAbsenType type,
+                    Map<String, dynamic> penugasan,
+                    Map<String, dynamic>? initial,
+                    bool readOnly,
+                  });
+          return BalaiRwAbsenPage(
+            type: a.type,
+            penugasan: a.penugasan,
+            initial: a.initial,
+            readOnly: a.readOnly,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.balaiRwLaporan,
+        name: AppRoutes.balaiRwLaporan,
+        builder: (context, state) {
+          final a =
+              state.extra
+                  as ({
+                    Map<String, dynamic> penugasan,
+                    Map<String, dynamic>? initial,
+                    bool readOnly,
+                  });
+          return BalaiRwLaporanPage(
+            penugasan: a.penugasan,
+            initial: a.initial,
+            readOnly: a.readOnly,
+          );
+        },
+      ),
+
       // GoRoute(
       //   path: AppRoutes.detail,
       //   name: AppRoutes.detail,
@@ -183,7 +231,6 @@ class AppRouter {
       //     return BillboardDetailScreen(billboard: billboard);
       //   },
       // ),
-
       GoRoute(
         path: AppRoutes.surveyPermohonanBaru,
         name: AppRoutes.surveyPermohonanBaru,

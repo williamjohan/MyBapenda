@@ -9,10 +9,15 @@ class LocationException implements Exception {
   String toString() => message;
 }
 
+/// Hasil fix GPS. time = waktu dari satelit (bukan jam HP).
+typedef BapendaFix = ({double lat, double lng, double accuracy, DateTime time});
+
 class LocationUtil {
   LocationUtil._();
 
-  static Future<({double lat, double lng})> current() async {
+  /// Cek GPS aktif + izin saja, TANPA mengambil koordinat.
+  /// Dipanggil sebelum kamera dibuka supaya gagalnya cepat.
+  static Future<void> ensureReady() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       throw const LocationException('GPS belum aktif. Nyalakan dulu ya.');
     }
@@ -24,11 +29,48 @@ class LocationUtil {
         perm == LocationPermission.deniedForever) {
       throw const LocationException('Izin lokasi dibutuhkan.');
     }
+  }
+
+  /// Ambil koordinat SEKARANG. Lempar [LocationException] kalau GPS mati,
+  /// izin ditolak, lokasi palsu, akurasi rendah, atau jam HP tidak cocok
+  /// dengan waktu GPS. TimeoutException kalau sinyal lemah.
+  static Future<BapendaFix> current({double maxAccuracy = 50}) async {
+    await ensureReady();
+
     // geolocator ^11: desiredAccuracy (bukan locationSettings)
     final p = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 15),
+      desiredAccuracy: LocationAccuracy.best,
+      timeLimit: const Duration(seconds: 20),
     );
-    return (lat: p.latitude, lng: p.longitude);
+
+    // ✏️ BARU: tolak lokasi palsu (hanya terdeteksi di Android)
+    if (p.isMocked) {
+      throw const LocationException(
+        'Terdeteksi lokasi palsu (Fake GPS). Matikan aplikasi mock location.',
+      );
+    }
+
+    // ✏️ BARU: tolak akurasi buruk
+    if (p.accuracy > maxAccuracy) {
+      throw LocationException(
+        'Akurasi GPS rendah (±${p.accuracy.round()} m). '
+        'Pindah ke area terbuka lalu coba lagi.',
+      );
+    }
+
+    // ✏️ BARU: waktu dari satelit, dan cocokkan dengan jam HP
+    final gpsTime = (p.timestamp ?? DateTime.now()).toLocal();
+    if (DateTime.now().difference(gpsTime).abs() > const Duration(minutes: 5)) {
+      throw const LocationException(
+        'Jam HP tidak sesuai waktu GPS. Aktifkan "Tanggal & waktu otomatis".',
+      );
+    }
+
+    return (
+      lat: p.latitude,
+      lng: p.longitude,
+      accuracy: p.accuracy,
+      time: gpsTime,
+    );
   }
 }
