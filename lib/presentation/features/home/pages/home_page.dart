@@ -123,6 +123,16 @@ class HomePage extends StatelessWidget {
         },
         enabled: true,
       ),
+      HomeFeatureMenuItem(
+        //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
+        icon: Icons.groups_rounded, 
+        title: 'Balai RW',
+        subtitle: 'Laporan Pelayanan Balai RW',
+        onTap: () {
+          context.push(AppRoutes.balaiRw);
+        },
+        enabled: true,
+      ),
     ];
   }
   }

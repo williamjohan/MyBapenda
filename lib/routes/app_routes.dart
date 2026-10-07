@@ -22,20 +22,21 @@ class AppRoutes {
   static const String absensi = '/absensi';
   static const String laporanKehadiran = '/laporan-kehadiran';
 
-
-
-/// VA & QRIS
-   static const String nop = '/va-qris';
+  /// VA & QRIS
+  static const String nop = '/va-qris';
   static const String billing = '/va-qris/tagihan';
   static const String qris = '/va-qris/qris';
   static const String va = '/va-qris/va';
   static const String success = '/va-qris/sukses';
 
+  /// Balai RW
+  static const String balaiRw = '/balai-rw';
+  static const String balaiRwAbsen = '/balai-rw-absen';
+  static const String balaiRwLaporan = '/balai-rw-laporan';
 
-// MY TASK
+  // MY TASK
   static const String myTask = '/my-task';
   static const String myTaskDetail = '/my-task/detail';
   static const String myTaskWork = '/my-task/kerjakan';
   static const String myTaskSuccess = '/my-task/terkirim';
 }
-
