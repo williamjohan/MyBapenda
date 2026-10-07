@@ -15,6 +15,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/di/injection.dart';
 import '../domain/entities/my_task/task_entity.dart';
+import '../presentation/features/absensi/cubit/absen/absen_cubit.dart';
+import '../presentation/features/absensi/cubit/absensi/absensi_cubit.dart';
+import '../presentation/features/absensi/pages/absensi_page.dart';
+import '../presentation/features/laporan_kehadiran/cubit/laporan_cubit.dart';
+import '../presentation/features/laporan_kehadiran/pages/laporan_kehadiran_page.dart';
+import '../core/theme/theme_kit.dart';
 import '../presentation/features/auth/cubit/auth_cubit.dart';
 import '../presentation/features/auth/cubit/auth_state.dart';
 import '../presentation/features/cek_reklame/screens/cek_reklame_dashboard_screen.dart';
@@ -112,7 +118,7 @@ class AppRouter {
             key: state.pageKey,
             child: BlocProvider<HomeCubit>(
               create: (_) => getIt<HomeCubit>()..onPageOpened(),
-              child: const HomePage(),
+              child: const AdaptiveThemeScope(child: HomePage()),
             ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
@@ -145,6 +151,28 @@ class AppRouter {
         path: AppRoutes.history,
         name: AppRoutes.history,
         builder: (context, state) => const HistoryScreen(),
+      ),
+
+      //  ABSENSI PEGAWAI
+      GoRoute(
+        path: AppRoutes.absensi,
+        name: AppRoutes.absensi,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => getIt<AbsensiCubit>()..load()),
+            BlocProvider(create: (_) => getIt<AbsenCubit>()),
+          ],
+          child: const AdaptiveThemeScope(child: AbsensiPage()),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.laporanKehadiran,
+        name: AppRoutes.laporanKehadiran,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<LaporanCubit>(),
+          child: const AdaptiveThemeScope(child: LaporanKehadiranPage()),
+        ),
       ),
 
       // GoRoute(

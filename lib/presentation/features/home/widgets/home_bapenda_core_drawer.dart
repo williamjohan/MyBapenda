@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/constants/app_colors_new.dart';
+import '../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../profile/widgets/logout_bottom_widget.dart';
 
 class HomeBapendaCoreDrawer extends StatelessWidget {
@@ -22,16 +22,17 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
     // 2. Munculkan Bottom Sheet Konfirmasi
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent, // Wajib transparan agar radius atas terlihat
+      backgroundColor:
+          Colors.transparent, // Wajib transparan agar radius atas terlihat
       isScrollControlled: true,
       builder: (bottomSheetContext) => LogoutBottomSheet(
         onConfirmLogout: () {
           // 3. Tutup Bottom Sheet
           Navigator.of(bottomSheetContext).pop();
-          
+
           // 4. Eksekusi logika AuthCubit yang dilempar dari parent (HomePage)
           if (onLogout != null) {
-            onLogout!(); 
+            onLogout!();
           }
         },
       ),
@@ -47,15 +48,15 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
         statusBarBrightness: Brightness.dark,
       ),
       child: Drawer(
-        backgroundColor: AppThemeColors.defaultSurface,
+        backgroundColor: context.palette.surface,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
-              decoration: const BoxDecoration(
-                gradient: AppThemeColors.primaryGradient,
+              decoration: BoxDecoration(
+                gradient: context.palette.headerLinearGradient,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,24 +88,27 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
             ListTile(
               leading: Icon(
                 Icons.home_outlined,
-                color: AppThemeColors.secondaryText,
+                color: context.palette.textSecondary,
               ),
-              title: const Text('Beranda'),
+              title: Text(
+                'Beranda',
+                style: TextStyle(color: context.palette.textPrimary),
+              ),
               onTap: () => Navigator.of(context).pop(),
             ),
 
             const Spacer(),
 
-            const Divider(height: 1),
+            Divider(height: 1, color: context.palette.border),
 
             ListTile(
-              leading: const Icon(Icons.logout, color: AppThemeColors.danger),
-              title: const Text(
+              leading: Icon(Icons.logout, color: context.palette.danger),
+              title: Text(
                 'Keluar',
-                style: TextStyle(color: AppThemeColors.danger),
+                style: TextStyle(color: context.palette.danger),
               ),
               // 🚀 Arahkan onTap ke fungsi interceptor yang kita buat di atas
-              onTap: () => _showLogoutConfirmation(context), 
+              onTap: () => _showLogoutConfirmation(context),
             ),
 
             const SizedBox(height: 8),

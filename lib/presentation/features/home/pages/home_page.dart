@@ -3,6 +3,7 @@ import 'package:bapendacore/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../widgets/home_bapenda_core_header.dart';
@@ -26,7 +27,7 @@ class HomePage extends StatelessWidget {
         final userRole = state.userRole;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF5F6F8),
+          backgroundColor: context.palette.background,
           drawer: HomeBapendaCoreDrawer(
             userName: userName,
             userRole: userRole,
@@ -67,6 +68,24 @@ class HomePage extends StatelessWidget {
 
   List<HomeFeatureMenuItem> _buildFeatureItems(BuildContext context) {
     return [
+      HomeFeatureMenuItem(
+        icon: Icons.fingerprint,
+        title: 'Absensi',
+        subtitle: 'Absen & riwayat kehadiran',
+        onTap: () {
+          context.push(AppRoutes.absensi);
+        },
+        enabled: true,
+      ),
+      HomeFeatureMenuItem(
+        icon: Icons.summarize_outlined,
+        title: 'Laporan Kehadiran',
+        subtitle: 'Unduh rekap bulanan (PDF)',
+        onTap: () {
+          context.push(AppRoutes.laporanKehadiran);
+        },
+        enabled: true,
+      ),
       HomeFeatureMenuItem(
         icon: Icons.camera_alt_outlined,
         title: 'Cek Reklame',

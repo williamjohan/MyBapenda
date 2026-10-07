@@ -11,6 +11,7 @@ import 'package:dio_smart_retry/dio_smart_retry.dart';
 import '../network/resilent_dns_resolver.dart';
 import '../network/connectivity_check_interceptor.dart';
 import '../network/dio_auth_interceptor.dart';
+import '../network/hmac_kantor_interceptor.dart';
 import '../network/env_config/env_config.dart';
 
 
@@ -27,8 +28,9 @@ abstract class RegisterModule {
 
   @lazySingleton
   Dio getDio(
-    // HmacSecurityInterceptor telah dihapus dari parameter ini
+    // HmacSecurityInterceptor global telah dihapus; HMAC kini hanya untuk /api/kantor/*
     DioAuthInterceptor authInterceptor,
+    HmacKantorInterceptor hmacKantorInterceptor,
   ) {
     final dio = Dio(
       BaseOptions(
@@ -143,10 +145,14 @@ abstract class RegisterModule {
       ),
     );
 
-    // 3. Auth: Masukkan Bearer Token Bapenda.
+    // 3. HMAC: Header X-App-* khusus endpoint /api/kantor/* (absensi).
+    //    Dipasang setelah Retry agar timestamp & signature dihitung ulang tiap percobaan.
+    dio.interceptors.add(hmacKantorInterceptor);
+
+    // 4. Auth: Masukkan Bearer Token Bapenda.
     dio.interceptors.add(authInterceptor);
 
-    // 4. Chucker: Tampilkan log cantik di layar HP saat Debug.
+    // 5. Chucker: Tampilkan log cantik di layar HP saat Debug.
     if (kDebugMode) {
       dio.interceptors.add(ChuckerDioInterceptor());
     }
