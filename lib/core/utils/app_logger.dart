@@ -1,4 +1,3 @@
-// lib/core/utils/app_logger.dart
 // TODO: [FIREBASE_SETUP] Uncomment import di bawah jika google-services.json & Firebase Options sudah dikonfigurasi.
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
