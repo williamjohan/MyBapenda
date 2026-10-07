@@ -29,4 +29,13 @@ class ApiEndpoints {
   static const String absensiRiwayat = '/api/kantor/absensi/riwayat';
   static const String absensiAbsen = '/api/kantor/absensi/absen';
   static const String absensiLaporanPdf = '/api/kantor/absensi/laporan/pdf';
+
+  // ==========================================
+  // BALAI RW
+  // ==========================================
+   static const String masterPertanyaan = '/api/umpeg/master/pertanyaan';
+   static const String masterKategori = '/api/umpeg/master/kategori';
+   static const String rosterPegawai = '/api/umpeg/transaksi/roster';
+   static const String laporanAbsensi = '/api/umpeg/transaksi/laporan';
+
 }
