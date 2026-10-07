@@ -53,3 +53,24 @@ app.*.map.json
 #Secret files
 /android/app/upload-keystore.jks
 key.properties
+
+
+# Firebase
+google-services.json
+firebase_options.dart
+
+# Claude
+CLAUDE.md
+
+# Flutter
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+
+
+#Claude.md
+**/CLAUDE.md
+CLAUDE.md
