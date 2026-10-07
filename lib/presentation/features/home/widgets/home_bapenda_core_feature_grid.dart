@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/constants/app_colors_new.dart'; // Sesuaikan path jika berbeda
+import '../../../../core/constants/design_system/tokens/app_palette.dart';
 import 'home_feature_menu_item.dart';
 
 class HomeBapendaCoreFeatureGrid extends StatelessWidget {
@@ -10,6 +10,8 @@ class HomeBapendaCoreFeatureGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Transform.translate(
       offset: const Offset(0, -10),
       child: Padding(
@@ -17,22 +19,23 @@ class HomeBapendaCoreFeatureGrid extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
           decoration: BoxDecoration(
-            color: AppThemeColors.defaultSurface,
+            color: palette.surface,
             image: DecorationImage(
-                image: AssetImage('assets/images/pattern_type.png'),
-                alignment: Alignment.topCenter,
-                fit: BoxFit.fitWidth,
-              ),
+              image: const AssetImage('assets/images/pattern_type.png'),
+              alignment: Alignment.topCenter,
+              fit: BoxFit.fitWidth,
+              opacity: palette.patternOpacity,
+            ),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppThemeColors.subtleBorder),
+            border: Border.all(color: palette.border),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: palette.shadow,
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
+                color: palette.shadow.withValues(alpha: 0.03),
                 blurRadius: 1,
                 offset: const Offset(0, 1),
               ),
@@ -43,7 +46,7 @@ class HomeBapendaCoreFeatureGrid extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.apps_rounded, size: 16, color: AppThemeColors.gold),
+                  Icon(Icons.apps_rounded, size: 16, color: palette.accent),
                   const SizedBox(width: 8),
                   Text(
                     'MENU LAYANAN',
@@ -52,7 +55,7 @@ class HomeBapendaCoreFeatureGrid extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
                       height: 1,
-                      color: AppThemeColors.secondaryText,
+                      color: palette.textSecondary,
                     ),
                   ),
                 ],
@@ -68,9 +71,10 @@ class HomeBapendaCoreFeatureGrid extends StatelessWidget {
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
                   // 🚀 FIX 1: Sedikit ditinggikan untuk mengakomodasi teks 2 baris
-                  childAspectRatio: 1.15, 
+                  childAspectRatio: 1.15,
                 ),
-                itemBuilder: (context, index) => _FeatureCard(item: items[index]),
+                itemBuilder: (context, index) =>
+                    _FeatureCard(item: items[index]),
               ),
             ],
           ),
@@ -101,6 +105,7 @@ class _FeatureCardState extends State<_FeatureCard> {
   Widget build(BuildContext context) {
     final item = widget.item;
     final disabled = !item.enabled;
+    final palette = context.palette;
 
     return GestureDetector(
       onTapDown: (_) => _setPressed(true),
@@ -118,23 +123,18 @@ class _FeatureCardState extends State<_FeatureCard> {
         curve: Curves.easeOut,
         child: Container(
           decoration: BoxDecoration(
-            color: disabled ? AppThemeColors.defaultBackground : AppThemeColors.defaultSurface,
+            color: disabled ? palette.surfaceMuted : palette.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: disabled ? AppThemeColors.defaultBorder : AppThemeColors.subtleBorder,
+              color: disabled ? palette.borderStrong : palette.border,
             ),
             boxShadow: disabled
                 ? null
                 : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: palette.shadow,
                       blurRadius: 8,
                       offset: const Offset(0, 3),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 1,
-                      offset: const Offset(0, 1),
                     ),
                   ],
           ),
@@ -142,7 +142,10 @@ class _FeatureCardState extends State<_FeatureCard> {
             children: [
               Padding(
                 // 🚀 FIX 2: Kurangi padding atas/bawah dari 14 ke 12 agar area konten lebih luas
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -157,33 +160,38 @@ class _FeatureCardState extends State<_FeatureCard> {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  AppThemeColors.primarySoft,
-                                  AppThemeColors.primarySoft.withValues(alpha: 0.6),
+                                  palette.accentSoft,
+                                  palette.accentSoft.withValues(alpha: 0.6),
                                 ],
                               ),
-                        color: disabled ? AppThemeColors.defaultBackground : null,
+                        color: disabled ? palette.surfaceMuted : null,
                       ),
                       child: Icon(
                         item.icon,
                         size: 20,
-                        color: disabled ? AppThemeColors.tertiaryText : AppThemeColors.gold,
+                        color: disabled ? palette.textTertiary : palette.accent,
                       ),
                     ),
-                    
-                    const Spacer(), 
-                    
+
+                    const Spacer(),
+
                     Text(
                       item.title,
                       maxLines: 2, // 🚀 FIX 3: Batasi maksimal 2 baris
-                      overflow: TextOverflow.ellipsis, // 🚀 FIX 4: Potong dengan titik-titik jika lewat
+                      overflow: TextOverflow
+                          .ellipsis, // 🚀 FIX 4: Potong dengan titik-titik jika lewat
                       style: TextStyle(
                         fontSize: 13.0, // Diturunkan sedikit dari 13.5
                         fontWeight: FontWeight.w600,
                         height: 1.15, // 🚀 FIX 5: Rapatkan spasi antar baris
-                        color: disabled ? AppThemeColors.secondaryText : AppThemeColors.primaryText,
+                        color: disabled
+                            ? palette.textSecondary
+                            : palette.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4), // Diperbesar dari 2 ke 4 agar subtitle tidak terlalu dempet
+                    const SizedBox(
+                      height: 4,
+                    ), // Diperbesar dari 2 ke 4 agar subtitle tidak terlalu dempet
                     Row(
                       children: [
                         Expanded(
@@ -193,7 +201,7 @@ class _FeatureCardState extends State<_FeatureCard> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 11,
-                              color: AppThemeColors.tertiaryText,
+                              color: palette.textTertiary,
                             ),
                           ),
                         ),
@@ -202,7 +210,7 @@ class _FeatureCardState extends State<_FeatureCard> {
                           Icon(
                             Icons.chevron_right_rounded,
                             size: 14,
-                            color: AppThemeColors.gold,
+                            color: palette.accent,
                           ),
                         ],
                       ],
@@ -215,9 +223,12 @@ class _FeatureCardState extends State<_FeatureCard> {
                   top: 10,
                   right: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
-                      color: AppThemeColors.warningSoft,
+                      color: palette.warningSoft,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -225,7 +236,7 @@ class _FeatureCardState extends State<_FeatureCard> {
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
-                        color: AppThemeColors.warning,
+                        color: palette.warning,
                       ),
                     ),
                   ),

@@ -26,6 +26,9 @@ class AppSecureStorage {
   static const String _keyCurrentNip = 'SECURE_CURRENT_NIP';
   static const String _keyUserProfile = 'SECURE_USER_PROFILE';
 
+  // Key identitas perangkat untuk absensi (device binding di server)
+  static const String _keyKodeDevice = 'SECURE_KODE_DEVICE';
+
   // =============================================================
   // 1. TOKEN MANAGEMENT (SESSION)
   // =============================================================
@@ -117,7 +120,19 @@ class AppSecureStorage {
   }
 
   // =============================================================
-  // 3. SECURITY UTILITY
+  // 4. DEVICE IDENTITY (ABSENSI)
+  // =============================================================
+
+  Future<void> saveKodeDevice(String kodeDevice) async {
+    await _secureStorage.write(key: _keyKodeDevice, value: kodeDevice);
+  }
+
+  Future<String?> getKodeDevice() async {
+    return _secureStorage.read(key: _keyKodeDevice);
+  }
+
+  // =============================================================
+  // 5. SECURITY UTILITY
   // =============================================================
 
   /// Menghapus data Sesi saja (Wajib dipanggil saat Logout).
@@ -132,7 +147,14 @@ class AppSecureStorage {
 
   /// Menghapus SELURUH data (Sesi + Kredensial).
   /// Gunakan dengan hati-hati, misalnya saat user ganti device/reset app.
+  ///
+  /// KODE_DEVICE tetap dipertahankan: server mengikat 1 perangkat per pegawai,
+  /// jadi UUID baru setelah logout paksa (401) akan membuat absen ditolak (409).
   Future<void> clearAllSecureData() async {
+    final kodeDevice = await getKodeDevice();
     await _secureStorage.deleteAll();
+    if (kodeDevice != null && kodeDevice.isNotEmpty) {
+      await saveKodeDevice(kodeDevice);
+    }
   }
 }

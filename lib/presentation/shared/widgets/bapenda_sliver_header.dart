@@ -10,13 +10,17 @@ class BapendaSliverHeader extends StatelessWidget {
   final bool showBackButton;
   final double expandedHeight;
 
+  /// Widget opsional di ujung kanan baris judul (mis. ThemeToggleButton).
+  final Widget? trailing;
+
   const BapendaSliverHeader({
     super.key,
     required this.title,
     this.subtitle,
     this.showBackButton = false,
     // Diperpendek sedikit (dari 130 ke 110) karena sekarang kontennya hanya 1 baris
-    this.expandedHeight = 110.0, 
+    this.expandedHeight = 110.0,
+    this.trailing,
   });
 
   @override
@@ -113,6 +117,7 @@ class BapendaSliverHeader extends StatelessWidget {
                         ],
                       ),
                     ),
+                    if (trailing != null) trailing!,
                   ],
                 ),
               ),

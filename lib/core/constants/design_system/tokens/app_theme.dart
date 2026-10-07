@@ -1,4 +1,5 @@
 import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/core/constants/design_system/tokens/app_radius.dart';
 import 'package:bapendacore/core/constants/design_system/tokens/app_spacing.dart';
 import 'package:bapendacore/core/constants/design_system/tokens/app_typography.dart';
@@ -7,6 +8,32 @@ import 'package:flutter/material.dart';
 /// Main App Theme
 class AppTheme {
   AppTheme._();
+
+  // ==========================================================
+  // Tema aktif aplikasi (dipakai MaterialApp & AdaptiveThemeScope)
+  //
+  // Sengaja sama dengan konfigurasi lama di main.dart agar halaman yang
+  // belum mendukung dark mode tidak berubah tampilannya.
+  // ==========================================================
+
+  static final ThemeData app = _build(Brightness.light, AppPalette.light);
+
+  static final ThemeData appDark = _build(Brightness.dark, AppPalette.dark);
+
+  static ThemeData _build(Brightness brightness, AppPalette palette) {
+    return ThemeData(
+      useMaterial3: true,
+      fontFamily: 'Poppins',
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppThemeColors.primary,
+        brightness: brightness,
+        surface: palette.surface,
+      ),
+      scaffoldBackgroundColor: palette.background,
+      dividerColor: palette.border,
+      extensions: [palette],
+    );
+  }
 
   static ThemeData get lightTheme {
     return ThemeData(
