@@ -1,3 +1,5 @@
+import 'package:bapendacore/domain/entities/balai_rw/laporan_payload_entity.dart';
+import 'package:bapendacore/domain/entities/balai_rw/laporan_pegawai_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failure.dart';
@@ -36,5 +38,21 @@ class BalaiRwUseCase {
       tanggalAwal: tanggalAwal,
       tanggalAkhir: tanggalAkhir,
     );
+  }
+
+  Future<Either<Failure, List<LaporanPegawaiEntity>>> getLaporanAbsensi({
+    required String tanggalAwal,
+    required String tanggalAkhir,
+  }) {
+    return _repository.getLaporanAbsensi(
+      tanggalAwal: tanggalAwal,
+      tanggalAkhir: tanggalAkhir,
+    );
+  }
+
+  Future<Either<Failure, bool>> postLaporanPegawai(
+    LaporanPayloadEntity payload,
+  ) {
+    return _repository.postLaporanPegawai(payload);
   }
 }

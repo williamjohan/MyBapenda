@@ -1,3 +1,4 @@
+import 'package:bapendacore/data/models/balai_rw/laporan_payload_model.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../../core/errors/exception.dart';
@@ -28,7 +29,7 @@ abstract class IBalaiRwRemoteDataSource {
   });
 
   //Post laporannya
-  Future<bool> postLaporanPegawai(LaporanPegawaiModel payload);
+  Future<bool> postLaporanPegawai(LaporanPayloadModel payload);
 }
 
 @LazySingleton(as: IBalaiRwRemoteDataSource)
@@ -76,8 +77,7 @@ class BalaiRwRemoteDataSourceImpl implements IBalaiRwRemoteDataSource {
     }
 
     final response = await _dio.get(
-      ApiEndpoints
-          .masterPertanyaan, 
+      ApiEndpoints.masterPertanyaan,
       queryParameters: queryParams,
     );
 
@@ -96,7 +96,10 @@ class BalaiRwRemoteDataSourceImpl implements IBalaiRwRemoteDataSource {
   }
 
   @override
-  Future<List<RosterPegawaiModel>> getRosterPegawai({required String tanggalAwal, required String tanggalAkhir}) async {
+  Future<List<RosterPegawaiModel>> getRosterPegawai({
+    required String tanggalAwal,
+    required String tanggalAkhir,
+  }) async {
     final response = await _dio.get(
       ApiEndpoints.rosterPegawai,
       queryParameters: {
@@ -105,12 +108,15 @@ class BalaiRwRemoteDataSourceImpl implements IBalaiRwRemoteDataSource {
       },
     );
 
-    final baseResponse = BaseApiResponseModel<List<RosterPegawaiModel>>.fromJson(
-      response.data,
-      (json) => (json as List)
-          .map((e) => RosterPegawaiModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+    final baseResponse =
+        BaseApiResponseModel<List<RosterPegawaiModel>>.fromJson(
+          response.data,
+          (json) => (json as List)
+              .map(
+                (e) => RosterPegawaiModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
+        );
 
     if (!baseResponse.isSuccess) {
       throw ServerException(baseResponse.status, baseResponse.errorMessage);
@@ -118,25 +124,28 @@ class BalaiRwRemoteDataSourceImpl implements IBalaiRwRemoteDataSource {
     return baseResponse.data ?? [];
   }
 
-@override
+  @override
   Future<List<LaporanPegawaiModel>> getLaporanAbsensi({
     required String tanggalAwal,
     required String tanggalAkhir,
   }) async {
     final response = await _dio.get(
-      ApiEndpoints.laporanAbsensi, 
+      ApiEndpoints.laporanAbsensi,
       queryParameters: {
         'tanggalAwal': tanggalAwal,
         'tanggalAkhir': tanggalAkhir,
       },
     );
 
-    final baseResponse = BaseApiResponseModel<List<LaporanPegawaiModel>>.fromJson(
-      response.data,
-      (json) => (json as List)
-          .map((e) => LaporanPegawaiModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+    final baseResponse =
+        BaseApiResponseModel<List<LaporanPegawaiModel>>.fromJson(
+          response.data,
+          (json) => (json as List)
+              .map(
+                (e) => LaporanPegawaiModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
+        );
 
     if (!baseResponse.isSuccess) {
       throw ServerException(baseResponse.status, baseResponse.errorMessage);
@@ -149,11 +158,10 @@ class BalaiRwRemoteDataSourceImpl implements IBalaiRwRemoteDataSource {
   // POST LAPORAN PEGAWAI
   // ===========================================================================
   @override
-  Future<bool> postLaporanPegawai(LaporanPegawaiModel payload) async {
-
+  Future<bool> postLaporanPegawai(LaporanPayloadModel payload) async {
     final response = await _dio.post(
-      ApiEndpoints.laporanAbsensi, 
-      data: payload.toJson(), 
+      ApiEndpoints.laporanAbsensi,
+      data: await payload.toFormData(), // ✏️ UBAH: sebelumnya payload.toJson()
     );
 
     final baseResponse = BaseApiResponseModel<dynamic>.fromJson(
@@ -164,7 +172,6 @@ class BalaiRwRemoteDataSourceImpl implements IBalaiRwRemoteDataSource {
     if (!baseResponse.isSuccess) {
       throw ServerException(baseResponse.status, baseResponse.errorMessage);
     }
-
-    return true; // Berhasil
+    return true;
   }
 }

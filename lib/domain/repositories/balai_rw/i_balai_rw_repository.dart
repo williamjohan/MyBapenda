@@ -1,3 +1,4 @@
+import 'package:bapendacore/domain/entities/balai_rw/laporan_payload_entity.dart';
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failure.dart';
 import '../../entities/balai_rw/kategori_pertanyaan_entity.dart';
@@ -25,6 +26,5 @@ abstract class IBalaiRwRepository {
     required String tanggalAkhir,
   });
   
-  Future<Either<Failure, bool>> postLaporanPegawai(
-      LaporanPegawaiEntity payload);
+  Future<Either<Failure, bool>> postLaporanPegawai(LaporanPayloadEntity payload);
 }

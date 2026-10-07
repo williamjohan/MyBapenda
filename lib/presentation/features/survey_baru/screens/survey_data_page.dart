@@ -1,5 +1,6 @@
 // lib/presentation/features/reklame/pages/survey_data_page.dart
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
+import 'package:bapendacore/presentation/shared/widgets/bt_select_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
@@ -368,14 +369,14 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
       title: 'Input Nomor Baru',
       icon: Icons.edit_note_rounded,
       children: [
-        BapendaDropdownField<int>(
+        BtSelectField<int>(
           label: 'Jenis Pengajuan *',
           items: SurveyOptions.jenisPengajuan,
           value: _jenisPengajuanId,
           onChanged: (v) => setState(() => _jenisPengajuanId = v),
         ),
         _gap,
-        BapendaDropdownField<int>(
+        BtSelectField<int>(
           label: 'Jenis Bangunan *',
           items: SurveyOptions.jenisBangunan,
           value: _jenisBangunanId,
@@ -390,7 +391,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         ),
         _gap,
-        BapendaDropdownField<int>(
+        BtSelectField<int>(
           label: 'Nama Jalan *',
           hint: 'Pilih nama jalan',
           items: SurveyOptions.namaJalan,
@@ -523,21 +524,21 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                   title: 'Data Hasil Survey',
                   icon: Icons.assignment_rounded,
                   children: [
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Lokasi Tertentu',
                       items: SurveyOptions.lokasiTertentu,
                       value: _lokasiTertentuId,
                       onChanged: (v) => setState(() => _lokasiTertentuId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Letak Reklame',
                       items: SurveyOptions.letakReklame,
                       value: _letakId,
                       onChanged: (v) => setState(() => _letakId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Status Tanah',
                       items: SurveyOptions.statusTanah,
                       value: _statusTanahId,
@@ -580,21 +581,21 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                       ],
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Jenis Reklame',
                       items: SurveyOptions.jenisReklame,
                       value: _jenisReklameId,
                       onChanged: (v) => setState(() => _jenisReklameId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Jenis Produk',
                       items: SurveyOptions.jenisProduk,
                       value: _jenisProdukId,
                       onChanged: (v) => setState(() => _jenisProdukId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Sudut Pandang',
                       items: SurveyOptions.sudutPandang,
                       value: _sudutId,

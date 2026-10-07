@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
 import 'package:bapendacore/presentation/shared/utils/location_util.dart';
+import 'package:bapendacore/presentation/shared/widgets/bt_select_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/checkin_card.dart';
 import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
@@ -306,7 +307,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                         ],
                       ),
                       _gap,
-                      BapendaDropdownField<int>(
+                      BtSelectField<int>(
                         label: 'Kecamatan *',
                         items: SurveyOptions.kecamatan,
                         value: _kecId,
@@ -316,7 +317,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                         }),
                       ),
                       _gap,
-                      BapendaDropdownField<int>(
+                      BtSelectField<int>(
                         key: ValueKey('kel-$_kecId'),
                         label: 'Kelurahan *',
                         hint: _kecId == null ? 'Pilih kecamatan dulu' : 'Pilih',
@@ -355,7 +356,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                       _gap,
                       BapendaTextField(label: 'Blok *', controller: _blokCtrl),
                       _gap,
-                      BapendaDropdownField<int>(
+                      BtSelectField<int>(
                         label: 'Tim Survey *',
                         items: SurveyOptions.timSurvey,
                         value: _timId,
