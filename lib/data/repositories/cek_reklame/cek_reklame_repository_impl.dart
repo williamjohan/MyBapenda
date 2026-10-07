@@ -8,7 +8,7 @@ import '../../models/cek_reklame/cek_reklame_model.dart';
 
 @LazySingleton(as: CekReklameRepository)
 class CekReklameRepositoryImpl implements CekReklameRepository {
-  final CekReklameRemoteDataSource remoteDataSource;
+  final ICekReklameRemoteDataSource remoteDataSource;
 
   CekReklameRepositoryImpl(this.remoteDataSource);
 

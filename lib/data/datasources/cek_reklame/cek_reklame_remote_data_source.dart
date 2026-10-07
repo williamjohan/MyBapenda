@@ -5,12 +5,12 @@ import '../../../../core/network/api_endpoints.dart';
 import '../../../core/network/base_api/base_api_response_model.dart';
 import '../../models/cek_reklame/cek_reklame_model.dart'; 
 
-abstract class CekReklameRemoteDataSource {
+abstract class ICekReklameRemoteDataSource {
   Future<bool> uploadReklame(CekReklameUploadRequest request);
 }
 
-@LazySingleton(as: CekReklameRemoteDataSource)
-class CekReklameRemoteDataSourceImpl implements CekReklameRemoteDataSource {
+@LazySingleton(as: ICekReklameRemoteDataSource)
+class CekReklameRemoteDataSourceImpl implements ICekReklameRemoteDataSource {
   final Dio _dio;
 
   CekReklameRemoteDataSourceImpl(this._dio);
