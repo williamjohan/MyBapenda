@@ -3,7 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../core/network/safe_api_call.dart';
 import '../../../domain/repositories/cek_reklame/i_cek_reklame_repository.dart';
-import '../../datasources/cek_reklame/cek_reklame_remote_data_source.dart';
+import '../../datasources/cek_reklame/cek_reklame_remote_datasource.dart';
 import '../../models/cek_reklame/cek_reklame_model.dart';
 
 @LazySingleton(as: CekReklameRepository)
