@@ -10,12 +10,11 @@ class ApiEndpoints {
   static const String logout = '/api/auth/logout';
   static const String validasiKontak = '/api/wajibpajak/validasi-kontak';
   static const String register = '/api/wajibpajak/buat-permohonan';
-  
+
   // ==========================================
   // PROFILE
   // ==========================================
   static const String profile = '/api/profile';
-
 
   static const String historyList = '/api/cekreklame/lihat-history';
   static const String uploadReklame = '/api/cekreklame/upload-reklame';
@@ -33,9 +32,10 @@ class ApiEndpoints {
   // ==========================================
   // BALAI RW
   // ==========================================
-   static const String masterPertanyaan = '/api/umpeg/master/pertanyaan';
-   static const String masterKategori = '/api/umpeg/master/kategori';
-   static const String rosterPegawai = '/api/umpeg/transaksi/roster';
-   static const String laporanAbsensi = '/api/umpeg/transaksi/laporan';
-
+  static const String masterPertanyaan = '/api/umpeg/master/pertanyaan';
+  static const String masterKategori = '/api/umpeg/master/kategori';
+  static const String rosterPegawai = '/api/umpeg/transaksi/roster';
+  static const String laporanAbsensi = '/api/umpeg/transaksi/laporan';
+  static const String checkin = '/api/umpeg/transaksi/checkin';
+  static const String checkout = '/api/umpeg/transaksi/checkout';
 }

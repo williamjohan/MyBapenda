@@ -75,8 +75,11 @@ class AbsenModel {
   @JsonKey(name: 'key', defaultValue: '')
   final String key;
 
-  @JsonKey(name: 'jam', defaultValue: '')
-  final String jam;
+  @JsonKey(name: 'jam')
+  final String? jam;
+
+  @JsonKey(name: 'waktu')
+  final String? waktu;
 
   @JsonKey(name: 'keterangan')
   final String? keterangan;
@@ -86,7 +89,8 @@ class AbsenModel {
 
   const AbsenModel({
     required this.key,
-    required this.jam,
+    this.jam,
+    this.waktu,
     this.keterangan,
     this.fotoUrl,
   });
@@ -100,30 +104,37 @@ class AbsenModel {
 // Mapper ke Entity
 extension LaporanPegawaiModelX on LaporanPegawaiModel {
   LaporanPegawaiEntity toEntity() => LaporanPegawaiEntity(
-        key: key,
-        idLaporan: idLaporan,
-        idRoster: idRoster,
-        tanggalLaporan: tanggalLaporan,
-        insDate: insDate,
-        jawaban: jawaban.map((e) => e.toEntity()).toList(),
-        checkin: checkin?.toEntity(),
-        checkout: checkout?.toEntity(),
-      );
+    key: key,
+    idLaporan: idLaporan,
+    idRoster: idRoster,
+    tanggalLaporan: tanggalLaporan,
+    insDate: insDate,
+    jawaban: jawaban.map((e) => e.toEntity()).toList(),
+    checkin: checkin?.toEntity(),
+    checkout: checkout?.toEntity(),
+  );
 }
 
 extension JawabanModelX on JawabanModel {
   JawabanEntity toEntity() => JawabanEntity(
-        idPertanyaan: idPertanyaan,
-        pertanyaan: pertanyaan,
-        jawaban: jawaban,
-      );
+    idPertanyaan: idPertanyaan,
+    pertanyaan: pertanyaan,
+    jawaban: jawaban,
+  );
 }
 
 extension AbsenModelX on AbsenModel {
+  String get _jamFinal {
+    final j = jam?.trim() ?? '';
+    if (j.isNotEmpty) return j;
+    final parts = (waktu ?? '').trim().split(RegExp(r'[ T]'));
+    return parts.length > 1 ? parts[1] : '';
+  }
+
   AbsenEntity toEntity() => AbsenEntity(
-        key: key,
-        jam: jam,
-        keterangan: keterangan,
-        fotoUrl: fotoUrl,
-      );
+    key: key,
+    jam: _jamFinal,
+    keterangan: keterangan,
+    fotoUrl: fotoUrl,
+  );
 }

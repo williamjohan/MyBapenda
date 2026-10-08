@@ -64,27 +64,36 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
         ? null
         : <String, dynamic>{'path': fotoLama, 'jam': jamLama};
 
-    final result = await context.pushNamed<Map<String, dynamic>>(
+    final Future<String?> Function(Map<String, dynamic>)? submit = canEdit
+        ? (d) {
+            final lat = (d['lat'] as num?)?.toDouble();
+            final lng = (d['lng'] as num?)?.toDouble();
+            return isIn
+                ? cubit.submitCheckin(
+                    jam: d['jam'] as String,
+                    fotoPath: d['path'] as String,
+                    lat: lat,
+                    lng: lng,
+                  )
+                : cubit.submitCheckout(
+                    fotoPath: d['path'] as String,
+                    lat: lat!,
+                    lng: lng!,
+                  );
+          }
+        : null;
+
+    final ok = await context.pushNamed<bool>(
       AppRoutes.balaiRwAbsen,
       extra: (
         type: type,
         penugasan: _tugas(st.roster!),
         initial: initial,
         readOnly: !canEdit,
+        onSubmit: submit,
       ),
     );
-    if (result == null || !mounted) return;
-
-    final jam = result['jam'] as String;
-    final path = result['path'] as String;
-    if (isIn) {
-      cubit.setCheckin(jam: jam, fotoPath: path);
-    } else {
-      cubit.setCheckout(jam: jam, fotoPath: path);
-    }
-    _snack(
-      '${isIn ? 'Check-in' : 'Check-out'} dicatat. Tekan "Kirim Laporan" kalau semua sudah lengkap.',
-    );
+    if (ok == true) _snack(isIn ? 'Check-in terkirim' : 'Check-out terkirim');
   }
 
   Future<void> _openLaporan(
@@ -94,7 +103,11 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
   ) async {
     final cubit = context.read<BalaiRwHubCubit>();
 
-    final result = await context.pushNamed<Map<String, dynamic>>(
+    final Future<String?> Function(Map<String, String>)? submit = canEdit
+        ? (j) => cubit.submitLaporan(jawaban: j)
+        : null;
+
+    final ok = await context.pushNamed<bool>(
       AppRoutes.balaiRwLaporan,
       extra: (
         penugasan: _tugas(st.roster!),
@@ -104,20 +117,13 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
                   for (final j in st.jawaban)
                     '${j.idPertanyaan}': j.jawaban ?? '',
                 },
-                if (st.dihadiriOleh.isNotEmpty) 'dihadiriOleh': st.dihadiriOleh,
               }
             : null,
         readOnly: !canEdit,
+        onSubmit: submit,
       ),
     );
-    if (result == null || !mounted) return;
-
-    cubit.setLaporan(
-      jawaban: (result['jawaban'] as Map).cast<String, String>(),
-      pertanyaan: (result['pertanyaan'] as Map).cast<String, String>(),
-      dihadiriOleh: result['dihadiriOleh'] as String,
-    );
-    _snack('Laporan dicatat. Tekan "Kirim Laporan" kalau semua sudah lengkap.');
+    if (ok == true) _snack('Laporan terkirim');
   }
 
   // ----------------------------------------------------------- komponen
@@ -429,7 +435,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
             ? 'Belum check-out'
             : !lapDone
             ? 'Isi laporan dulu'
-            : 'Foto saat selesai. Lokasi dan jam otomatis tercetak.',
+            : 'Foto saat selesai. Lokasi tercetak di foto, jam dicatat server.',
         state: _stateOf(done: coDone, unlocked: lapDone, canEdit: canEdit),
         thumbPath: coDone ? st.fotoPulang : null,
         actionLabel: canEdit
@@ -477,66 +483,12 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
     }
   }
 
-  Future<void> _submit() async {
-    final err = await context.read<BalaiRwHubCubit>().submit();
-    _snack(err ?? 'Laporan hari ini berhasil dikirim');
-  }
-
-  Widget? _submitBar(BalaiRwHubState st) {
-    final r = st.roster;
-    if (st.status != BalaiRwHubStatus.ready ||
-        r == null ||
-        r.isLibur ||
-        !BalaiRwDummy.isKoordinator) {
-      return null; 
-    }
-
-    final sent = st.isComplete && !st.dirty;
-    final label = st.saving
-        ? 'Mengirim...'
-        : sent
-        ? 'Laporan Terkirim'
-        : 'Kirim Laporan';
-
-    return SafeArea(
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!st.isComplete)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'Lengkapi check-in, laporan, dan check-out untuk mengirim.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11.5,
-                    color: const Color(0xFF7B8794),
-                  ),
-                ),
-              ),
-            Button(
-              label: label,
-              icon: sent ? Icons.check_circle_rounded : Icons.send_rounded,
-              isLoading: st.saving,
-              onPressed: st.isComplete && st.dirty && !st.saving
-                  ? _submit
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BalaiRwHubCubit, BalaiRwHubState>(
       builder: (context, st) {
         return Scaffold(
           backgroundColor: const Color(0xFFF5F6F8),
-          bottomNavigationBar: _submitBar(st),
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [

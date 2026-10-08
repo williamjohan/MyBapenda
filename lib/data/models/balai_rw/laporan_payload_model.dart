@@ -3,55 +3,103 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../domain/entities/balai_rw/laporan_payload_entity.dart';
 
+Future<MultipartFile> _file(String path) =>
+    MultipartFile.fromFile(path, filename: path.split('/').last);
+
+class CheckinPayloadModel {
+  final String tanggalLaporan;
+  final String waktuCheckIn;
+  final String fotoPath;
+  final double? latitude;
+  final double? longitude;
+
+  const CheckinPayloadModel({
+    required this.tanggalLaporan,
+    required this.waktuCheckIn,
+    required this.fotoPath,
+    this.latitude,
+    this.longitude,
+  });
+
+  Future<FormData> toFormData() async {
+    final f = FormData();
+    f.fields
+      ..add(MapEntry('WaktuCheckIn', waktuCheckIn))
+      ..add(MapEntry('TanggalLaporan', tanggalLaporan));
+    if (latitude != null) f.fields.add(MapEntry('Latitude', '$latitude'));
+    if (longitude != null) f.fields.add(MapEntry('Longitude', '$longitude'));
+    f.files.add(MapEntry('FileDataFormFile', await _file(fotoPath)));
+    return f;
+  }
+}
+
+class CheckoutPayloadModel {
+  final String tanggalLaporan;
+  final String fotoPath;
+  final double latitude;
+  final double longitude;
+
+  const CheckoutPayloadModel({
+    required this.tanggalLaporan,
+    required this.fotoPath,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  Future<FormData> toFormData() async {
+    final f = FormData();
+    f.fields
+      ..add(MapEntry('TanggalLaporan', tanggalLaporan))
+      ..add(MapEntry('Latitude', '$latitude'))
+      ..add(MapEntry('Longitude', '$longitude'));
+    f.files.add(MapEntry('FileDataFormFile', await _file(fotoPath)));
+    return f;
+  }
+}
+
 class LaporanPayloadModel {
   final String tanggalLaporan;
   final List<Map<String, dynamic>> jawaban;
-  final String jamMasuk;
-  final String jamPulang;
-  final String keterangan;
-  final List<String> fotoPaths;
 
   const LaporanPayloadModel({
     required this.tanggalLaporan,
     required this.jawaban,
-    required this.jamMasuk,
-    required this.jamPulang,
-    required this.keterangan,
-    required this.fotoPaths,
   });
 
   Future<FormData> toFormData() async {
-    final form = FormData();
-    form.fields
+    final f = FormData();
+    f.fields
       ..add(MapEntry('TanggalLaporan', tanggalLaporan))
-      ..add(MapEntry('Jawaban', jsonEncode(jawaban)))
-      ..add(MapEntry('Kehadiran.JamMasuk', jamMasuk))
-      ..add(MapEntry('Kehadiran.JamPulang', jamPulang))
-      ..add(MapEntry('Kehadiran.Keterangan', keterangan));
-
-    // Satu nama field, banyak file (sesuai Swagger)
-    for (final p in fotoPaths) {
-      form.files.add(
-        MapEntry(
-          'Kehadiran.FileDataFormFile',
-          await MultipartFile.fromFile(p, filename: p.split('/').last),
-        ),
-      );
-    }
-    return form;
+      ..add(MapEntry('Jawaban', jsonEncode(jawaban)));
+    return f;
   }
+}
+
+extension CheckinPayloadEntityX on CheckinPayloadEntity {
+  CheckinPayloadModel toModel() => CheckinPayloadModel(
+        tanggalLaporan: tanggalLaporan,
+        waktuCheckIn: waktuCheckIn,
+        fotoPath: fotoPath,
+        latitude: latitude,
+        longitude: longitude,
+      );
+}
+
+extension CheckoutPayloadEntityX on CheckoutPayloadEntity {
+  CheckoutPayloadModel toModel() => CheckoutPayloadModel(
+        tanggalLaporan: tanggalLaporan,
+        fotoPath: fotoPath,
+        latitude: latitude,
+        longitude: longitude,
+      );
 }
 
 extension LaporanPayloadEntityX on LaporanPayloadEntity {
   LaporanPayloadModel toModel() => LaporanPayloadModel(
-    tanggalLaporan: tanggalLaporan,
-    jawaban: [
-      for (final j in jawaban)
-        {'idPertanyaan': j.idPertanyaan, 'jawaban': j.jawaban},
-    ],
-    jamMasuk: jamMasuk,
-    jamPulang: jamPulang,
-    keterangan: keterangan,
-    fotoPaths: fotoPaths,
-  );
+        tanggalLaporan: tanggalLaporan,
+        jawaban: [
+          for (final j in jawaban)
+            {'idPertanyaan': j.idPertanyaan, 'jawaban': j.jawaban},
+        ],
+      );
 }

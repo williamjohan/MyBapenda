@@ -14,15 +14,16 @@ import '../cubit/balai_rw_form_state.dart';
 
 class BalaiRwLaporanPage extends StatefulWidget {
   final Map<String, dynamic> penugasan;
-  final Map<String, dynamic>?
-  initial; // {jawaban: {idPertanyaan: nilai}, dihadiriOleh}
+  final Map<String, dynamic>? initial;
   final bool readOnly;
+  final Future<String?> Function(Map<String, String> jawaban)? onSubmit;
 
   const BalaiRwLaporanPage({
     super.key,
     required this.penugasan,
     this.initial,
     this.readOnly = false,
+    this.onSubmit,
   });
 
   @override
@@ -35,12 +36,8 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
   /// TODO: pastikan arti kode ini dengan backend. Sementara "5" = angka.
   static const _tipeAngka = '5';
 
-  /// 12 | 2,5 | 1.500.000
   static final _angka = RegExp(r'^\d+([.,]\d+)*$');
 
-  final _hadirCtrl = TextEditingController(text: 'Staf Bapenda');
-
-  /// key = idPertanyaan. Dibuat lazily setelah form dari API termuat.
   final Map<int, TextEditingController> _answers = {};
 
   Map get _savedJawaban => (widget.initial?['jawaban'] as Map?) ?? const {};
@@ -55,15 +52,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
   bool _isAngka(PertanyaanEntity q) => q.tipeJawaban == _tipeAngka;
 
   @override
-  void initState() {
-    super.initState();
-    final h = widget.initial?['dihadiriOleh'] as String?;
-    if (h != null) _hadirCtrl.text = h;
-  }
-
-  @override
   void dispose() {
-    _hadirCtrl.dispose();
     for (final c in _answers.values) {
       c.dispose();
     }
@@ -87,28 +76,39 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
         }
       }
     }
-    if (_hadirCtrl.text.trim().isEmpty) return 'Dihadiri oleh wajib diisi';
     return null;
   }
 
-  void _save(List<BalaiRwSection> sections) {
+  bool _sending = false;
+
+  Future<void> _save(List<BalaiRwSection> sections) async {
     final err = _validate(sections);
     if (err != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
       return;
     }
-    context.pop<Map<String, dynamic>>({
-      'jawaban': {
-        for (final s in sections)
-          for (final q in s.pertanyaan)
-            '${q.idPertanyaan}': _ctrl(q).text.trim(),
-      },
-      'pertanyaan': {
-        for (final s in sections)
-          for (final q in s.pertanyaan) '${q.idPertanyaan}': q.pertanyaan,
-      },
-      'dihadiriOleh': _hadirCtrl.text.trim(),
-    });
+
+    final jawaban = {
+      for (final s in sections)
+        for (final q in s.pertanyaan) '${q.idPertanyaan}': _ctrl(q).text.trim(),
+    };
+
+    final submit = widget.onSubmit;
+    if (submit == null) {
+      context.pop(true);
+      return;
+    }
+
+    setState(() => _sending = true);
+    final e = await submit(jawaban);
+    if (!mounted) return;
+    setState(() => _sending = false);
+
+    if (e != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e)));
+      return;
+    }
+    context.pop(true);
   }
 
   Widget _card({
@@ -296,17 +296,6 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
                     else ...[
                       for (final s in st.sections) ...[_gap, _sectionCard(s)],
                       _gap,
-                      _card(
-                        title: 'Kehadiran',
-                        icon: Icons.groups_rounded,
-                        children: [
-                          BapendaTextField(
-                            label: 'Dihadiri oleh *',
-                            controller: _hadirCtrl,
-                            readOnly: widget.readOnly,
-                          ),
-                        ],
-                      ),
                     ],
                   ]),
                 ),
@@ -320,9 +309,12 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
                     color: Colors.white,
                     padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
                     child: Button(
-                      label: 'Simpan Laporan',
-                      icon: Icons.save_rounded,
-                      onPressed: ready ? () => _save(st.sections) : null,
+                      label: 'Kirim Laporan',
+                      icon: Icons.send_rounded,
+                      isLoading: _sending,
+                      onPressed: ready && !_sending
+                          ? () => _save(st.sections)
+                          : null,
                     ),
                   ),
                 ),

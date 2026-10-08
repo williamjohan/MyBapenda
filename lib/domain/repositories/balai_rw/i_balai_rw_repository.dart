@@ -25,6 +25,10 @@ abstract class IBalaiRwRepository {
     required String tanggalAwal,
     required String tanggalAkhir,
   });
-  
-  Future<Either<Failure, bool>> postLaporanPegawai(LaporanPayloadEntity payload);
+
+  Future<Either<Failure, bool>> postCheckin(CheckinPayloadEntity payload);
+  Future<Either<Failure, bool>> postCheckout(CheckoutPayloadEntity payload);
+  Future<Either<Failure, bool>> postLaporanPegawai(
+    LaporanPayloadEntity payload,
+  );
 }
