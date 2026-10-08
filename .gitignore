@@ -74,3 +74,14 @@ build/
 #Claude.md
 **/CLAUDE.md
 CLAUDE.md
+
+
+# ====================================================================
+# CODE GENERATION FILES (build_runner, freezed, json_serializable)
+# ====================================================================
+*.g.dart
+*.freezed.dart
+
+# Jika Anda nantinya menggunakan package seperti auto_route atau injectables:
+*.gr.dart
+*.config.dart

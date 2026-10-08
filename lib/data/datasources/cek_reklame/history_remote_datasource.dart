@@ -3,6 +3,7 @@ import 'package:bapendacore/core/network/base_api/base_api_response_model.dart';
 import 'package:bapendacore/data/models/history/history_model.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import '../../../core/errors/exception.dart';
 
 abstract class HistoryRemoteDataSource {
   Future<List<HistoryModel>> getHistory({
@@ -43,9 +44,10 @@ class HistoryRemoteDataSourceImpl implements HistoryRemoteDataSource {
           .toList(),
     );
 
-    if (!apiResponse.isSuccess || apiResponse.data == null) {
-      throw Exception(apiResponse.errorMessage);
+     if (!apiResponse.isSuccess) {
+      throw ServerException(apiResponse.status, apiResponse.errorMessage);
     }
-    return apiResponse.data!;
+    
+    return apiResponse.data ?? [];
   }
 }

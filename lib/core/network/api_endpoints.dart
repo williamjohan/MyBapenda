@@ -38,4 +38,13 @@ class ApiEndpoints {
   static const String laporanAbsensi = '/api/umpeg/transaksi/laporan';
   static const String checkin = '/api/umpeg/transaksi/checkin';
   static const String checkout = '/api/umpeg/transaksi/checkout';
+
+
+  // ==========================================
+  // SURVEY PERMOHONAN BARU
+  // ==========================================
+  static const String surveyPermohonanHeader = '/api/reklame/bo/simpan-survey';
+  static const String surveyPermohonanDetail = '/api/reklame/bo/survey-form';
+  static const String surveySimpan = '/api/reklame/bo/simpan-survey';
+  static const String surveyCariNor = '/api/reklame/bo/cari-nor';
 }
