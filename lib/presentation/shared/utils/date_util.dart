@@ -45,8 +45,8 @@ class DateUtil {
 
   /// "08.05" atau "08:05" -> TimeOfDay (null kalau format salah)
   static TimeOfDay? parseJam(String s) {
-    final p = s.split(RegExp(r'[.:]'));
-    if (p.length != 2) return null;
+    final p = s.trim().split(RegExp(r'[.:]'));
+    if (p.length < 2) return null;
     final h = int.tryParse(p[0]);
     final m = int.tryParse(p[1]);
     if (h == null || m == null || h > 23 || m > 59) return null;

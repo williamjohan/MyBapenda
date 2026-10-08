@@ -49,6 +49,10 @@ import '../../presentation/features/absensi/cubit/absen/absen_cubit.dart'
 import '../../presentation/features/absensi/cubit/absensi/absensi_cubit.dart'
     as _i662;
 import '../../presentation/features/auth/cubit/auth_cubit.dart' as _i224;
+import '../../presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart'
+    as _i720;
+import '../../presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart'
+    as _i149;
 import '../../presentation/features/camera/cubit/camera_cubit.dart' as _i755;
 import '../../presentation/features/cek_reklame/cubit/history_cek_reklame/history_cubit.dart'
     as _i475;
@@ -180,6 +184,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i233.LaporanCubit(gh<_i248.AbsensiUseCase>()));
     gh.lazySingleton<_i224.AuthCubit>(
         () => _i224.AuthCubit(authUseCase: gh<_i826.AuthUseCase>()));
+    gh.factory<_i720.BalaiRwFormCubit>(
+        () => _i720.BalaiRwFormCubit(gh<_i266.BalaiRwUseCase>()));
+    gh.factory<_i149.BalaiRwHubCubit>(
+        () => _i149.BalaiRwHubCubit(gh<_i266.BalaiRwUseCase>()));
     gh.factory<_i1039.AbsenCubit>(() => _i1039.AbsenCubit(
           gh<_i248.AbsensiUseCase>(),
           gh<_i869.GeoLocationService>(),

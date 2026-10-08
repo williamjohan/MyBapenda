@@ -8,17 +8,21 @@ part of 'laporan_pegawai_model.dart';
 
 LaporanPegawaiModel _$LaporanPegawaiModelFromJson(Map<String, dynamic> json) =>
     LaporanPegawaiModel(
-      key: json['key'] as String,
-      idLaporan: (json['idLaporan'] as num).toInt(),
-      idRoster: (json['idRoster'] as num).toInt(),
-      tanggalLaporan: json['tanggalLaporan'] as String,
-      insDate: json['insDate'] as String,
-      jawaban: (json['jawaban'] as List<dynamic>)
-          .map((e) => JawabanModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      kehadiran: (json['kehadiran'] as List<dynamic>)
-          .map((e) => KehadiranModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      key: json['key'] as String? ?? '',
+      idLaporan: (json['idLaporan'] as num?)?.toInt() ?? 0,
+      idRoster: (json['idRoster'] as num?)?.toInt() ?? 0,
+      tanggalLaporan: json['tanggalLaporan'] as String? ?? '',
+      insDate: json['insDate'] as String? ?? '',
+      jawaban: (json['jawaban'] as List<dynamic>?)
+              ?.map((e) => JawabanModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      checkin: json['checkin'] == null
+          ? null
+          : AbsenModel.fromJson(json['checkin'] as Map<String, dynamic>),
+      checkout: json['checkout'] == null
+          ? null
+          : AbsenModel.fromJson(json['checkout'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$LaporanPegawaiModelToJson(
@@ -30,12 +34,13 @@ Map<String, dynamic> _$LaporanPegawaiModelToJson(
       'tanggalLaporan': instance.tanggalLaporan,
       'insDate': instance.insDate,
       'jawaban': instance.jawaban.map((e) => e.toJson()).toList(),
-      'kehadiran': instance.kehadiran.map((e) => e.toJson()).toList(),
+      'checkin': instance.checkin?.toJson(),
+      'checkout': instance.checkout?.toJson(),
     };
 
 JawabanModel _$JawabanModelFromJson(Map<String, dynamic> json) => JawabanModel(
       idPertanyaan: (json['idPertanyaan'] as num).toInt(),
-      pertanyaan: json['pertanyaan'] as String,
+      pertanyaan: json['pertanyaan'] as String? ?? '',
       jawaban: json['jawaban'] as String?,
     );
 
@@ -46,20 +51,17 @@ Map<String, dynamic> _$JawabanModelToJson(JawabanModel instance) =>
       'jawaban': instance.jawaban,
     };
 
-KehadiranModel _$KehadiranModelFromJson(Map<String, dynamic> json) =>
-    KehadiranModel(
-      key: json['key'] as String,
-      jamMasuk: json['jamMasuk'] as String,
-      jamPulang: json['jamPulang'] as String?,
-      keterangan: json['keterangan'] as String,
+AbsenModel _$AbsenModelFromJson(Map<String, dynamic> json) => AbsenModel(
+      key: json['key'] as String? ?? '',
+      jam: json['jam'] as String? ?? '',
+      keterangan: json['keterangan'] as String?,
       fotoUrl: json['fotoUrl'] as String?,
     );
 
-Map<String, dynamic> _$KehadiranModelToJson(KehadiranModel instance) =>
+Map<String, dynamic> _$AbsenModelToJson(AbsenModel instance) =>
     <String, dynamic>{
       'key': instance.key,
-      'jamMasuk': instance.jamMasuk,
-      'jamPulang': instance.jamPulang,
+      'jam': instance.jam,
       'keterangan': instance.keterangan,
       'fotoUrl': instance.fotoUrl,
     };

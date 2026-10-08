@@ -1,3 +1,4 @@
+// lib/domain/entities/balai_rw/laporan_pegawai_entity.dart
 import 'package:equatable/equatable.dart';
 
 class LaporanPegawaiEntity extends Equatable {
@@ -7,7 +8,8 @@ class LaporanPegawaiEntity extends Equatable {
   final String tanggalLaporan;
   final String insDate;
   final List<JawabanEntity> jawaban;
-  final List<KehadiranEntity> kehadiran;
+  final AbsenEntity? checkin; 
+  final AbsenEntity? checkout; 
 
   const LaporanPegawaiEntity({
     required this.key,
@@ -16,19 +18,21 @@ class LaporanPegawaiEntity extends Equatable {
     required this.tanggalLaporan,
     required this.insDate,
     required this.jawaban,
-    required this.kehadiran,
+    this.checkin,
+    this.checkout,
   });
 
   @override
   List<Object?> get props => [
-        key,
-        idLaporan,
-        idRoster,
-        tanggalLaporan,
-        insDate,
-        jawaban,
-        kehadiran,
-      ];
+    key,
+    idLaporan,
+    idRoster,
+    tanggalLaporan,
+    insDate,
+    jawaban,
+    checkin,
+    checkout,
+  ];
 }
 
 class JawabanEntity extends Equatable {
@@ -46,21 +50,19 @@ class JawabanEntity extends Equatable {
   List<Object?> get props => [idPertanyaan, pertanyaan, jawaban];
 }
 
-class KehadiranEntity extends Equatable {
+class AbsenEntity extends Equatable {
   final String key;
-  final String jamMasuk;
-  final String? jamPulang;
-  final String keterangan;
+  final String jam; 
+  final String? keterangan;
   final String? fotoUrl;
 
-  const KehadiranEntity({
+  const AbsenEntity({
     required this.key,
-    required this.jamMasuk,
-    this.jamPulang,
-    required this.keterangan,
+    required this.jam,
+    this.keterangan,
     this.fotoUrl,
   });
 
   @override
-  List<Object?> get props => [key, jamMasuk, jamPulang, keterangan, fotoUrl];
+  List<Object?> get props => [key, jam, keterangan, fotoUrl];
 }

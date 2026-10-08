@@ -1,6 +1,8 @@
 import 'package:bapendacore/data/models/balai_rw/kategori_pertanyaan_model.dart';
+import 'package:bapendacore/data/models/balai_rw/laporan_payload_model.dart';
 import 'package:bapendacore/data/models/balai_rw/laporan_pegawai_model.dart';
 import 'package:bapendacore/data/models/balai_rw/roster_pegawai_model.dart';
+import 'package:bapendacore/domain/entities/balai_rw/laporan_payload_entity.dart';
 import 'package:bapendacore/domain/entities/balai_rw/laporan_pegawai_entity.dart';
 import 'package:bapendacore/domain/entities/balai_rw/roster_pegawai_entity.dart';
 import 'package:dartz/dartz.dart';
@@ -13,7 +15,6 @@ import '../../../domain/repositories/balai_rw/i_balai_rw_repository.dart';
 import '../../datasources/balai_rw/balai_rw_remote_datasource.dart';
 import '../../models/balai_rw/pertanyaan_model.dart';
 
-
 @LazySingleton(as: IBalaiRwRepository)
 class BalaiRwRepositoryImpl implements IBalaiRwRepository {
   final IBalaiRwRemoteDataSource _remoteDataSource;
@@ -25,7 +26,9 @@ class BalaiRwRepositoryImpl implements IBalaiRwRepository {
     bool hanyaAktif = true,
   }) {
     return executeSafeApiCall<List<KategoriPertanyaanEntity>>(() async {
-      final models = await _remoteDataSource.getKategori(hanyaAktif: hanyaAktif);
+      final models = await _remoteDataSource.getKategori(
+        hanyaAktif: hanyaAktif,
+      );
       return models.map((model) => model.toEntity()).toList();
     });
   }
@@ -45,7 +48,10 @@ class BalaiRwRepositoryImpl implements IBalaiRwRepository {
   }
 
   @override
-  Future<Either<Failure, List<RosterPegawaiEntity>>> getRosterPegawai({required String tanggalAwal, required String tanggalAkhir}) {
+  Future<Either<Failure, List<RosterPegawaiEntity>>> getRosterPegawai({
+    required String tanggalAwal,
+    required String tanggalAkhir,
+  }) {
     return executeSafeApiCall<List<RosterPegawaiEntity>>(() async {
       final models = await _remoteDataSource.getRosterPegawai(
         tanggalAwal: tanggalAwal,
@@ -54,9 +60,12 @@ class BalaiRwRepositoryImpl implements IBalaiRwRepository {
       return models.map((model) => model.toEntity()).toList();
     });
   }
-  
+
   @override
-  Future<Either<Failure, List<LaporanPegawaiEntity>>> getLaporanAbsensi({required String tanggalAwal, required String tanggalAkhir}) {
+  Future<Either<Failure, List<LaporanPegawaiEntity>>> getLaporanAbsensi({
+    required String tanggalAwal,
+    required String tanggalAkhir,
+  }) {
     return executeSafeApiCall<List<LaporanPegawaiEntity>>(() async {
       final models = await _remoteDataSource.getLaporanAbsensi(
         tanggalAwal: tanggalAwal,
@@ -67,13 +76,11 @@ class BalaiRwRepositoryImpl implements IBalaiRwRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> postLaporanPegawai(LaporanPegawaiEntity payload) {
+  Future<Either<Failure, bool>> postLaporanPegawai(
+    LaporanPayloadEntity payload,
+  ) {
     return executeSafeApiCall<bool>(() async {
-      // 1. Mapping dari Entity (Domain) kembali menjadi Model (Data)
-      final modelPayload = payload.toModel();
-      
-      // 2. Teruskan payload model ke Remote Data Source
-      return await _remoteDataSource.postLaporanPegawai(modelPayload);
+      return await _remoteDataSource.postLaporanPegawai(payload.toModel());
     });
   }
 }

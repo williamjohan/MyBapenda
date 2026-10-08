@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart';
+import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_absen_page.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_laporan_page.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_page.dart';
@@ -181,7 +183,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.balaiRw,
         name: AppRoutes.balaiRw,
-        builder: (context, state) => const BalaiRwPage(),
+        builder: (context, state) => BlocProvider<BalaiRwHubCubit>(
+          create: (_) => getIt<BalaiRwHubCubit>()..load(),
+          child: const BalaiRwPage(),
+        ),
       ),
 
       GoRoute(
@@ -215,10 +220,13 @@ class AppRouter {
                     Map<String, dynamic>? initial,
                     bool readOnly,
                   });
-          return BalaiRwLaporanPage(
-            penugasan: a.penugasan,
-            initial: a.initial,
-            readOnly: a.readOnly,
+          return BlocProvider<BalaiRwFormCubit>(
+            create: (_) => getIt<BalaiRwFormCubit>()..load(),
+            child: BalaiRwLaporanPage(
+              penugasan: a.penugasan,
+              initial: a.initial,
+              readOnly: a.readOnly,
+            ),
           );
         },
       ),
@@ -377,7 +385,7 @@ class AppRouter {
         },
       ),
 
-       GoRoute(
+      GoRoute(
         path: AppRoutes.myTask,
         name: AppRoutes.myTask,
         builder: (context, state) => const MyTaskDashboardPage(),

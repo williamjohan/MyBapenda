@@ -1,30 +1,34 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+// lib/data/models/balai_rw/laporan_pegawai_model.dart
+import 'package:json_annotation/json_annotation.dart';
 import '../../../domain/entities/balai_rw/laporan_pegawai_entity.dart';
 
 part 'laporan_pegawai_model.g.dart';
 
-@JsonSerializable(explicitToJson: true) // 🚀 WAJIB true agar list bersarang bisa di-POST
+@JsonSerializable(explicitToJson: true)
 class LaporanPegawaiModel {
-  @JsonKey(name: 'key')
+  @JsonKey(name: 'key', defaultValue: '')
   final String key;
-  
-  @JsonKey(name: 'idLaporan')
+
+  @JsonKey(name: 'idLaporan', defaultValue: 0)
   final int idLaporan;
-  
-  @JsonKey(name: 'idRoster')
+
+  @JsonKey(name: 'idRoster', defaultValue: 0)
   final int idRoster;
-  
-  @JsonKey(name: 'tanggalLaporan')
+
+  @JsonKey(name: 'tanggalLaporan', defaultValue: '')
   final String tanggalLaporan;
-  
-  @JsonKey(name: 'insDate')
+
+  @JsonKey(name: 'insDate', defaultValue: '')
   final String insDate;
-  
-  @JsonKey(name: 'jawaban')
+
+  @JsonKey(name: 'jawaban', defaultValue: [])
   final List<JawabanModel> jawaban;
-  
-  @JsonKey(name: 'kehadiran')
-  final List<KehadiranModel> kehadiran;
+
+  @JsonKey(name: 'checkin')
+  final AbsenModel? checkin;
+
+  @JsonKey(name: 'checkout')
+  final AbsenModel? checkout;
 
   const LaporanPegawaiModel({
     required this.key,
@@ -33,7 +37,8 @@ class LaporanPegawaiModel {
     required this.tanggalLaporan,
     required this.insDate,
     required this.jawaban,
-    required this.kehadiran,
+    this.checkin,
+    this.checkout,
   });
 
   factory LaporanPegawaiModel.fromJson(Map<String, dynamic> json) =>
@@ -42,20 +47,16 @@ class LaporanPegawaiModel {
   Map<String, dynamic> toJson() => _$LaporanPegawaiModelToJson(this);
 }
 
-// ====================================================================
-// SUB-MODELS (NESTED OBJECTS)
-// ====================================================================
-
 @JsonSerializable()
 class JawabanModel {
   @JsonKey(name: 'idPertanyaan')
   final int idPertanyaan;
-  
-  @JsonKey(name: 'pertanyaan')
+
+  @JsonKey(name: 'pertanyaan', defaultValue: '')
   final String pertanyaan;
-  
+
   @JsonKey(name: 'jawaban')
-  final String? jawaban; // 🚀 Nullable berdasarkan contoh JSON
+  final String? jawaban;
 
   const JawabanModel({
     required this.idPertanyaan,
@@ -70,40 +71,33 @@ class JawabanModel {
 }
 
 @JsonSerializable()
-class KehadiranModel {
-  @JsonKey(name: 'key')
+class AbsenModel {
+  @JsonKey(name: 'key', defaultValue: '')
   final String key;
-  
-  @JsonKey(name: 'jamMasuk')
-  final String jamMasuk;
-  
-  @JsonKey(name: 'jamPulang')
-  final String? jamPulang; // 🚀 Nullable
-  
-  @JsonKey(name: 'keterangan')
-  final String keterangan;
-  
-  @JsonKey(name: 'fotoUrl')
-  final String? fotoUrl; // 🚀 Nullable
 
-  const KehadiranModel({
+  @JsonKey(name: 'jam', defaultValue: '')
+  final String jam;
+
+  @JsonKey(name: 'keterangan')
+  final String? keterangan;
+
+  @JsonKey(name: 'fotoUrl')
+  final String? fotoUrl;
+
+  const AbsenModel({
     required this.key,
-    required this.jamMasuk,
-    this.jamPulang,
-    required this.keterangan,
+    required this.jam,
+    this.keterangan,
     this.fotoUrl,
   });
 
-  factory KehadiranModel.fromJson(Map<String, dynamic> json) =>
-      _$KehadiranModelFromJson(json);
+  factory AbsenModel.fromJson(Map<String, dynamic> json) =>
+      _$AbsenModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$KehadiranModelToJson(this);
+  Map<String, dynamic> toJson() => _$AbsenModelToJson(this);
 }
 
-// ====================================================================
-// EXTENSIONS (MAPPER KE ENTITY) - Sesuai Aturan No. 2
-// ====================================================================
-
+// Mapper ke Entity
 extension LaporanPegawaiModelX on LaporanPegawaiModel {
   LaporanPegawaiEntity toEntity() => LaporanPegawaiEntity(
         key: key,
@@ -112,7 +106,8 @@ extension LaporanPegawaiModelX on LaporanPegawaiModel {
         tanggalLaporan: tanggalLaporan,
         insDate: insDate,
         jawaban: jawaban.map((e) => e.toEntity()).toList(),
-        kehadiran: kehadiran.map((e) => e.toEntity()).toList(),
+        checkin: checkin?.toEntity(),
+        checkout: checkout?.toEntity(),
       );
 }
 
@@ -124,46 +119,10 @@ extension JawabanModelX on JawabanModel {
       );
 }
 
-extension KehadiranModelX on KehadiranModel {
-  KehadiranEntity toEntity() => KehadiranEntity(
+extension AbsenModelX on AbsenModel {
+  AbsenEntity toEntity() => AbsenEntity(
         key: key,
-        jamMasuk: jamMasuk,
-        jamPulang: jamPulang,
-        keterangan: keterangan,
-        fotoUrl: fotoUrl,
-      );
-}
-
-// ====================================================================
-// EXTENSIONS (MAPPER DARI ENTITY KEMBALI KE MODEL)
-// Digunakan saat POST request di Repository
-// ====================================================================
-
-extension LaporanPegawaiEntityX on LaporanPegawaiEntity {
-  LaporanPegawaiModel toModel() => LaporanPegawaiModel(
-        key: key,
-        idLaporan: idLaporan,
-        idRoster: idRoster,
-        tanggalLaporan: tanggalLaporan,
-        insDate: insDate,
-        jawaban: jawaban.map((e) => e.toModel()).toList(),
-        kehadiran: kehadiran.map((e) => e.toModel()).toList(),
-      );
-}
-
-extension JawabanEntityX on JawabanEntity {
-  JawabanModel toModel() => JawabanModel(
-        idPertanyaan: idPertanyaan,
-        pertanyaan: pertanyaan,
-        jawaban: jawaban,
-      );
-}
-
-extension KehadiranEntityX on KehadiranEntity {
-  KehadiranModel toModel() => KehadiranModel(
-        key: key,
-        jamMasuk: jamMasuk,
-        jamPulang: jamPulang,
+        jam: jam,
         keterangan: keterangan,
         fotoUrl: fotoUrl,
       );
