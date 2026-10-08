@@ -76,11 +76,25 @@ class BalaiRwRepositoryImpl implements IBalaiRwRepository {
   }
 
   @override
+  Future<Either<Failure, bool>> postCheckin(CheckinPayloadEntity payload) {
+    return executeSafeApiCall<bool>(
+      () async => await _remoteDataSource.postCheckin(payload.toModel()),
+    );
+  }
+
+  @override
+  Future<Either<Failure, bool>> postCheckout(CheckoutPayloadEntity payload) {
+    return executeSafeApiCall<bool>(
+      () async => await _remoteDataSource.postCheckout(payload.toModel()),
+    );
+  }
+
+  @override
   Future<Either<Failure, bool>> postLaporanPegawai(
     LaporanPayloadEntity payload,
   ) {
-    return executeSafeApiCall<bool>(() async {
-      return await _remoteDataSource.postLaporanPegawai(payload.toModel());
-    });
+    return executeSafeApiCall<bool>(
+      () async => await _remoteDataSource.postLaporanPegawai(payload.toModel()),
+    );
   }
 }

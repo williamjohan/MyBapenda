@@ -53,7 +53,8 @@ Map<String, dynamic> _$JawabanModelToJson(JawabanModel instance) =>
 
 AbsenModel _$AbsenModelFromJson(Map<String, dynamic> json) => AbsenModel(
       key: json['key'] as String? ?? '',
-      jam: json['jam'] as String? ?? '',
+      jam: json['jam'] as String?,
+      waktu: json['waktu'] as String?,
       keterangan: json['keterangan'] as String?,
       fotoUrl: json['fotoUrl'] as String?,
     );
@@ -62,6 +63,7 @@ Map<String, dynamic> _$AbsenModelToJson(AbsenModel instance) =>
     <String, dynamic>{
       'key': instance.key,
       'jam': instance.jam,
+      'waktu': instance.waktu,
       'keterangan': instance.keterangan,
       'fotoUrl': instance.fotoUrl,
     };

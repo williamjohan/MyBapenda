@@ -200,12 +200,14 @@ class AppRouter {
                     Map<String, dynamic> penugasan,
                     Map<String, dynamic>? initial,
                     bool readOnly,
+                    Future<String?> Function(Map<String, dynamic>)? onSubmit,
                   });
           return BalaiRwAbsenPage(
             type: a.type,
             penugasan: a.penugasan,
             initial: a.initial,
             readOnly: a.readOnly,
+            onSubmit: a.onSubmit,
           );
         },
       ),
@@ -219,6 +221,7 @@ class AppRouter {
                     Map<String, dynamic> penugasan,
                     Map<String, dynamic>? initial,
                     bool readOnly,
+                    Future<String?> Function(Map<String, String>)? onSubmit,
                   });
           return BlocProvider<BalaiRwFormCubit>(
             create: (_) => getIt<BalaiRwFormCubit>()..load(),
@@ -226,6 +229,7 @@ class AppRouter {
               penugasan: a.penugasan,
               initial: a.initial,
               readOnly: a.readOnly,
+              onSubmit: a.onSubmit,
             ),
           );
         },

@@ -19,7 +19,8 @@ enum BalaiRwAbsenType { checkIn, checkOut }
 class BalaiRwAbsenPage extends StatefulWidget {
   final BalaiRwAbsenType type;
   final Map<String, dynamic> penugasan;
-  final Map<String, dynamic>? initial; // data lama (mode ubah / lihat)
+  final Map<String, dynamic>? initial;
+  final Future<String?> Function(Map<String, dynamic> data)? onSubmit;
   final bool readOnly;
 
   const BalaiRwAbsenPage({
@@ -27,6 +28,7 @@ class BalaiRwAbsenPage extends StatefulWidget {
     required this.type,
     required this.penugasan,
     this.initial,
+    this.onSubmit,
     this.readOnly = false,
   });
 
@@ -39,8 +41,8 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
 
   final _picker = ImagePicker();
 
-  String? _rawPath; // foto asli (tanpa stempel)
-  String? _stampedPath; // foto yang sudah distempel
+  String? _rawPath;
+  String? _stampedPath;
   TimeOfDay? _time;
   ({double lat, double lng})? _loc;
   String? _address;
@@ -52,10 +54,20 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
   bool get _isIn => widget.type == BalaiRwAbsenType.checkIn;
   String get _label => _isIn ? 'Check-in' : 'Check-out';
 
-  bool get _useLocation => !_isIn;
+  bool get _useLocation => true;
+
+  bool _sending = false;
+
+  bool get _hasNewPhoto =>
+      _stampedPath != null && !_stampedPath!.startsWith('http');
 
   bool get _canSave =>
-      _stampedPath != null && _time != null && !_busy && !_stamping;
+      _hasNewPhoto &&
+      _time != null &&
+      (!_useLocation || _loc != null) && 
+      !_busy &&
+      !_stamping &&
+      !_sending;
 
   @override
   void initState() {
@@ -198,26 +210,35 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
     }
   }
 
-  void _save() {
+  Future<void> _save() async {
     final t = _time;
     final path = _stampedPath;
     if (t == null || path == null) return;
     final loc = _loc;
 
-    context.pop<Map<String, dynamic>>({
-      'type': _isIn ? 'in' : 'out',
-      'path': path,
-      'rawPath': _rawPath,
+    final data = <String, dynamic>{
       'jam': DateUtil.jamOf(t),
-      'tanggal': DateUtil.iso(DateTime.now()),
-      if (loc != null) ...{
-        'lat': loc.lat,
-        'lng': loc.lng,
-        'address': _address,
-        'accuracy': _acc, 
-        'gpsTime': _gpsTime?.toIso8601String(), 
-      },
-    });
+      'path': path,
+      'lat': loc?.lat,
+      'lng': loc?.lng,
+    };
+
+    final submit = widget.onSubmit;
+    if (submit == null) {
+      context.pop(true);
+      return;
+    }
+
+    setState(() => _sending = true);
+    final err = await submit(data);
+    if (!mounted) return;
+    setState(() => _sending = false);
+
+    if (err != null) {
+      _snack(err);
+      return;
+    }
+    context.pop(true);
   }
 
   @override
@@ -255,8 +276,9 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
                 color: Colors.white,
                 padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
                 child: Button(
-                  label: 'Simpan $_label',
-                  icon: Icons.check_rounded,
+                  label: 'Kirim $_label',
+                  icon: Icons.send_rounded,
+                  isLoading: _sending,
                   onPressed: _canSave ? _save : null,
                 ),
               ),
@@ -375,7 +397,9 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
             BapendaTimeField(
               label: 'Jam Check-in *',
               valueText: t == null ? null : '${DateUtil.jamOf(t)} WIB',
-              onTap: (_busy || _stamping) ? null : _pickTime,
+              onTap: (_busy || _stamping || _sending || _rawPath == null)
+                  ? null
+                  : _pickTime,
             ),
             const SizedBox(height: 8),
             Text(
@@ -387,7 +411,7 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
             ),
           ] else ...[
             InfoRow(
-              label: 'Jam $_label',
+              label: _isIn ? 'Jam $_label' : 'Jam di foto',
               value: t == null ? '-' : '${DateUtil.jamOf(t)} WIB',
             ),
             if (loc != null)
@@ -407,7 +431,7 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
             variant: BapendaButtonVariant.outlined,
             height: 44,
             isLoading: _busy,
-            onPressed: _capture,
+            onPressed: _sending ? null : _capture,
           ),
         ],
       ],

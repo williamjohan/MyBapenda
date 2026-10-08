@@ -14,31 +14,57 @@ class JawabanPayloadEntity extends Equatable {
   List<Object?> get props => [idPertanyaan, jawaban];
 }
 
-/// Data yang dikirim ke POST laporan (multipart).
-class LaporanPayloadEntity extends Equatable {
+class CheckinPayloadEntity extends Equatable {
   final String tanggalLaporan; 
-  final List<JawabanPayloadEntity> jawaban;
-  final String jamMasuk; 
-  final String jamPulang; 
-  final String keterangan;
-  final List<String> fotoPaths; // path file lokal
+  final String waktuCheckIn; 
+  final String fotoPath;
+  final double? latitude;
+  final double? longitude;
 
-  const LaporanPayloadEntity({
+  const CheckinPayloadEntity({
     required this.tanggalLaporan,
-    required this.jawaban,
-    required this.jamMasuk,
-    required this.jamPulang,
-    required this.keterangan,
-    this.fotoPaths = const [],
+    required this.waktuCheckIn,
+    required this.fotoPath,
+    this.latitude,
+    this.longitude,
   });
 
   @override
   List<Object?> get props => [
     tanggalLaporan,
-    jawaban,
-    jamMasuk,
-    jamPulang,
-    keterangan,
-    fotoPaths,
+    waktuCheckIn,
+    fotoPath,
+    latitude,
+    longitude,
   ];
+}
+
+class CheckoutPayloadEntity extends Equatable {
+  final String tanggalLaporan;
+  final String fotoPath;
+  final double latitude;
+  final double longitude;
+
+  const CheckoutPayloadEntity({
+    required this.tanggalLaporan,
+    required this.fotoPath,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  @override
+  List<Object?> get props => [tanggalLaporan, fotoPath, latitude, longitude];
+}
+
+class LaporanPayloadEntity extends Equatable {
+  final String tanggalLaporan;
+  final List<JawabanPayloadEntity> jawaban;
+
+  const LaporanPayloadEntity({
+    required this.tanggalLaporan,
+    required this.jawaban,
+  });
+
+  @override
+  List<Object?> get props => [tanggalLaporan, jawaban];
 }

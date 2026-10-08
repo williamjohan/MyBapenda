@@ -28,7 +28,8 @@ abstract class IBalaiRwRemoteDataSource {
     required String tanggalAkhir,
   });
 
-  //Post laporannya
+  Future<bool> postCheckin(CheckinPayloadModel payload);
+  Future<bool> postCheckout(CheckoutPayloadModel payload);
   Future<bool> postLaporanPegawai(LaporanPayloadModel payload);
 }
 
@@ -159,21 +160,28 @@ class BalaiRwRemoteDataSourceImpl implements IBalaiRwRemoteDataSource {
   // ===========================================================================
   // POST LAPORAN PEGAWAI
   // ===========================================================================
-  @override
-  Future<bool> postLaporanPegawai(LaporanPayloadModel payload) async {
-    final response = await _dio.post(
-      ApiEndpoints.laporanAbsensi,
-      data: await payload.toFormData(), // ✏️ UBAH: sebelumnya payload.toJson()
-    );
+  Future<bool> _postForm(String path, FormData form) async {
+    final response = await _dio.post(path, data: form);
 
-    final baseResponse = BaseApiResponseModel<dynamic>.fromJson(
+    final base = BaseApiResponseModel<dynamic>.fromJson(
       response.data,
       (json) => json,
     );
-
-    if (!baseResponse.isSuccess) {
-      throw ServerException(baseResponse.status, baseResponse.errorMessage);
+    if (!base.isSuccess) {
+      throw ServerException(base.status, base.errorMessage);
     }
     return true;
   }
+
+  @override
+  Future<bool> postCheckin(CheckinPayloadModel payload) async =>
+      _postForm(ApiEndpoints.checkin, await payload.toFormData());
+
+  @override
+  Future<bool> postCheckout(CheckoutPayloadModel payload) async =>
+      _postForm(ApiEndpoints.checkout, await payload.toFormData());
+
+  @override
+  Future<bool> postLaporanPegawai(LaporanPayloadModel payload) async =>
+      _postForm(ApiEndpoints.laporanAbsensi, await payload.toFormData());
 }

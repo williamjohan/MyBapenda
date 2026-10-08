@@ -50,9 +50,13 @@ class BalaiRwUseCase {
     );
   }
 
+  Future<Either<Failure, bool>> postCheckin(CheckinPayloadEntity payload) =>
+      _repository.postCheckin(payload);
+
+  Future<Either<Failure, bool>> postCheckout(CheckoutPayloadEntity payload) =>
+      _repository.postCheckout(payload);
+
   Future<Either<Failure, bool>> postLaporanPegawai(
     LaporanPayloadEntity payload,
-  ) {
-    return _repository.postLaporanPegawai(payload);
-  }
+  ) => _repository.postLaporanPegawai(payload);
 }

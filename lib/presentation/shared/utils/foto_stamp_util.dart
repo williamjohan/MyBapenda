@@ -12,7 +12,7 @@ class FotoStampUtil {
     required List<String> lines,
   }) async {
     final bytes = await File(sourcePath).readAsBytes();
-    final codec = await ui.instantiateImageCodec(bytes);
+    final codec = await ui.instantiateImageCodec(bytes, targetWidth: 1280);
     final frame = await codec.getNextFrame();
     final src = frame.image;
     codec.dispose();
