@@ -2,7 +2,6 @@
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import 'survey_foto_page.dart';
 import 'survey_review_page.dart';
@@ -33,7 +32,7 @@ class SurveySisiReviewPage extends StatelessWidget {
             showBackButton: true,
             subtitle: Text(
               'Sisi ${sisi['seq']}',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),

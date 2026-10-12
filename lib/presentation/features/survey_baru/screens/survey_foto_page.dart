@@ -8,29 +8,22 @@ import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
-/// Draft foto (sementara, belum model). box = 0..1 relatif ke gambar.
-/// path bisa path lokal ATAU URL (foto dari server).
 typedef SurveyFoto = ({
   String path,
-  double ratio, // width / height
+  double ratio, 
   Rect box,
-  double lat, // 0 = tidak diketahui
+  double lat, 
   double lng,
 });
 
-/// Bentuknya sama dengan objek `survey` di API.
 typedef SurveyData = Map<String, dynamic>;
-
-/// Hasil lengkap satu sisi: foto + kotak + data form.
 typedef SurveyResult = ({SurveyFoto foto, SurveyData data});
 
-/// Foto yang sudah ada di server untuk sisi ini (`sisi.survey.fotos`).
 List<Map<String, dynamic>> apiFotosOf(Map<String, dynamic> sisi) {
   final survey = sisi['survey'];
   final fotos = survey is Map ? survey['fotos'] : null;
@@ -275,7 +268,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
               Expanded(
                 child: Text(
                   'Foto dari Wajib Pajak',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF1F2933),
@@ -292,7 +285,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           if (urls.isEmpty)
             Text(
               'Wajib pajak belum melampirkan foto.',
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 12.5,
                 color: const Color(0xFF7B8794),
               ),
@@ -322,7 +315,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
             const SizedBox(height: 8),
             Text(
               'Ketuk foto untuk memperbesar',
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 11.5,
                 color: const Color(0xFF9AA5B1),
               ),
@@ -349,7 +342,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
             showBackButton: true,
             subtitle: Text(
               'Sisi $_seq',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -375,7 +368,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
                   const SizedBox(height: 20),
                   Text(
                     'Foto Survey Petugas',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF1F2933),
@@ -426,7 +419,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           const SizedBox(height: 14),
           Text(
             'Memuat foto dari server...',
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
               fontSize: 12.5,
               color: const Color(0xFF7B8794),
             ),
@@ -461,7 +454,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           const SizedBox(height: 16),
           Text(
             'Belum ada foto survey Sisi $_seq',
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF1F2933),
@@ -471,7 +464,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           Text(
             'Ambil foto langsung di lokasi. Foto wajib pajak di atas hanya sebagai pembanding dan tidak akan tertimpa. Lokasi GPS tercatat otomatis.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
               fontSize: 12.5,
               height: 1.5,
               color: const Color(0xFF7B8794),
@@ -556,7 +549,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
                               Flexible(
                                 child: Text(
                                   'Geser sudut kotak untuk menandai reklame',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: const TextStyle(
                                     fontSize: 11.5,
                                     color: Colors.white,
                                   ),
@@ -589,7 +582,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
                 Expanded(
                   child: Text(
                     'Lokasi foto · ${f.lat.toStringAsFixed(6)}, ${f.lng.toStringAsFixed(6)}',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: const Color(0xFF52606D),
                     ),

@@ -40,7 +40,7 @@ class HomeBapendaCoreHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Bapenda Tools',
+                  'MyBapenda',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,

@@ -1,7 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_form_fields.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 InputDecoration _dec(
   String? hint, {
@@ -10,7 +9,7 @@ InputDecoration _dec(
 }) => InputDecoration(
   hintText: hint,
   suffixText: suffixText,
-  hintStyle: GoogleFonts.plusJakartaSans(
+  hintStyle: const TextStyle(
     fontSize: 13,
     color: const Color(0xFF9AA5B1),
   ),
@@ -40,7 +39,7 @@ Widget _labeled(String label, Widget field) => Column(
   children: [
     Text(
       label,
-      style: GoogleFonts.plusJakartaSans(
+      style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: const Color(0xFF52606D),
@@ -52,7 +51,7 @@ Widget _labeled(String label, Widget field) => Column(
 );
 
 TextStyle get _valueStyle =>
-    GoogleFonts.plusJakartaSans(fontSize: 13.5, color: const Color(0xFF1F2933));
+    const TextStyle(fontSize: 13.5, color: const Color(0xFF1F2933));
 
 class BapendaTextField extends StatelessWidget {
   final String label;

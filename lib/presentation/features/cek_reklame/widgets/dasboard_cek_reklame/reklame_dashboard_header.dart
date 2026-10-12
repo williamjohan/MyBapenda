@@ -35,7 +35,7 @@ class ReklameDashboardHeader extends StatelessWidget implements PreferredSizeWid
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Cek Reklame',
+            'Survey Reklame',
             style: TextStyle(
               fontSize: 17, // Diperbesar sedikit agar berwibawa
               fontWeight: FontWeight.w600,

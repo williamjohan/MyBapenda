@@ -3,7 +3,6 @@ import 'package:bapendacore/core/di/injection.dart';
 import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/widgets/bapenda_sliver_header.dart';
 import '../../cubit/history_cek_reklame/history_cubit.dart';
 import '../../cubit/history_cek_reklame/history_state.dart';
@@ -99,7 +98,7 @@ class _HistoryViewState extends State<_HistoryView> {
                   final count = state is HistoryLoaded ? state.filtered.length : null;
                   return Text(
                     count != null ? '$count reklame ditemukan' : 'Memuat data…',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: TextStyle(
                       fontSize: 12.5,
                       color: Colors.white.withValues(alpha: 0.85),
                     ),
@@ -199,10 +198,10 @@ class _HistoryViewState extends State<_HistoryView> {
           child: TextField(
             controller: _searchController,
             onChanged: (v) => context.read<HistoryCubit>().search(v),
-            style: GoogleFonts.plusJakartaSans(fontSize: 13.5),
+            style: const TextStyle(fontSize: 13.5),
             decoration: InputDecoration(
               hintText: 'Cari alamat…',
-              hintStyle: GoogleFonts.plusJakartaSans(
+              hintStyle: const TextStyle(
                 fontSize: 13.5,
                 color: AppThemeColors.tertiaryText,
               ),
@@ -236,7 +235,7 @@ class _HistoryViewState extends State<_HistoryView> {
                     onTap: () => _pickDateRange(context, state),
                     child: Text(
                       '${formatTanggalId(state.tanggalAwal)} — ${formatTanggalId(state.tanggalAkhir)}',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
                         color: AppThemeColors.secondaryText,
@@ -249,7 +248,7 @@ class _HistoryViewState extends State<_HistoryView> {
                   icon: const Icon(Icons.filter_alt_rounded, size: 16),
                   label: Text(
                     'Ubah',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -297,7 +296,7 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 18),
             Text(
               'Belum ada riwayat',
-              style: GoogleFonts.lora(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppThemeColors.titleText,
@@ -307,7 +306,7 @@ class _EmptyState extends StatelessWidget {
             Text(
               'Riwayat pemeriksaan reklame pada rentang tanggal ini belum tersedia.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 13,
                 color: AppThemeColors.secondaryText,
                 height: 1.4,
@@ -350,7 +349,7 @@ class _ErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w600,
                 color: AppThemeColors.titleText,

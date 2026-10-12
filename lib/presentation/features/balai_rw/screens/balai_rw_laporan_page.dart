@@ -7,7 +7,6 @@ import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import '../cubit/balai_rw_form_cubit.dart';
 import '../cubit/balai_rw_form_state.dart';
@@ -133,7 +132,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF1F2933),
@@ -198,7 +197,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
             Text(
               st.error ?? 'Gagal memuat form',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 13,
                 color: const Color(0xFF7B8794),
               ),
@@ -241,7 +240,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
                 showBackButton: true,
                 subtitle: Text(
                   '${t['balaiRw']}',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(
                     fontSize: 12.5,
                     color: Colors.white.withValues(alpha: 0.85),
                   ),
@@ -269,7 +268,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
                             const SizedBox(width: 10),
                             Text(
                               'Mode lihat saja',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: const Color(0xFF52606D),
                               ),
