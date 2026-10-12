@@ -20,7 +20,7 @@ class CekReklameRemoteDataSourceImpl implements ICekReklameRemoteDataSource {
     // 1. Tembak API dan biarkan model yang merakit FormData-nya
     final response = await _dio.post(
       ApiEndpoints.uploadReklame,
-      data: await request.toFormData(), // 🚀 Jauh lebih ringkas!
+      data: await request.toFormData(), 
     );
 
     final baseResponse = BaseApiResponseModel<dynamic>.fromJson(
