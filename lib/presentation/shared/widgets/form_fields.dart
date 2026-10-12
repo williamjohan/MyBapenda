@@ -8,11 +8,22 @@ InputDecoration _dec(
   bool readOnly = false,
 }) => InputDecoration(
   hintText: hint,
-  suffixText: suffixText,
-  hintStyle: const TextStyle(
-    fontSize: 13,
-    color: const Color(0xFF9AA5B1),
-  ),
+
+  suffixIcon: suffixText == null
+      ? null
+      : Padding(
+          padding: const EdgeInsets.only(left: 8, right: 12),
+          child: Center(
+            widthFactor: 1,
+            child: Text(
+              suffixText,
+              style: const TextStyle(fontSize: 13.5, color: Color(0xFF636262)),
+            ),
+          ),
+        ),
+  suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+
+  hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF9AA5B1)),
   isDense: true,
   filled: true,
   fillColor: readOnly ? const Color(0xFFEEF0F3) : const Color(0xFFF7F8FA),
@@ -91,6 +102,10 @@ class BapendaTextField extends StatelessWidget {
         maxLines: maxLines,
         readOnly: readOnly,
         onChanged: onChanged,
+        onTapOutside: (_) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+
         style: _valueStyle,
         decoration: _dec(hint, suffixText: suffixText, readOnly: readOnly),
       ),

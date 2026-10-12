@@ -39,8 +39,6 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
   List<Map<String, dynamic>> _norResults = [];
   Map<String, dynamic>? _norTerpilih; // {id, nor, alamat}
 
-  // Mode baru
-  int? _jenisPengajuanId;
   int? _jenisBangunanId;
   int? _namaJalanId;
   final _nopCtrl = TextEditingController();
@@ -85,10 +83,9 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
     final nb = d['norBaru'];
     if (nb is Map) {
       _norMode = _NorMode.baru;
-      _jenisPengajuanId = id(nb['jenisPengajuanId']);
       _jenisBangunanId = id(nb['jenisBangunanId']);
       _namaJalanId = id(nb['namaJalanId']);
-      _nopCtrl.text = nb['nopPbb'] as String? ?? '';
+      _nopCtrl.text = nb['nopPbb'] as String? ?? '-';
       _noAlamatCtrl.text = nb['noAlamat'] as String? ?? '';
     } else if (d['idNor'] != null) {
       _norTerpilih = {
@@ -164,7 +161,6 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
     'norBaru': (_sudahPunyaNor || _norMode != _NorMode.baru)
         ? null
         : {
-            'jenisPengajuanId': _jenisPengajuanId,
             'jenisBangunanId': _jenisBangunanId,
             'nopPbb': _nopCtrl.text.trim(),
             'namaJalanId': _namaJalanId,
@@ -191,8 +187,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
         if (_norTerpilih == null) {
           return 'Pilih NOR dari hasil pencarian, atau tambah NOR baru';
         }
-      } else if (_jenisPengajuanId == null ||
-          _jenisBangunanId == null ||
+      } else if (_jenisBangunanId == null ||
           _namaJalanId == null ||
           _nopCtrl.text.trim().isEmpty ||
           _noAlamatCtrl.text.trim().isEmpty) {
@@ -369,27 +364,20 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
       icon: Icons.edit_note_rounded,
       children: [
         BtSelectField<int>(
-          label: 'Jenis Pengajuan *',
-          items: SurveyOptions.jenisPengajuan,
-          value: _jenisPengajuanId,
-          onChanged: (v) => setState(() => _jenisPengajuanId = v),
-        ),
-        _gap,
-        BtSelectField<int>(
           label: 'Jenis Bangunan *',
           items: SurveyOptions.jenisBangunan,
           value: _jenisBangunanId,
           onChanged: (v) => setState(() => _jenisBangunanId = v),
         ),
         _gap,
-        BapendaTextField(
-          label: 'NOP PBB *',
-          hint: 'Masukkan NOP PBB',
-          controller: _nopCtrl,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        ),
-        _gap,
+        // BapendaTextField(
+        //   label: 'NOP PBB *',
+        //   hint: 'Masukkan NOP PBB',
+        //   controller: _nopCtrl,
+        //   keyboardType: TextInputType.number,
+        //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        // ),
+        // _gap,
         BtSelectField<int>(
           label: 'Nama Jalan *',
           hint: 'Pilih nama jalan',

@@ -106,11 +106,6 @@ class SurveyOptions {
   static String isoDate(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  static const Map<int, String> jenisPengajuan = {
-    1: 'Pendaftaran Baru',
-    2: 'Perubahan Data',
-    3: 'Pemecahan',
-  };
   static const Map<int, String> jenisBangunan = {
     1: 'Rumah Tinggal',
     2: 'Ruko',

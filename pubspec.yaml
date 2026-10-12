@@ -131,6 +131,7 @@ dependencies:
   # ==========================================
   device_info_plus: ^12.4.0
   uuid: ^4.6.0
+  flutter_ntp: ^0.1.0
 
 dev_dependencies:
   flutter_test:

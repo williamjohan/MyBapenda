@@ -36,8 +36,9 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
   int? _kecId;
   int? _kelId;
   int? _timId;
-  DateTime _tanggal = DateTime.now();
 
+  final DateTime _tanggal = DateTime.now();
+  final TextEditingController _tanggalCtrl = TextEditingController();
   final _latCtrl = TextEditingController();
   final _lngCtrl = TextEditingController();
   final _rtCtrl = TextEditingController();
@@ -48,6 +49,8 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
   @override
   void initState() {
     super.initState();
+
+    _tanggalCtrl.text = SurveyOptions.fmtTanggal(_tanggal);
   }
 
   @override
@@ -59,6 +62,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
       _rwCtrl,
       _imbCtrl,
       _blokCtrl,
+      _tanggalCtrl,
     ]) {
       c.dispose();
     }
@@ -153,16 +157,6 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     }
   }
 
-  Future<void> _pickDate() async {
-    final d = await showDatePicker(
-      context: context,
-      initialDate: _tanggal,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (d != null) setState(() => _tanggal = d);
-  }
-
   String? _validate() {
     if (_selfiePath == null) return 'Foto selfie wajib diambil';
     if (_lat == null || _lng == null) {
@@ -174,7 +168,6 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     if (_rtCtrl.text.trim().isEmpty || _rwCtrl.text.trim().isEmpty) {
       return 'RT dan RW wajib diisi';
     }
-    if (_imbCtrl.text.trim().isEmpty) return 'No IMB wajib diisi';
     if (_blokCtrl.text.trim().isEmpty) return 'Blok wajib diisi';
     if (_timId == null) return 'Pilih tim survey';
     return null;
@@ -351,8 +344,6 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                         ],
                       ),
                       _gap,
-                      BapendaTextField(label: 'No IMB *', controller: _imbCtrl),
-                      _gap,
                       BapendaTextField(label: 'Blok *', controller: _blokCtrl),
                       _gap,
                       BtSelectField<int>(
@@ -362,10 +353,10 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                         onChanged: (v) => setState(() => _timId = v),
                       ),
                       _gap,
-                      BapendaDateField(
-                        label: 'Tanggal Survey *',
-                        valueText: SurveyOptions.fmtTanggal(_tanggal),
-                        onTap: _pickDate,
+                      BapendaTextField(
+                        label: 'Tanggal Survey',
+                        controller: _tanggalCtrl,
+                        readOnly: true,
                       ),
                     ],
                   ),
