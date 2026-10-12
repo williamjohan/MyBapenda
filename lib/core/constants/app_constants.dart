@@ -1,7 +1,7 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = "Cek Reklame";
+  static const String appName = "MyBapenda";
   static const String btnLapor = "Laporkan Reklame";
   static const String btnKembali = "Kembali ke Beranda";
   static const String successReportTitle = "Laporan Terkirim";

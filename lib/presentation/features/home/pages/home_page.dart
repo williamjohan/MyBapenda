@@ -88,7 +88,7 @@ class HomePage extends StatelessWidget {
       ),
       HomeFeatureMenuItem(
         icon: Icons.camera_alt_outlined,
-        title: 'Cek Reklame',
+        title: 'Survey Reklame',
         subtitle: 'Lapor & verifikasi',
         onTap: () {
           context.push(AppRoutes.reklameDashboard);
@@ -131,7 +131,7 @@ class HomePage extends StatelessWidget {
         onTap: () {
           context.push(AppRoutes.balaiRw);
         },
-        enabled: true,
+        enabled: false,
       ),
     ];
   }
