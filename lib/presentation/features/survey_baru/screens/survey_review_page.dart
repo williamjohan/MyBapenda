@@ -383,7 +383,6 @@ class _InfoReviewCard extends StatelessWidget {
             ),
           ),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),
-          InfoRow(label: 'No IMB', value: '${info['noImb']}'),
           InfoRow(label: 'Blok', value: '${info['blok']}'),
           InfoRow(
             label: 'Tim Survey',
