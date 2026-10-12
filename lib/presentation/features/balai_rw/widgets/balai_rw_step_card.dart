@@ -2,14 +2,13 @@
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 
 enum BalaiRwStepState {
-  done, // sudah dikerjakan
-  active, // langkah berikutnya (koordinator)
-  locked, // belum bisa, menunggu langkah sebelumnya
-  pending, // belum dikerjakan, dilihat oleh non-koordinator
+  done, 
+  active, 
+  locked, 
+  pending, 
 }
 
 class BalaiRwStepCard extends StatelessWidget {
@@ -95,10 +94,10 @@ class BalaiRwStepCard extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   title,
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: const TextStyle(
                                     fontSize: 14.5,
                                     fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF1F2933),
+                                    color: Color(0xFF1F2933),
                                   ),
                                 ),
                               ),
@@ -115,10 +114,10 @@ class BalaiRwStepCard extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   subtitle,
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: const TextStyle(
                                     fontSize: 12.5,
                                     height: 1.4,
-                                    color: const Color(0xFF7B8794),
+                                    color: Color(0xFF7B8794),
                                   ),
                                 ),
                               ),
@@ -188,7 +187,7 @@ class BalaiRwStepCard extends StatelessWidget {
             )
           : Text(
               '$number',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: active ? Colors.white : const Color(0xFF9AA5B1),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const _brand = Color(0xFFB8680F);
 
@@ -97,7 +96,7 @@ class _SelectSheetState<T> extends State<_SelectSheet<T>> {
                   Expanded(
                     child: Text(
                       widget.title,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF1F2933),
@@ -118,10 +117,10 @@ class _SelectSheetState<T> extends State<_SelectSheet<T>> {
                 child: TextField(
                   controller: _ctrl,
                   onChanged: (v) => setState(() => _q = v),
-                  style: GoogleFonts.plusJakartaSans(fontSize: 13.5),
+                  style: const TextStyle(fontSize: 13.5),
                   decoration: InputDecoration(
                     hintText: widget.searchHint,
-                    hintStyle: GoogleFonts.plusJakartaSans(
+                    hintStyle: const TextStyle(
                       fontSize: 13,
                       color: const Color(0xFF9AA5B1),
                     ),
@@ -157,7 +156,7 @@ class _SelectSheetState<T> extends State<_SelectSheet<T>> {
                           widget.items.isEmpty
                               ? 'Belum ada pilihan'
                               : 'Tidak ditemukan',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: const Color(0xFF7B8794),
                           ),
@@ -189,7 +188,7 @@ class _SelectSheetState<T> extends State<_SelectSheet<T>> {
                                   Expanded(
                                     child: Text(
                                       e.value,
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: TextStyle(
                                         fontSize: 13.5,
                                         fontWeight: selected
                                             ? FontWeight.w700
@@ -266,7 +265,7 @@ class BtSelectField<T> extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.plusJakartaSans(
+          style: const TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF52606D),
@@ -292,7 +291,7 @@ class BtSelectField<T> extends StatelessWidget {
                       hasValue ? text : hint,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: TextStyle(
                         fontSize: 13.5,
                         color: hasValue
                             ? const Color(0xFF1F2933)

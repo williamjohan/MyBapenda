@@ -2,7 +2,6 @@
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
@@ -92,7 +91,7 @@ class _SurveyPermohonanBaruPageState extends State<SurveyPermohonanBaruPage> {
             showBackButton: true,
             subtitle: Text(
               'Pilih permohonan yang akan disurvey',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -103,10 +102,10 @@ class _SurveyPermohonanBaruPageState extends State<SurveyPermohonanBaruPage> {
               padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
               child: TextField(
                 onChanged: (v) => setState(() => _query = v),
-                style: GoogleFonts.plusJakartaSans(fontSize: 13.5),
+                style: const TextStyle(fontSize: 13.5),
                 decoration: InputDecoration(
                   hintText: 'Cari nomor pelayanan / wajib pajak',
-                  hintStyle: GoogleFonts.plusJakartaSans(
+                  hintStyle: const TextStyle(
                     fontSize: 13,
                     color: const Color(0xFF9AA5B1),
                   ),
@@ -131,7 +130,7 @@ class _SurveyPermohonanBaruPageState extends State<SurveyPermohonanBaruPage> {
               child: Center(
                 child: Text(
                   'Permohonan tidak ditemukan',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: const Color(0xFF7B8794),
                   ),

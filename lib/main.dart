@@ -1,4 +1,5 @@
 import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:bapendacore/core/utils/app_system_bar_scope.dart';
 import 'package:bapendacore/core/utils/file_cache_utils.dart';
 import 'package:bapendacore/presentation/features/auth/cubit/auth_cubit.dart';
 import 'package:bapendacore/presentation/features/auth/cubit/auth_state.dart';
@@ -14,13 +15,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await initializeDateFormatting('id_ID');
-  // Wajib di-await: SharedPreferences di-preResolve sebelum cubit lain terdaftar.
   await configureDependencies();
   await FileCacheHelper.clearCache();
 
   final authCubit = getIt<AuthCubit>()..checkSession();
 
-  // Muat tema milik user yang tersimpan sesinya sebelum frame pertama (tanpa kedip).
   final themeCubit = getIt<ThemeModeCubit>();
   await themeCubit.syncWithCurrentUser();
 
@@ -40,7 +39,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Login / logout → ganti preferensi tema ke profil user yang aktif.
     return BlocListener<AuthCubit, AuthState>(
       listenWhen: (prev, curr) =>
           curr is! AuthLoading && prev.runtimeType != curr.runtimeType,
@@ -49,12 +47,15 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         routerConfig: AppRouter.router,
-        title: 'Bapenda Internal',
+        title: 'MyBapenda',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: AppThemeColors.primary),
           fontFamily: 'Poppins',
           useMaterial3: true,
         ),
+        builder: (context, child) {
+          return AppSystemBarScope(child: child ?? const SizedBox.shrink());
+        },
       ),
     );
   }

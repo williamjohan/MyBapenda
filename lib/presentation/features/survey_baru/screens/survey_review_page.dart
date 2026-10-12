@@ -8,7 +8,6 @@ import 'package:bapendacore/presentation/shared/widgets/photo_preview.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import 'survey_foto_page.dart';
@@ -93,7 +92,7 @@ class SurveyReviewPage extends StatelessWidget {
             showBackButton: true,
             subtitle: Text(
               nomorPelayanan,
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -114,7 +113,7 @@ class SurveyReviewPage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(18, 20, 18, 4),
               child: Text(
                 'Ringkasan Survey',
-                style: GoogleFonts.plusJakartaSans(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1F2933),
@@ -207,7 +206,7 @@ class SisiReviewCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Sisi $seq',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF1F2933),
@@ -220,7 +219,7 @@ class SisiReviewCard extends StatelessWidget {
                   icon: const Icon(Icons.edit_rounded, size: 16),
                   label: Text(
                     'Edit',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
                     ),
@@ -248,7 +247,7 @@ class SisiReviewCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '${f.lat.toStringAsFixed(6)}, ${f.lng.toStringAsFixed(6)}',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: const Color(0xFF52606D),
                     ),
@@ -334,7 +333,7 @@ class _InfoReviewCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Informasi Survey',
-                style: GoogleFonts.plusJakartaSans(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1F2933),
@@ -359,7 +358,7 @@ class _InfoReviewCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Foto selfie petugas',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
                       fontSize: 12.5,
                       color: const Color(0xFF52606D),
                     ),

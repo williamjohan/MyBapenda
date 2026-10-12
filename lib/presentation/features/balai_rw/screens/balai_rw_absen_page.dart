@@ -1,5 +1,6 @@
 // lib/presentation/features/balai_rw/pages/balai_rw_absen_page.dart
 import 'dart:async';
+import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:bapendacore/presentation/shared/utils/date_util.dart';
 import 'package:bapendacore/presentation/shared/utils/foto_stamp_util.dart';
 import 'package:bapendacore/presentation/shared/utils/location_util.dart';
@@ -9,7 +10,6 @@ import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
@@ -37,7 +37,7 @@ class BalaiRwAbsenPage extends StatefulWidget {
 }
 
 class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
-  static const _brand = Color(0xFFB8680F);
+  static const _brand = AppThemeColors.primary;
 
   final _picker = ImagePicker();
 
@@ -64,7 +64,7 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
   bool get _canSave =>
       _hasNewPhoto &&
       _time != null &&
-      (!_useLocation || _loc != null) && 
+      (!_useLocation || _loc != null) &&
       !_busy &&
       !_stamping &&
       !_sending;
@@ -246,7 +246,7 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
     final hasPhoto = _stampedPath != null || _rawPath != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F8),
+      backgroundColor: AppThemeColors.defaultBackground,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -255,7 +255,7 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
             showBackButton: true,
             subtitle: Text(
               '${widget.penugasan['balaiRw']}',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -273,7 +273,12 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
           ? null
           : SafeArea(
               child: Container(
-                color: Colors.white,
+                decoration: const BoxDecoration(
+                  color: AppThemeColors.defaultSurface,
+                  border: Border(
+                    top: BorderSide(color: AppThemeColors.subtleBorder),
+                  ),
+                ),
                 padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
                 child: Button(
                   label: 'Kirim $_label',
@@ -291,8 +296,9 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppThemeColors.defaultSurface,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppThemeColors.subtleBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,8 +311,9 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppThemeColors.defaultSurface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppThemeColors.subtleBorder),
       ),
       child: Column(
         children: [
@@ -314,22 +321,22 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
             width: 64,
             height: 64,
             decoration: const BoxDecoration(
-              color: Color(0xFFFFF3DC),
+              color: AppThemeColors.primarySoft,
               shape: BoxShape.circle,
             ),
             child: Icon(
               _isIn ? Icons.login_rounded : Icons.logout_rounded,
               size: 30,
-              color: _brand,
+              color: AppThemeColors.primary,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             'Foto $_label',
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1F2933),
+              color: AppThemeColors.titleText,
             ),
           ),
           const SizedBox(height: 6),
@@ -338,10 +345,10 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
                 ? 'Ambil foto saat tiba di balai RW. Setelah foto, isi jam kedatangan secara manual.'
                 : 'Lokasi, tanggal, dan jam otomatis tercetak di foto. Pastikan GPS aktif.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
               fontSize: 12.5,
               height: 1.5,
-              color: const Color(0xFF7B8794),
+              color: AppThemeColors.secondaryText,
             ),
           ),
           const SizedBox(height: 22),
@@ -404,10 +411,7 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
             const SizedBox(height: 8),
             Text(
               'Jam ini yang tercetak di foto dan dipakai sebagai jam masuk.',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 11.5,
-                color: const Color(0xFF7B8794),
-              ),
+              style: const TextStyle(fontSize: 11.5,  color: AppThemeColors.secondaryText),
             ),
           ] else ...[
             InfoRow(

@@ -8,7 +8,6 @@ import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
 class SurveyDataPage extends StatefulWidget {
@@ -331,18 +330,18 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                   children: [
                     Text(
                       '${n['nor']}',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1F2933),
+                        color: Color(0xFF1F2933),
                       ),
                     ),
                     if ('${n['alamat'] ?? ''}'.isNotEmpty)
                       Text(
                         '${n['alamat']}',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: const TextStyle(
                           fontSize: 12,
-                          color: const Color(0xFF7B8794),
+                          color: Color(0xFF7B8794),
                         ),
                       ),
                   ],
@@ -351,7 +350,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
               if (selected)
                 Text(
                   'Ganti',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFFB8680F),
@@ -429,7 +428,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: GoogleFonts.plusJakartaSans(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1F2933),
@@ -458,7 +457,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
             showBackButton: true,
             subtitle: Text(
               'Sisi ${s['seq']}',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
