@@ -34,6 +34,20 @@ class AppRoutes {
   static const String balaiRwAbsen = '/balai-rw-absen';
   static const String balaiRwLaporan = '/balai-rw-laporan';
 
+  /// Pengiriman Surat
+  static const String pengiriman = '/pengiriman';
+  static const String pengirimanDetail = '/pengiriman/detail';
+  static const String pengirimanLacak = '/pengiriman/pantau';
+  static const String pengirimanLacakDetail = '/pengiriman/lacak';
+  static const String pengirimanScan = '/pengiriman/scan';
+  static const String pengirimanCheckin = '/pengiriman/checkin';
+  static const String pengirimanSerah = '/pengiriman/serah';
+  static const String pengirimanGagal = '/pengiriman/gagal';
+  static const String pengirimanAntrean = '/pengiriman/antrean';
+
+  /// App Link QR surat: `https://{host}:9191/lacak/{noResi}`.
+  static const String lacakDeepLink = '/lacak/:kode';
+
   // MY TASK
   static const String myTask = '/my-task';
   static const String myTaskDetail = '/my-task/detail';

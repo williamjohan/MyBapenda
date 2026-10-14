@@ -54,7 +54,6 @@ class HomePage extends StatelessWidget {
                         items: _buildFeatureItems(context),
                       ),
                       const SizedBox(height: 16),
-
                     ],
                   ),
                 ),
@@ -96,16 +95,28 @@ class HomePage extends StatelessWidget {
         enabled: true,
       ),
       HomeFeatureMenuItem(
-        //  Menggunakan ikon truk pengiriman untuk surat jalan/pengiriman
-        icon: Icons.local_shipping_outlined, 
+        //  Ikon motor: surat diantar petugas dengan sepeda motor
+        icon: Icons.two_wheeler_outlined,
+        title: 'Pengiriman Surat',
+        subtitle: 'Ambil, antar & serah terima surat',
+        onTap: () {
+          context.push(AppRoutes.pengiriman);
+        },
+        enabled: true,
+      ),
+      HomeFeatureMenuItem(
+        //  Lacak berkas surat (gaya lacak paket) dari no resi / QR
+        icon: Icons.manage_search_rounded,
         title: 'Pantau Surat Pengiriman',
-        subtitle: 'Segera hadir',
-        onTap: () {},
-        enabled: false,
+        subtitle: 'Lacak status & jejak surat',
+        onTap: () {
+          context.push(AppRoutes.pengirimanLacak);
+        },
+        enabled: true,
       ),
       HomeFeatureMenuItem(
         //  Menggunakan ikon grafik statistik untuk memantau aktivitas
-        icon: Icons.analytics_outlined, 
+        icon: Icons.analytics_outlined,
         title: 'My Task & Activity',
         subtitle: 'Segera hadir',
         onTap: () {
@@ -115,7 +126,7 @@ class HomePage extends StatelessWidget {
       ),
       HomeFeatureMenuItem(
         //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
-        icon: Icons.qr_code_scanner_outlined, 
+        icon: Icons.qr_code_scanner_outlined,
         title: 'Create VA & Qris',
         subtitle: 'Tagih via QRIS / VA',
         onTap: () {
@@ -125,7 +136,7 @@ class HomePage extends StatelessWidget {
       ),
       HomeFeatureMenuItem(
         //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
-        icon: Icons.groups_rounded, 
+        icon: Icons.groups_rounded,
         title: 'Balai RW',
         subtitle: 'Laporan Pelayanan Balai RW',
         onTap: () {
@@ -135,4 +146,4 @@ class HomePage extends StatelessWidget {
       ),
     ];
   }
-  }
+}
