@@ -15,7 +15,7 @@ class PaidPeriodList extends StatelessWidget {
       return const BillingEmptyState(
         icon: Icons.receipt_long_outlined,
         title: 'Belum ada pembayaran',
-        message: 'Belum ada masa pajak yang dibayar pada tahun ini.',
+        message: 'Belum ada masa pajak yang dibayar.',
       );
     }
 

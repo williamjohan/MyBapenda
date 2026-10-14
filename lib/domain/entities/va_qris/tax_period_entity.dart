@@ -1,20 +1,40 @@
-/// Satu masa pajak (per bulan) dari sebuah NOP.
-///
-/// TODO(tech-debt): DUMMY ENTITY. Nominal memakai `int` (Rupiah penuh) agar
-/// sederhana; tentukan tipe final (int/Decimal) bersama kontrak API.
-class TaxPeriodEntity {
+import 'package:equatable/equatable.dart';
+
+/// Satu masa pajak dari sebuah tagihan (Air Tanah: per bulan; Reklame: satu
+/// SKPD). Nominal dalam Rupiah penuh.
+class TaxPeriodEntity extends Equatable {
   const TaxPeriodEntity({
     required this.year,
     required this.month,
+    required this.label,
     required this.principal,
-    required this.dueDate,
-    this.penalty = 0,
+    required this.total,
+    this.key,
+    this.dueDate,
     this.lateMonths = 0,
+    this.penalty = 0,
+    this.other = 0,
+    this.otherLabel,
+    this.discount = 0,
+    this.isPaid = false,
     this.paidAt,
   });
 
+  /// Dikirim ke API saat membuat kode bayar. null untuk masa yang sudah lunas.
+  final String? key;
+
   final int year;
+
+  /// Air Tanah: bulan masa pajak. Reklame: 0.
   final int month;
+
+  /// Label masa pajak dari API, mis. "Oktober 2026".
+  final String label;
+
+  final DateTime? dueDate;
+
+  /// Jumlah bulan lewat jatuh tempo, dipakai untuk label denda.
+  final int lateMonths;
 
   /// Pokok pajak.
   final int principal;
@@ -22,16 +42,38 @@ class TaxPeriodEntity {
   /// Denda keterlambatan (0 jika tidak ada).
   final int penalty;
 
-  /// Jumlah bulan keterlambatan, dipakai untuk label denda.
-  final int lateMonths;
+  /// Komponen tambahan, mis. jaminan bongkar (Reklame).
+  final int other;
+  final String? otherLabel;
 
-  final DateTime dueDate;
+  /// Potongan (intensifikasi).
+  final int discount;
+
+  /// Total dari API: pokok + denda + lainnya - potongan.
+  final int total;
+
+  final bool isPaid;
 
   /// Terisi jika masa pajak sudah lunas.
   final DateTime? paidAt;
 
-  String get id => '$year-${month.toString().padLeft(2, '0')}';
-  bool get isPaid => paidAt != null;
   bool get hasPenalty => penalty > 0;
-  int get total => principal + penalty;
+
+  @override
+  List<Object?> get props => [
+    key,
+    year,
+    month,
+    label,
+    dueDate,
+    lateMonths,
+    principal,
+    penalty,
+    other,
+    otherLabel,
+    discount,
+    total,
+    isPaid,
+    paidAt,
+  ];
 }

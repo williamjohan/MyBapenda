@@ -47,4 +47,14 @@ class ApiEndpoints {
   static const String surveyPermohonanDetail = '/api/reklame/bo/survey-form';
   static const String surveySimpan = '/api/reklame/bo/simpan-survey';
   static const String surveyCariNor = '/api/reklame/bo/cari-nor';
+
+  // ==========================================
+  // CREATE VA & QRIS
+  // ==========================================
+  static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
+  static const String pembayaranTagihan = '/api/pembayaran/tagihan';
+  static const String pembayaranCheckNominal =
+      '/api/pembayaran/check-nominal';
+  static const String pembayaranBayar = '/api/pembayaran/bayar';
+  static const String pembayaranStatus = '/api/pembayaran/status';
 }

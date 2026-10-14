@@ -1,10 +1,12 @@
 import 'package:bapendacore/core/utils/app_logger.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../../../../../routes/app_routes.dart';
-import '../../mock/va_qris_mock_data.dart';
+import '../../cubit/va_qris_cubit.dart';
+import '../../cubit/va_qris_state.dart';
 import '../common/va_qris_app_bar.dart';
 import 'payment_action_bar.dart';
 import 'payment_amount_header.dart';
@@ -12,17 +14,21 @@ import 'payment_countdown_timer.dart';
 import 'payment_guide_section.dart';
 import 'payment_summary_card.dart';
 
-typedef PaymentCardBuilder = Widget Function(
-  BuildContext context,
-  PaymentSessionEntity session,
-  bool isExpired,
-  VoidCallback onRegenerate,
-);
+typedef PaymentCardBuilder =
+    Widget Function(
+      BuildContext context,
+      PaymentSessionEntity session,
+      bool isExpired,
+      VoidCallback onRegenerate,
+    );
 
 /// Kerangka bersama layar QRIS dan VA: header total, countdown, kartu utama
 /// (QR/VA), rincian, panduan, dan aksi. Layar QRIS/VA hanya menyuplai
 /// [cardBuilder] dan panduannya.
-class PaymentPageLayout extends StatefulWidget {
+///
+/// Sesi, kedaluwarsa, buat ulang, dan status lunas dikelola [VaQrisCubit]
+/// (diisi route lewat `startSession`). [session] hanya nilai awal.
+class PaymentPageLayout extends StatelessWidget {
   const PaymentPageLayout({
     super.key,
     required this.appBarTitle,
@@ -40,42 +46,15 @@ class PaymentPageLayout extends StatefulWidget {
   final List<String> guideSteps;
   final String shareLabel;
 
-  @override
-  State<PaymentPageLayout> createState() => _PaymentPageLayoutState();
-}
+  // TODO(tech-debt): naikkan kecerahan layar & tahan layar tetap menyala
+  // selama QR/VA tampil (screen_brightness + wakelock_plus), lalu pulihkan
+  // saat keluar.
 
-class _PaymentPageLayoutState extends State<PaymentPageLayout> {
-  late PaymentSessionEntity _session;
-  bool _isExpired = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _session = widget.session;
-    // TODO(tech-debt): naikkan kecerahan layar & tahan layar tetap menyala
-    // selama QR/VA tampil (screen_brightness + wakelock_plus), lalu pulihkan
-    // di dispose().
-  }
-
-  void _handleTimeout() {
-    if (!mounted) return;
-    AppLogger.info('Sesi pembayaran ${_session.reference} kedaluwarsa');
-    setState(() => _isExpired = true);
-  }
-
-  void _handleRegenerate() {
-    // TODO(tech-debt): ganti dengan VaQrisCubit.regenerateSession().
-    setState(() {
-      _session = VaQrisMockData.regenerateSession(_session);
-      _isExpired = false;
-    });
-  }
-
-  void _handleShare() {
+  void _handleShare(BuildContext context, PaymentSessionEntity session) {
     // TODO(tech-debt): AppShareUtils saat ini hanya mendukung file. Tambah
     // AppShareUtils.shareText() atau render kartu QR ke gambar, lalu panggil
     // di sini.
-    AppLogger.info('Bagikan ${_session.method.label} (placeholder)');
+    AppLogger.info('Bagikan ${session.method.label} (placeholder)');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -83,12 +62,7 @@ class _PaymentPageLayoutState extends State<PaymentPageLayout> {
       );
   }
 
-  void _handleSimulateSuccess() {
-    // TODO(tech-debt): navigasi sukses harus dipicu status "paid" dari backend.
-    context.pushReplacement(AppRoutes.success, extra: _session);
-  }
-
-  Future<bool> _confirmExit() async {
+  Future<bool> _confirmExit(BuildContext context) async {
     final leave = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -115,60 +89,95 @@ class _PaymentPageLayoutState extends State<PaymentPageLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop) return;
-        final leave = _isExpired ? true : await _confirmExit();
-        if (leave && context.mounted) Navigator.of(context).pop();
-      },
-      child: Scaffold(
-        backgroundColor: AppThemeColors.defaultBackground,
-        appBar: VaQrisAppBar(
-          title: widget.appBarTitle,
-          subtitle: 'Tunjukkan ke wajib pajak',
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<VaQrisCubit, VaQrisState>(
+          listenWhen: (prev, curr) =>
+              prev.sessionStatus != curr.sessionStatus &&
+              curr.sessionStatus == PaymentSessionStatus.paid,
+          listener: (context, state) => context.pushReplacement(
+            AppRoutes.success,
+            extra: state.session ?? session,
+          ),
         ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              PaymentAmountHeader(
-                session: _session,
-                countdown: PaymentCountdownTimer(
-                  key: ValueKey(_session.reference),
-                  duration: _session.validFor,
-                  onTimeout: _handleTimeout,
-                ),
+        BlocListener<VaQrisCubit, VaQrisState>(
+          listenWhen: (prev, curr) =>
+              prev.errorMessage != curr.errorMessage &&
+              curr.errorMessage != null,
+          listener: (context, state) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+          },
+        ),
+      ],
+      child: BlocBuilder<VaQrisCubit, VaQrisState>(
+        builder: (context, state) {
+          final cubit = context.read<VaQrisCubit>();
+          final current = state.session ?? session;
+          final isExpired = state.isExpired;
+
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, _) async {
+              if (didPop) return;
+              final leave = isExpired ? true : await _confirmExit(context);
+              if (leave && context.mounted) Navigator.of(context).pop();
+            },
+            child: Scaffold(
+              backgroundColor: AppThemeColors.defaultBackground,
+              appBar: VaQrisAppBar(
+                title: appBarTitle,
+                subtitle: 'Tunjukkan ke wajib pajak',
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              body: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
-                    widget.cardBuilder(
-                      context,
-                      _session,
-                      _isExpired,
-                      _handleRegenerate,
+                    PaymentAmountHeader(
+                      session: current,
+                      countdown: PaymentCountdownTimer(
+                        key: ValueKey(current.reference),
+                        duration: current.validFor,
+                        onTimeout: () {
+                          AppLogger.info(
+                            'Sesi pembayaran ${current.reference} kedaluwarsa',
+                          );
+                          cubit.markExpired();
+                        },
+                      ),
                     ),
-                    const SizedBox(height: 14),
-                    PaymentSummaryCard(session: _session),
-                    const SizedBox(height: 10),
-                    PaymentGuideSection(
-                      title: widget.guideTitle,
-                      steps: widget.guideSteps,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                      child: Column(
+                        children: [
+                          cardBuilder(
+                            context,
+                            current,
+                            isExpired,
+                            cubit.regenerateSession,
+                          ),
+                          const SizedBox(height: 14),
+                          PaymentSummaryCard(session: current),
+                          const SizedBox(height: 10),
+                          PaymentGuideSection(
+                            title: guideTitle,
+                            steps: guideSteps,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: PaymentActionBar(
-          shareLabel: widget.shareLabel,
-          isExpired: _isExpired,
-          onShare: _handleShare,
-          onSimulateSuccess: _handleSimulateSuccess,
-        ),
+              bottomNavigationBar: PaymentActionBar(
+                shareLabel: shareLabel,
+                isExpired: isExpired,
+                onShare: () => _handleShare(context, current),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

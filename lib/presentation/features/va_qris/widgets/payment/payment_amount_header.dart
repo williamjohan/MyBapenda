@@ -1,4 +1,3 @@
-import 'package:bapendacore/core/utils/app_formatters_utils.dart';
 import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +53,7 @@ class PaymentAmountHeader extends StatelessWidget {
             ),
           ),
           Text(
-            'NOP ${AppFormatters.nop(session.nop)}',
+            '${session.referenceLabel} ${session.referenceNumber}',
             style: TextStyle(
               fontSize: 12.5,
               color: Colors.white.withValues(alpha: 0.8),
