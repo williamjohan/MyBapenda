@@ -1,6 +1,5 @@
 // lib/presentation/features/reklame/widgets/reklame_survey_baru_card.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ReklameSurveyBaruCard extends StatelessWidget {
   final IconData icon;
@@ -49,18 +48,18 @@ class ReklameSurveyBaruCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1F2933),
+                        color: Color(0xFF1F2933),
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: const Color(0xFF7B8794),
+                        color: Color(0xFF7B8794),
                       ),
                     ),
                   ],

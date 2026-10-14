@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart';
+import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart';
+import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_absen_page.dart';
+import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_laporan_page.dart';
+import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_page.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
@@ -14,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/di/injection.dart';
+import '../domain/entities/my_task/task_entity.dart';
 import '../presentation/features/absensi/cubit/absen/absen_cubit.dart';
 import '../presentation/features/absensi/cubit/absensi/absensi_cubit.dart';
 import '../presentation/features/absensi/pages/absensi_page.dart';
@@ -26,6 +32,10 @@ import '../presentation/features/cek_reklame/screens/cek_reklame_dashboard_scree
 import '../presentation/features/cek_reklame/screens/ambil_gambar_reklame/reklame_result_screen.dart';
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
+import '../presentation/features/my_task/pages/my_task_dashboard_page.dart';
+import '../presentation/features/my_task/pages/my_task_detail_page.dart';
+import '../presentation/features/my_task/pages/my_task_success_page.dart';
+import '../presentation/features/my_task/pages/my_task_work_page.dart';
 import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
 import '../presentation/features/splashscreen/pages/splash_page.dart';
 import '../presentation/features/onboarding/pages/onboarding_page.dart';
@@ -170,6 +180,61 @@ class AppRouter {
         ),
       ),
 
+      GoRoute(
+        path: AppRoutes.balaiRw,
+        name: AppRoutes.balaiRw,
+        builder: (context, state) => BlocProvider<BalaiRwHubCubit>(
+          create: (_) => getIt<BalaiRwHubCubit>()..load(),
+          child: const BalaiRwPage(),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.balaiRwAbsen,
+        name: AppRoutes.balaiRwAbsen,
+        builder: (context, state) {
+          final a =
+              state.extra
+                  as ({
+                    BalaiRwAbsenType type,
+                    Map<String, dynamic> penugasan,
+                    Map<String, dynamic>? initial,
+                    bool readOnly,
+                    Future<String?> Function(Map<String, dynamic>)? onSubmit,
+                  });
+          return BalaiRwAbsenPage(
+            type: a.type,
+            penugasan: a.penugasan,
+            initial: a.initial,
+            readOnly: a.readOnly,
+            onSubmit: a.onSubmit,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.balaiRwLaporan,
+        name: AppRoutes.balaiRwLaporan,
+        builder: (context, state) {
+          final a =
+              state.extra
+                  as ({
+                    Map<String, dynamic> penugasan,
+                    Map<String, dynamic>? initial,
+                    bool readOnly,
+                    Future<String?> Function(Map<String, String>)? onSubmit,
+                  });
+          return BlocProvider<BalaiRwFormCubit>(
+            create: (_) => getIt<BalaiRwFormCubit>()..load(),
+            child: BalaiRwLaporanPage(
+              penugasan: a.penugasan,
+              initial: a.initial,
+              readOnly: a.readOnly,
+              onSubmit: a.onSubmit,
+            ),
+          );
+        },
+      ),
+
       // GoRoute(
       //   path: AppRoutes.detail,
       //   name: AppRoutes.detail,
@@ -178,7 +243,6 @@ class AppRouter {
       //     return BillboardDetailScreen(billboard: billboard);
       //   },
       // ),
-
       GoRoute(
         path: AppRoutes.surveyPermohonanBaru,
         name: AppRoutes.surveyPermohonanBaru,
@@ -322,6 +386,42 @@ class AppRouter {
           return session is PaymentSessionEntity
               ? PaymentSuccessPage(session: session)
               : const VaQrisNopPage();
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.myTask,
+        name: AppRoutes.myTask,
+        builder: (context, state) => const MyTaskDashboardPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.myTaskDetail,
+        name: AppRoutes.myTaskDetail,
+        builder: (context, state) {
+          final task = state.extra;
+          return task is TaskEntity
+              ? MyTaskDetailPage(task: task)
+              : const MyTaskDashboardPage();
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.myTaskWork,
+        name: AppRoutes.myTaskWork,
+        builder: (context, state) {
+          final task = state.extra;
+          return task is TaskEntity
+              ? MyTaskWorkPage(task: task)
+              : const MyTaskDashboardPage();
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.myTaskSuccess,
+        name: AppRoutes.myTaskSuccess,
+        builder: (context, state) {
+          final task = state.extra;
+          return task is TaskEntity
+              ? MyTaskSuccessPage(task: task)
+              : const MyTaskDashboardPage();
         },
       ),
     ],

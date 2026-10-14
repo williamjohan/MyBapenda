@@ -6,7 +6,6 @@ import '../../entities/absensi/riwayat_absensi_entity.dart';
 import '../../entities/absensi/ringkasan_absensi_entity.dart';
 
 abstract class AbsensiRepository {
-  /// [tanggal] null = hari ini (versi server).
   Future<Either<Failure, RingkasanAbsensiEntity>> getRingkasan({
     DateTime? tanggal,
   });

@@ -1,7 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_sliver_header.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/app_colors_new.dart';
 
 class BapendaSliverHeader extends StatelessWidget {
@@ -94,7 +93,7 @@ class BapendaSliverHeader extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style: GoogleFonts.lora(
+                            style: TextStyle(
                               // Teks sedikit mengecil (dari 22 ke 19) saat di-scroll
                               fontSize: Tween<double>(begin: 19.0, end: 22.0).transform(expandRatio),
                               fontWeight: FontWeight.w600,
@@ -106,7 +105,7 @@ class BapendaSliverHeader extends StatelessWidget {
                             // Jarak antar teks mengecil saat di-scroll
                             SizedBox(height: Tween<double>(begin: 0.0, end: 2.0).transform(expandRatio)),
                             DefaultTextStyle(
-                              style: GoogleFonts.plusJakartaSans(
+                              style: TextStyle(
                                 // Subtitle mengecil (dari 11.5 ke 12.5) saat di-scroll
                                 fontSize: Tween<double>(begin: 11.5, end: 12.5).transform(expandRatio),
                                 color: Colors.white.withValues(alpha: 0.85),

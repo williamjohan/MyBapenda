@@ -2,13 +2,13 @@
 import 'dart:async';
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
 import 'package:bapendacore/presentation/shared/utils/location_util.dart';
+import 'package:bapendacore/presentation/shared/widgets/bt_select_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/checkin_card.dart';
 import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import 'package:geocoding/geocoding.dart';
@@ -36,8 +36,9 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
   int? _kecId;
   int? _kelId;
   int? _timId;
-  DateTime _tanggal = DateTime.now();
 
+  final DateTime _tanggal = DateTime.now();
+  final TextEditingController _tanggalCtrl = TextEditingController();
   final _latCtrl = TextEditingController();
   final _lngCtrl = TextEditingController();
   final _rtCtrl = TextEditingController();
@@ -48,6 +49,8 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
   @override
   void initState() {
     super.initState();
+
+    _tanggalCtrl.text = SurveyOptions.fmtTanggal(_tanggal);
   }
 
   @override
@@ -59,6 +62,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
       _rwCtrl,
       _imbCtrl,
       _blokCtrl,
+      _tanggalCtrl,
     ]) {
       c.dispose();
     }
@@ -153,16 +157,6 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     }
   }
 
-  Future<void> _pickDate() async {
-    final d = await showDatePicker(
-      context: context,
-      initialDate: _tanggal,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (d != null) setState(() => _tanggal = d);
-  }
-
   String? _validate() {
     if (_selfiePath == null) return 'Foto selfie wajib diambil';
     if (_lat == null || _lng == null) {
@@ -174,7 +168,6 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     if (_rtCtrl.text.trim().isEmpty || _rwCtrl.text.trim().isEmpty) {
       return 'RT dan RW wajib diisi';
     }
-    if (_imbCtrl.text.trim().isEmpty) return 'No IMB wajib diisi';
     if (_blokCtrl.text.trim().isEmpty) return 'Blok wajib diisi';
     if (_timId == null) return 'Pilih tim survey';
     return null;
@@ -228,7 +221,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
             showBackButton: true,
             subtitle: Text(
               widget.nomorPelayanan,
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -266,7 +259,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                           const SizedBox(width: 8),
                           Text(
                             'Informasi Survey',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: const Color(0xFF1F2933),
@@ -306,7 +299,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                         ],
                       ),
                       _gap,
-                      BapendaDropdownField<int>(
+                      BtSelectField<int>(
                         label: 'Kecamatan *',
                         items: SurveyOptions.kecamatan,
                         value: _kecId,
@@ -316,7 +309,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                         }),
                       ),
                       _gap,
-                      BapendaDropdownField<int>(
+                      BtSelectField<int>(
                         key: ValueKey('kel-$_kecId'),
                         label: 'Kelurahan *',
                         hint: _kecId == null ? 'Pilih kecamatan dulu' : 'Pilih',
@@ -351,21 +344,19 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                         ],
                       ),
                       _gap,
-                      BapendaTextField(label: 'No IMB *', controller: _imbCtrl),
-                      _gap,
                       BapendaTextField(label: 'Blok *', controller: _blokCtrl),
                       _gap,
-                      BapendaDropdownField<int>(
+                      BtSelectField<int>(
                         label: 'Tim Survey *',
                         items: SurveyOptions.timSurvey,
                         value: _timId,
                         onChanged: (v) => setState(() => _timId = v),
                       ),
                       _gap,
-                      BapendaDateField(
-                        label: 'Tanggal Survey *',
-                        valueText: SurveyOptions.fmtTanggal(_tanggal),
-                        onTap: _pickDate,
+                      BapendaTextField(
+                        label: 'Tanggal Survey',
+                        controller: _tanggalCtrl,
+                        readOnly: true,
                       ),
                     ],
                   ),

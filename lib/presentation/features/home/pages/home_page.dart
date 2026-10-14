@@ -88,7 +88,7 @@ class HomePage extends StatelessWidget {
       ),
       HomeFeatureMenuItem(
         icon: Icons.camera_alt_outlined,
-        title: 'Cek Reklame',
+        title: 'Survey Reklame',
         subtitle: 'Lapor & verifikasi',
         onTap: () {
           context.push(AppRoutes.reklameDashboard);
@@ -106,10 +106,12 @@ class HomePage extends StatelessWidget {
       HomeFeatureMenuItem(
         //  Menggunakan ikon grafik statistik untuk memantau aktivitas
         icon: Icons.analytics_outlined, 
-        title: 'Aktivitas Pajak',
+        title: 'My Task & Activity',
         subtitle: 'Segera hadir',
-        onTap: () {},
-        enabled: false,
+        onTap: () {
+          context.push(AppRoutes.myTask);
+        },
+        enabled: true,
       ),
       HomeFeatureMenuItem(
         //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
@@ -120,6 +122,16 @@ class HomePage extends StatelessWidget {
           context.push(AppRoutes.nop);
         },
         enabled: true,
+      ),
+      HomeFeatureMenuItem(
+        //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
+        icon: Icons.groups_rounded, 
+        title: 'Balai RW',
+        subtitle: 'Laporan Pelayanan Balai RW',
+        onTap: () {
+          context.push(AppRoutes.balaiRw);
+        },
+        enabled: false,
       ),
     ];
   }

@@ -3,7 +3,6 @@ import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/widgets/history/authenticated_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../domain/entities/cek_reklames/history/history_entity.dart';
@@ -87,7 +86,7 @@ class _HistoryDetailSheet extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.alamat,
-                    style: GoogleFonts.lora(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: AppThemeColors.titleText,
@@ -139,7 +138,7 @@ class _HistoryDetailSheet extends StatelessWidget {
                 icon: const Icon(Icons.map_rounded, size: 18),
                 label: Text(
                   'Buka di Google Maps',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -218,7 +217,7 @@ class _PhotoPreview extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Tidak ada foto',
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
               fontSize: 12,
               color: AppThemeColors.tertiaryText,
             ),
@@ -304,7 +303,7 @@ class _FullScreenPhoto extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           'Tidak ada foto',
-          style: GoogleFonts.plusJakartaSans(
+          style: const TextStyle(
             fontSize: 13,
             color: Colors.white70,
             fontWeight: FontWeight.w500,
@@ -345,7 +344,7 @@ class _DetailRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 11.5,
                     color: AppThemeColors.tertiaryText,
                   ),
@@ -353,7 +352,7 @@ class _DetailRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
                     color: valueColor ?? AppThemeColors.primaryText,

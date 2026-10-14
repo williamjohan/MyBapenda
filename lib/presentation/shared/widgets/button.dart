@@ -1,6 +1,5 @@
 // lib/presentation/shared/widgets/bapenda_button.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 enum BapendaButtonVariant { primary, outlined }
 
@@ -34,7 +33,7 @@ class Button extends StatelessWidget {
     final fg = isPrimary ? Colors.white : _brand;
     final disabled = onPressed == null || isLoading;
 
-    final textStyle = GoogleFonts.plusJakartaSans(
+    final textStyle = TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.w700,
       color: fg,

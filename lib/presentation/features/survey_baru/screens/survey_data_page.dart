@@ -1,5 +1,6 @@
 // lib/presentation/features/reklame/pages/survey_data_page.dart
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
+import 'package:bapendacore/presentation/shared/widgets/bt_select_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
@@ -7,7 +8,6 @@ import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
 class SurveyDataPage extends StatefulWidget {
@@ -39,8 +39,6 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
   List<Map<String, dynamic>> _norResults = [];
   Map<String, dynamic>? _norTerpilih; // {id, nor, alamat}
 
-  // Mode baru
-  int? _jenisPengajuanId;
   int? _jenisBangunanId;
   int? _namaJalanId;
   final _nopCtrl = TextEditingController();
@@ -85,10 +83,9 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
     final nb = d['norBaru'];
     if (nb is Map) {
       _norMode = _NorMode.baru;
-      _jenisPengajuanId = id(nb['jenisPengajuanId']);
       _jenisBangunanId = id(nb['jenisBangunanId']);
       _namaJalanId = id(nb['namaJalanId']);
-      _nopCtrl.text = nb['nopPbb'] as String? ?? '';
+      _nopCtrl.text = nb['nopPbb'] as String? ?? '-';
       _noAlamatCtrl.text = nb['noAlamat'] as String? ?? '';
     } else if (d['idNor'] != null) {
       _norTerpilih = {
@@ -164,7 +161,6 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
     'norBaru': (_sudahPunyaNor || _norMode != _NorMode.baru)
         ? null
         : {
-            'jenisPengajuanId': _jenisPengajuanId,
             'jenisBangunanId': _jenisBangunanId,
             'nopPbb': _nopCtrl.text.trim(),
             'namaJalanId': _namaJalanId,
@@ -191,8 +187,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
         if (_norTerpilih == null) {
           return 'Pilih NOR dari hasil pencarian, atau tambah NOR baru';
         }
-      } else if (_jenisPengajuanId == null ||
-          _jenisBangunanId == null ||
+      } else if (_jenisBangunanId == null ||
           _namaJalanId == null ||
           _nopCtrl.text.trim().isEmpty ||
           _noAlamatCtrl.text.trim().isEmpty) {
@@ -330,18 +325,18 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                   children: [
                     Text(
                       '${n['nor']}',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1F2933),
+                        color: Color(0xFF1F2933),
                       ),
                     ),
                     if ('${n['alamat'] ?? ''}'.isNotEmpty)
                       Text(
                         '${n['alamat']}',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: const TextStyle(
                           fontSize: 12,
-                          color: const Color(0xFF7B8794),
+                          color: Color(0xFF7B8794),
                         ),
                       ),
                   ],
@@ -350,7 +345,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
               if (selected)
                 Text(
                   'Ganti',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFFB8680F),
@@ -368,29 +363,22 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
       title: 'Input Nomor Baru',
       icon: Icons.edit_note_rounded,
       children: [
-        BapendaDropdownField<int>(
-          label: 'Jenis Pengajuan *',
-          items: SurveyOptions.jenisPengajuan,
-          value: _jenisPengajuanId,
-          onChanged: (v) => setState(() => _jenisPengajuanId = v),
-        ),
-        _gap,
-        BapendaDropdownField<int>(
+        BtSelectField<int>(
           label: 'Jenis Bangunan *',
           items: SurveyOptions.jenisBangunan,
           value: _jenisBangunanId,
           onChanged: (v) => setState(() => _jenisBangunanId = v),
         ),
         _gap,
-        BapendaTextField(
-          label: 'NOP PBB *',
-          hint: 'Masukkan NOP PBB',
-          controller: _nopCtrl,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        ),
-        _gap,
-        BapendaDropdownField<int>(
+        // BapendaTextField(
+        //   label: 'NOP PBB *',
+        //   hint: 'Masukkan NOP PBB',
+        //   controller: _nopCtrl,
+        //   keyboardType: TextInputType.number,
+        //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        // ),
+        // _gap,
+        BtSelectField<int>(
           label: 'Nama Jalan *',
           hint: 'Pilih nama jalan',
           items: SurveyOptions.namaJalan,
@@ -428,7 +416,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: GoogleFonts.plusJakartaSans(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1F2933),
@@ -457,7 +445,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
             showBackButton: true,
             subtitle: Text(
               'Sisi ${s['seq']}',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -523,21 +511,21 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                   title: 'Data Hasil Survey',
                   icon: Icons.assignment_rounded,
                   children: [
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Lokasi Tertentu',
                       items: SurveyOptions.lokasiTertentu,
                       value: _lokasiTertentuId,
                       onChanged: (v) => setState(() => _lokasiTertentuId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Letak Reklame',
                       items: SurveyOptions.letakReklame,
                       value: _letakId,
                       onChanged: (v) => setState(() => _letakId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Status Tanah',
                       items: SurveyOptions.statusTanah,
                       value: _statusTanahId,
@@ -580,21 +568,21 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                       ],
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Jenis Reklame',
                       items: SurveyOptions.jenisReklame,
                       value: _jenisReklameId,
                       onChanged: (v) => setState(() => _jenisReklameId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Jenis Produk',
                       items: SurveyOptions.jenisProduk,
                       value: _jenisProdukId,
                       onChanged: (v) => setState(() => _jenisProdukId = v),
                     ),
                     _gap,
-                    BapendaDropdownField<int>(
+                    BtSelectField<int>(
                       label: 'Sudut Pandang',
                       items: SurveyOptions.sudutPandang,
                       value: _sudutId,

@@ -6,7 +6,6 @@ import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart'; // Import header baru
 import '../widgets/dasboard_cek_reklame/reklame_history_card.dart';
 import '../widgets/dasboard_cek_reklame/reklame_primary_card.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ReklameDashboardPage extends StatelessWidget {
   const ReklameDashboardPage({super.key});
@@ -22,11 +21,11 @@ class ReklameDashboardPage extends StatelessWidget {
         slivers: [
           // 🚀 IMPLEMENTASI HEADER BARU DI SINI
           BapendaSliverHeader(
-            title: 'Cek Reklame',
+            title: 'Survey Reklame',
             showBackButton: true, // Ada panah kembali ke Home
             subtitle: Text(
               'Pengawasan reklame Kota Surabaya',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),

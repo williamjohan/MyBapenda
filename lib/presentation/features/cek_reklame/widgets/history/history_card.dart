@@ -2,7 +2,6 @@ import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/widgets/history/authenticated_image.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../../domain/entities/cek_reklames/history/history_entity.dart';
 
 class HistoryCard extends StatelessWidget {
@@ -62,7 +61,7 @@ class HistoryCard extends StatelessWidget {
                         children: [
                           Text(
                             'LOKASI PEMERIKSAAN',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: const TextStyle(
                               fontSize: 9.5,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.7,
@@ -74,7 +73,7 @@ class HistoryCard extends StatelessWidget {
                             item.alamat,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.plusJakartaSans(
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               height: 1.35,
@@ -163,7 +162,7 @@ class HistoryCard extends StatelessWidget {
                                 item.insBy,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.plusJakartaSans(
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                   color: AppThemeColors.secondaryText,
@@ -237,7 +236,7 @@ class _InfoItem extends StatelessWidget {
             const SizedBox(width: 5),
             Text(
               label,
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: AppThemeColors.tertiaryText,
@@ -251,7 +250,7 @@ class _InfoItem extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: alignEnd ? TextAlign.end : TextAlign.start,
-          style: GoogleFonts.plusJakartaSans(
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: AppThemeColors.secondaryText,
@@ -349,7 +348,7 @@ class _UkuranBadge extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             hasValue ? 'Sudah Diukur' : 'Belum diukur',
-            style: GoogleFonts.plusJakartaSans(
+            style: TextStyle(
               fontSize: 9.5,
               fontWeight: FontWeight.w700,
               color: hasValue
