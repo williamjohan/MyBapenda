@@ -74,6 +74,18 @@ import '../../presentation/features/laporan_kehadiran/cubit/laporan_cubit.dart'
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
+import '../../presentation/shared/master_data/data/datasources/master_local_datasource.dart'
+    as _i30;
+import '../../presentation/shared/master_data/data/datasources/master_remote_datasource.dart'
+    as _i615;
+import '../../presentation/shared/master_data/data/repositories/master_repository_impl.dart'
+    as _i21;
+import '../../presentation/shared/master_data/domain/repositories/i_master_repository.dart'
+    as _i1023;
+import '../../presentation/shared/master_data/domain/usecases/master_data_usecase.dart'
+    as _i60;
+import '../../presentation/shared/master_data/presentation/cubit/master_data_cubit.dart'
+    as _i801;
 import '../network/dio_auth_interceptor.dart' as _i817;
 import '../network/hmac_kantor_interceptor.dart' as _i370;
 import '../network/network_cubit.dart' as _i11;
@@ -123,6 +135,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i869.GeoLocationServiceImpl());
     gh.lazySingleton<_i30.AppIntegrityService>(
         () => _i30.AppIntegrityServiceImpl());
+    gh.lazySingleton<_i30.IMasterLocalDataSource>(
+        () => _i30.MasterLocalDataSourceImpl(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i233.AppSecureStorage>(
         () => _i233.AppSecureStorage(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i218.DeviceIdentityService>(
@@ -143,8 +157,14 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i817.DioAuthInterceptor>(),
           gh<_i370.HmacKantorInterceptor>(),
         ));
+    gh.lazySingleton<_i615.IMasterRemoteDataSource>(
+        () => _i615.MasterRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i753.AbsensiRemoteDataSource>(
         () => _i753.AbsensiRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i1023.IMasterRepository>(() => _i21.MasterRepositoryImpl(
+          gh<_i615.IMasterRemoteDataSource>(),
+          gh<_i30.IMasterLocalDataSource>(),
+        ));
     gh.lazySingleton<_i451.HistoryRemoteDataSource>(
         () => _i451.HistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i60.AuthRemoteDataSource>(
@@ -153,6 +173,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i705.VaQrisRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i766.ICekReklameRemoteDataSource>(
         () => _i766.CekReklameRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i60.MasterDataUseCase>(
+        () => _i60.MasterDataUseCase(gh<_i1023.IMasterRepository>()));
     gh.lazySingleton<_i348.IBalaiRwRemoteDataSource>(
         () => _i348.BalaiRwRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i919.UpdateService>(() => _i919.UpdateService(
@@ -179,6 +201,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i215.ISurveyPermohonanRemoteDataSource>(
         () => _i215.SurveyPermohonanRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i801.MasterDataCubit>(
+        () => _i801.MasterDataCubit(gh<_i60.MasterDataUseCase>()));
     gh.factory<_i755.CameraCubit>(() => _i755.CameraCubit(
           gh<_i164.IPermissionService>(),
           gh<_i904.GeocodingRepository>(),

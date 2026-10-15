@@ -12,8 +12,7 @@ part of 'va_qris_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$VaQrisState {
@@ -37,21 +36,19 @@ mixin _$VaQrisState {
 /// @nodoc
 abstract class $VaQrisStateCopyWith<$Res> {
   factory $VaQrisStateCopyWith(
-    VaQrisState value,
-    $Res Function(VaQrisState) then,
-  ) = _$VaQrisStateCopyWithImpl<$Res, VaQrisState>;
+          VaQrisState value, $Res Function(VaQrisState) then) =
+      _$VaQrisStateCopyWithImpl<$Res, VaQrisState>;
   @useResult
-  $Res call({
-    VaQrisStatus status,
-    List<TaxTypeEntity> taxTypes,
-    TaxTypeEntity? selectedTaxType,
-    TaxBillingEntity? billing,
-    int selectedCount,
-    bool confirming,
-    PaymentSessionEntity? session,
-    PaymentSessionStatus sessionStatus,
-    String? errorMessage,
-  });
+  $Res call(
+      {VaQrisStatus status,
+      List<TaxTypeEntity> taxTypes,
+      TaxTypeEntity? selectedTaxType,
+      TaxBillingEntity? billing,
+      int selectedCount,
+      bool confirming,
+      PaymentSessionEntity? session,
+      PaymentSessionStatus sessionStatus,
+      String? errorMessage});
 }
 
 /// @nodoc
@@ -77,47 +74,44 @@ class _$VaQrisStateCopyWithImpl<$Res, $Val extends VaQrisState>
     Object? sessionStatus = null,
     Object? errorMessage = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as VaQrisStatus,
-            taxTypes: null == taxTypes
-                ? _value.taxTypes
-                : taxTypes // ignore: cast_nullable_to_non_nullable
-                      as List<TaxTypeEntity>,
-            selectedTaxType: freezed == selectedTaxType
-                ? _value.selectedTaxType
-                : selectedTaxType // ignore: cast_nullable_to_non_nullable
-                      as TaxTypeEntity?,
-            billing: freezed == billing
-                ? _value.billing
-                : billing // ignore: cast_nullable_to_non_nullable
-                      as TaxBillingEntity?,
-            selectedCount: null == selectedCount
-                ? _value.selectedCount
-                : selectedCount // ignore: cast_nullable_to_non_nullable
-                      as int,
-            confirming: null == confirming
-                ? _value.confirming
-                : confirming // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            session: freezed == session
-                ? _value.session
-                : session // ignore: cast_nullable_to_non_nullable
-                      as PaymentSessionEntity?,
-            sessionStatus: null == sessionStatus
-                ? _value.sessionStatus
-                : sessionStatus // ignore: cast_nullable_to_non_nullable
-                      as PaymentSessionStatus,
-            errorMessage: freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as VaQrisStatus,
+      taxTypes: null == taxTypes
+          ? _value.taxTypes
+          : taxTypes // ignore: cast_nullable_to_non_nullable
+              as List<TaxTypeEntity>,
+      selectedTaxType: freezed == selectedTaxType
+          ? _value.selectedTaxType
+          : selectedTaxType // ignore: cast_nullable_to_non_nullable
+              as TaxTypeEntity?,
+      billing: freezed == billing
+          ? _value.billing
+          : billing // ignore: cast_nullable_to_non_nullable
+              as TaxBillingEntity?,
+      selectedCount: null == selectedCount
+          ? _value.selectedCount
+          : selectedCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      confirming: null == confirming
+          ? _value.confirming
+          : confirming // ignore: cast_nullable_to_non_nullable
+              as bool,
+      session: freezed == session
+          ? _value.session
+          : session // ignore: cast_nullable_to_non_nullable
+              as PaymentSessionEntity?,
+      sessionStatus: null == sessionStatus
+          ? _value.sessionStatus
+          : sessionStatus // ignore: cast_nullable_to_non_nullable
+              as PaymentSessionStatus,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
   }
 }
 
@@ -125,22 +119,20 @@ class _$VaQrisStateCopyWithImpl<$Res, $Val extends VaQrisState>
 abstract class _$$VaQrisStateImplCopyWith<$Res>
     implements $VaQrisStateCopyWith<$Res> {
   factory _$$VaQrisStateImplCopyWith(
-    _$VaQrisStateImpl value,
-    $Res Function(_$VaQrisStateImpl) then,
-  ) = __$$VaQrisStateImplCopyWithImpl<$Res>;
+          _$VaQrisStateImpl value, $Res Function(_$VaQrisStateImpl) then) =
+      __$$VaQrisStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    VaQrisStatus status,
-    List<TaxTypeEntity> taxTypes,
-    TaxTypeEntity? selectedTaxType,
-    TaxBillingEntity? billing,
-    int selectedCount,
-    bool confirming,
-    PaymentSessionEntity? session,
-    PaymentSessionStatus sessionStatus,
-    String? errorMessage,
-  });
+  $Res call(
+      {VaQrisStatus status,
+      List<TaxTypeEntity> taxTypes,
+      TaxTypeEntity? selectedTaxType,
+      TaxBillingEntity? billing,
+      int selectedCount,
+      bool confirming,
+      PaymentSessionEntity? session,
+      PaymentSessionStatus sessionStatus,
+      String? errorMessage});
 }
 
 /// @nodoc
@@ -148,9 +140,8 @@ class __$$VaQrisStateImplCopyWithImpl<$Res>
     extends _$VaQrisStateCopyWithImpl<$Res, _$VaQrisStateImpl>
     implements _$$VaQrisStateImplCopyWith<$Res> {
   __$$VaQrisStateImplCopyWithImpl(
-    _$VaQrisStateImpl _value,
-    $Res Function(_$VaQrisStateImpl) _then,
-  ) : super(_value, _then);
+      _$VaQrisStateImpl _value, $Res Function(_$VaQrisStateImpl) _then)
+      : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
@@ -165,64 +156,62 @@ class __$$VaQrisStateImplCopyWithImpl<$Res>
     Object? sessionStatus = null,
     Object? errorMessage = freezed,
   }) {
-    return _then(
-      _$VaQrisStateImpl(
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as VaQrisStatus,
-        taxTypes: null == taxTypes
-            ? _value._taxTypes
-            : taxTypes // ignore: cast_nullable_to_non_nullable
-                  as List<TaxTypeEntity>,
-        selectedTaxType: freezed == selectedTaxType
-            ? _value.selectedTaxType
-            : selectedTaxType // ignore: cast_nullable_to_non_nullable
-                  as TaxTypeEntity?,
-        billing: freezed == billing
-            ? _value.billing
-            : billing // ignore: cast_nullable_to_non_nullable
-                  as TaxBillingEntity?,
-        selectedCount: null == selectedCount
-            ? _value.selectedCount
-            : selectedCount // ignore: cast_nullable_to_non_nullable
-                  as int,
-        confirming: null == confirming
-            ? _value.confirming
-            : confirming // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        session: freezed == session
-            ? _value.session
-            : session // ignore: cast_nullable_to_non_nullable
-                  as PaymentSessionEntity?,
-        sessionStatus: null == sessionStatus
-            ? _value.sessionStatus
-            : sessionStatus // ignore: cast_nullable_to_non_nullable
-                  as PaymentSessionStatus,
-        errorMessage: freezed == errorMessage
-            ? _value.errorMessage
-            : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
+    return _then(_$VaQrisStateImpl(
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as VaQrisStatus,
+      taxTypes: null == taxTypes
+          ? _value._taxTypes
+          : taxTypes // ignore: cast_nullable_to_non_nullable
+              as List<TaxTypeEntity>,
+      selectedTaxType: freezed == selectedTaxType
+          ? _value.selectedTaxType
+          : selectedTaxType // ignore: cast_nullable_to_non_nullable
+              as TaxTypeEntity?,
+      billing: freezed == billing
+          ? _value.billing
+          : billing // ignore: cast_nullable_to_non_nullable
+              as TaxBillingEntity?,
+      selectedCount: null == selectedCount
+          ? _value.selectedCount
+          : selectedCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      confirming: null == confirming
+          ? _value.confirming
+          : confirming // ignore: cast_nullable_to_non_nullable
+              as bool,
+      session: freezed == session
+          ? _value.session
+          : session // ignore: cast_nullable_to_non_nullable
+              as PaymentSessionEntity?,
+      sessionStatus: null == sessionStatus
+          ? _value.sessionStatus
+          : sessionStatus // ignore: cast_nullable_to_non_nullable
+              as PaymentSessionStatus,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$VaQrisStateImpl extends _VaQrisState {
-  const _$VaQrisStateImpl({
-    this.status = VaQrisStatus.initial,
-    final List<TaxTypeEntity> taxTypes = const <TaxTypeEntity>[],
-    this.selectedTaxType,
-    this.billing,
-    this.selectedCount = 0,
-    this.confirming = false,
-    this.session,
-    this.sessionStatus = PaymentSessionStatus.pending,
-    this.errorMessage,
-  }) : _taxTypes = taxTypes,
-       super._();
+  const _$VaQrisStateImpl(
+      {this.status = VaQrisStatus.initial,
+      final List<TaxTypeEntity> taxTypes = const <TaxTypeEntity>[],
+      this.selectedTaxType,
+      this.billing,
+      this.selectedCount = 0,
+      this.confirming = false,
+      this.session,
+      this.sessionStatus = PaymentSessionStatus.pending,
+      this.errorMessage})
+      : _taxTypes = taxTypes,
+        super._();
 
   @override
   @JsonKey()
@@ -284,17 +273,16 @@ class _$VaQrisStateImpl extends _VaQrisState {
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    status,
-    const DeepCollectionEquality().hash(_taxTypes),
-    selectedTaxType,
-    billing,
-    selectedCount,
-    confirming,
-    session,
-    sessionStatus,
-    errorMessage,
-  );
+      runtimeType,
+      status,
+      const DeepCollectionEquality().hash(_taxTypes),
+      selectedTaxType,
+      billing,
+      selectedCount,
+      confirming,
+      session,
+      sessionStatus,
+      errorMessage);
 
   @JsonKey(ignore: true)
   @override
@@ -304,17 +292,16 @@ class _$VaQrisStateImpl extends _VaQrisState {
 }
 
 abstract class _VaQrisState extends VaQrisState {
-  const factory _VaQrisState({
-    final VaQrisStatus status,
-    final List<TaxTypeEntity> taxTypes,
-    final TaxTypeEntity? selectedTaxType,
-    final TaxBillingEntity? billing,
-    final int selectedCount,
-    final bool confirming,
-    final PaymentSessionEntity? session,
-    final PaymentSessionStatus sessionStatus,
-    final String? errorMessage,
-  }) = _$VaQrisStateImpl;
+  const factory _VaQrisState(
+      {final VaQrisStatus status,
+      final List<TaxTypeEntity> taxTypes,
+      final TaxTypeEntity? selectedTaxType,
+      final TaxBillingEntity? billing,
+      final int selectedCount,
+      final bool confirming,
+      final PaymentSessionEntity? session,
+      final PaymentSessionStatus sessionStatus,
+      final String? errorMessage}) = _$VaQrisStateImpl;
   const _VaQrisState._() : super._();
 
   @override
@@ -326,6 +313,7 @@ abstract class _VaQrisState extends VaQrisState {
   @override
   TaxBillingEntity? get billing;
   @override
+
   /// Jumlah masa terlama yang dipilih (lihat PeriodSelectionLogic).
   int get selectedCount;
   @override
