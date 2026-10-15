@@ -1,7 +1,5 @@
-// lib/presentation/shared/widgets/bapenda_form_fields.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 InputDecoration _dec(
   String? hint, {
@@ -10,7 +8,7 @@ InputDecoration _dec(
 }) => InputDecoration(
   hintText: hint,
   suffixText: suffixText,
-  hintStyle: GoogleFonts.plusJakartaSans(
+  hintStyle: const TextStyle(
     fontSize: 13,
     color: const Color(0xFF9AA5B1),
   ),
@@ -35,15 +33,27 @@ InputDecoration _dec(
   ),
 );
 
-Widget _labeled(String label, Widget field) => Column(
+Widget _labeled(String label, Widget field, {bool mandatory = false}) => Column(
   crossAxisAlignment: CrossAxisAlignment.start,
   children: [
-    Text(
-      label,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: const Color(0xFF52606D),
+    Text.rich(
+      TextSpan(
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF52606D),
+        ),
+        children: [
+          TextSpan(text: label),
+          if (mandatory)
+            const TextSpan(
+              text: ' *',
+              style: TextStyle(
+                color: Color(0xFFEF4444),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+        ],
       ),
     ),
     const SizedBox(height: 6),
@@ -52,7 +62,7 @@ Widget _labeled(String label, Widget field) => Column(
 );
 
 TextStyle get _valueStyle =>
-    GoogleFonts.plusJakartaSans(fontSize: 13.5, color: const Color(0xFF1F2933));
+    const TextStyle(fontSize: 13.5, color: Color(0xFF1F2933));
 
 class BapendaTextField extends StatelessWidget {
   final String label;
@@ -64,6 +74,7 @@ class BapendaTextField extends StatelessWidget {
   final int? maxLength;
   final int maxLines;
   final bool readOnly;
+  final bool mandatory;
   final ValueChanged<String>? onChanged;
 
   const BapendaTextField({
@@ -77,6 +88,7 @@ class BapendaTextField extends StatelessWidget {
     this.maxLength,
     this.maxLines = 1,
     this.readOnly = false,
+    this.mandatory = false,
     this.onChanged,
   });
 
@@ -95,6 +107,7 @@ class BapendaTextField extends StatelessWidget {
         style: _valueStyle,
         decoration: _dec(hint, suffixText: suffixText, readOnly: readOnly),
       ),
+      mandatory: mandatory,
     );
   }
 }
@@ -103,8 +116,9 @@ class BapendaDropdownField<T> extends StatelessWidget {
   final String label;
   final String hint;
   final T? value;
-  final Map<T, String> items; // value -> label
+  final Map<T, String> items;
   final ValueChanged<T?> onChanged;
+  final bool mandatory;
 
   const BapendaDropdownField({
     super.key,
@@ -113,6 +127,7 @@ class BapendaDropdownField<T> extends StatelessWidget {
     required this.onChanged,
     this.value,
     this.hint = 'Pilih',
+    this.mandatory = false,
   });
 
   @override
@@ -132,21 +147,23 @@ class BapendaDropdownField<T> extends StatelessWidget {
         ],
         onChanged: onChanged,
       ),
+      mandatory: mandatory,
     );
   }
 }
 
-/// Field tanggal: tampilannya mirip text field, tap buka date picker.
 class BapendaDateField extends StatelessWidget {
   final String label;
   final String valueText;
   final VoidCallback onTap;
+  final bool mandatory;
 
   const BapendaDateField({
     super.key,
     required this.label,
     required this.valueText,
     required this.onTap,
+    this.mandatory = false,
   });
 
   @override
@@ -163,18 +180,19 @@ class BapendaDateField extends StatelessWidget {
           child: Text(valueText, style: _valueStyle),
         ),
       ),
+      mandatory: mandatory,
     );
   }
 }
 
-/// Input angka: hanya 0-9, titik, dan koma. Karakter lain (termasuk hasil
-/// paste) otomatis dibuang.
+/// Input angka: hanya 0-9, titik, dan koma.
 class BapendaNumberField extends StatelessWidget {
   final String label;
   final String? hint;
   final String? suffixText;
   final TextEditingController? controller;
   final bool readOnly;
+  final bool mandatory;
 
   const BapendaNumberField({
     super.key,
@@ -183,6 +201,7 @@ class BapendaNumberField extends StatelessWidget {
     this.suffixText,
     this.controller,
     this.readOnly = false,
+    this.mandatory = false,
   });
 
   @override
@@ -193,6 +212,7 @@ class BapendaNumberField extends StatelessWidget {
       suffixText: suffixText,
       controller: controller,
       readOnly: readOnly,
+      mandatory: mandatory,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
     );
@@ -204,6 +224,7 @@ class BapendaTimeField extends StatelessWidget {
   final String? valueText;
   final String hint;
   final VoidCallback? onTap;
+  final bool mandatory;
 
   const BapendaTimeField({
     super.key,
@@ -211,6 +232,7 @@ class BapendaTimeField extends StatelessWidget {
     required this.onTap,
     this.valueText,
     this.hint = 'Pilih jam',
+    this.mandatory = false,
   });
 
   @override
@@ -233,6 +255,7 @@ class BapendaTimeField extends StatelessWidget {
           ),
         ),
       ),
+      mandatory: mandatory,
     );
   }
 }

@@ -1,6 +1,5 @@
 // lib/presentation/shared/widgets/bapenda_status_chip.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 enum BapendaStatusTone { success, warning, info, danger, neutral }
 
@@ -30,7 +29,7 @@ class StatusChip extends StatelessWidget {
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
       child: Text(
         label,
-        style: GoogleFonts.plusJakartaSans(
+        style: TextStyle(
           fontSize: 11.5,
           fontWeight: FontWeight.w700,
           color: fg,

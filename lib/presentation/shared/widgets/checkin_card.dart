@@ -2,7 +2,6 @@
 import 'dart:io';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CheckinCard extends StatefulWidget {
@@ -73,7 +72,7 @@ class _CheckinCardState extends State<CheckinCard> {
               const SizedBox(width: 8),
               Text(
                 widget.title,
-                style: GoogleFonts.plusJakartaSans(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1F2933),
@@ -104,7 +103,7 @@ class _CheckinCardState extends State<CheckinCard> {
             Text(
               widget.hint,
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 12.5,
                 height: 1.5,
                 color: const Color(0xFF7B8794),

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../common/va_qris_primary_button.dart';
 
-/// Bar tetap di bawah layar: rincian pokok, denda, total, dan tombol
-/// konfirmasi.
+/// Bar tetap di bawah layar: rincian pokok, denda, lainnya, potongan, total,
+/// dan tombol konfirmasi.
 class BillingTotalBar extends StatelessWidget {
   const BillingTotalBar({
     super.key,
@@ -12,6 +12,10 @@ class BillingTotalBar extends StatelessWidget {
     required this.principal,
     required this.penalty,
     required this.onConfirm,
+    this.other = 0,
+    this.otherLabel,
+    this.discount = 0,
+    this.isLoading = false,
   });
 
   final int selectedCount;
@@ -19,7 +23,15 @@ class BillingTotalBar extends StatelessWidget {
   final int penalty;
   final VoidCallback onConfirm;
 
-  int get _total => principal + penalty;
+  /// Komponen tambahan, mis. jaminan bongkar (Reklame).
+  final int other;
+  final String? otherLabel;
+
+  /// Potongan (intensifikasi).
+  final int discount;
+  final bool isLoading;
+
+  int get _total => principal + penalty + other - discount;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +41,9 @@ class BillingTotalBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
         color: AppThemeColors.defaultSurface,
-        border: const Border(top: BorderSide(color: AppThemeColors.subtleBorder)),
+        border: const Border(
+          top: BorderSide(color: AppThemeColors.subtleBorder),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -59,6 +73,21 @@ class BillingTotalBar extends StatelessWidget {
                             label: 'Denda keterlambatan',
                             amount: penalty,
                             color: AppThemeColors.danger,
+                          ),
+                        ],
+                        if (other > 0) ...[
+                          const SizedBox(height: 4),
+                          _AmountRow(
+                            label: otherLabel ?? 'Lainnya',
+                            amount: other,
+                          ),
+                        ],
+                        if (discount > 0) ...[
+                          const SizedBox(height: 4),
+                          _AmountRow(
+                            label: 'Potongan',
+                            amount: -discount,
+                            color: AppThemeColors.success,
                           ),
                         ],
                         const Padding(
@@ -98,6 +127,7 @@ class BillingTotalBar extends StatelessWidget {
             VaQrisPrimaryButton(
               label: 'Konfirmasi pembayaran',
               icon: Icons.check_circle_outline_rounded,
+              isLoading: isLoading,
               onPressed: hasSelection ? onConfirm : null,
             ),
           ],

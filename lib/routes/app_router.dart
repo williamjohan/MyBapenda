@@ -1,18 +1,26 @@
 import 'dart:async';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
+import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart';
 import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_absen_page.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_laporan_page.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_page.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_review_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_page.dart';
+import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
+import 'package:bapendacore/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +50,7 @@ import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
 import '../presentation/features/camera/cubit/camera_cubit.dart';
 import '../presentation/features/camera/pages/camera_page.dart';
+import '../presentation/features/va_qris/cubit/va_qris_cubit.dart';
 import '../presentation/features/va_qris/pages/payment_success_page.dart';
 import '../presentation/features/va_qris/pages/qris_payment_page.dart';
 import '../presentation/features/va_qris/pages/va_payment_page.dart';
@@ -62,6 +71,11 @@ class AppRouter {
     AppRoutes.onboarding,
     AppRoutes.login,
   ];
+
+  static Widget _vaQrisNopPage() => BlocProvider(
+    create: (_) => getIt<VaQrisCubit>()..init(),
+    child: const VaQrisNopPage(),
+  );
 
   static final GoRouter router = GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -246,7 +260,12 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.surveyPermohonanBaru,
         name: AppRoutes.surveyPermohonanBaru,
-        builder: (context, state) => const SurveyPermohonanBaruPage(),
+        builder: (context, state) => BlocProvider(
+          create: (_) =>
+              SurveyListCubit(useCase: getIt<SurveyPermohonanUseCase>())
+                ..load(),
+          child: const SurveyPermohonanBaruPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.surveyInfo,
@@ -254,10 +273,26 @@ class AppRouter {
         builder: (context, state) {
           final args =
               state.extra
-                  as ({String nomor, List<Map<String, dynamic>> sisiList});
-          return SurveyInfoPage(
-            nomorPelayanan: args.nomor,
-            sisiList: args.sisiList,
+                  as ({String nomor, String key, List<Map<String, dynamic>> sisiList});
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<MasterDataCubit>.value(
+                value: getIt<MasterDataCubit>(),
+              ),
+              BlocProvider<SurveyInfoCubit>(
+                create: (_) => SurveyInfoCubit(
+                  nomorPelayanan: args.nomor,
+                  masterUseCase: getIt<MasterDataUseCase>(),
+                  authUseCase: getIt<AuthUseCase>(),
+                ),
+              ),
+            ],
+            child: SurveyInfoPage(
+              nomorPelayanan: args.nomor,
+              surveyKey: args.key,
+              sisiList: args.sisiList,
+            ),
           );
         },
       ),
@@ -291,11 +326,16 @@ class AppRouter {
                     Map<int, SurveyResult> results,
                     Map<String, dynamic> info,
                   });
-          return SurveyReviewPage(
-            nomorPelayanan: args.nomor,
-            sisiList: args.sisiList,
-            results: args.results,
-            info: args.info,
+
+          return BlocProvider<SurveySubmitCubit>(
+            create: (_) =>
+                SurveySubmitCubit(useCase: getIt<SurveyPermohonanUseCase>()),
+            child: SurveyReviewPage(
+              nomorPelayanan: args.nomor,
+              sisiList: args.sisiList,
+              results: args.results,
+              info: args.info,
+            ),
           );
         },
       ),
@@ -319,7 +359,19 @@ class AppRouter {
                     Map<String, dynamic> sisi,
                     Map<String, dynamic>? initial,
                   });
-          return SurveyDataPage(sisi: args.sisi, initial: args.initial);
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<MasterDataCubit>.value(
+                value: getIt<MasterDataCubit>(),
+              ),
+              BlocProvider<SurveyDataCubit>(
+                create: (_) =>
+                    SurveyDataCubit(sisi: args.sisi, initial: args.initial),
+              ),
+            ],
+            child: SurveyDataPage(sisi: args.sisi, initial: args.initial),
+          );
         },
       ),
 
@@ -335,14 +387,14 @@ class AppRouter {
 
       // ======================================================
       // VA & QRIS
+      // Tiap route membuat VaQrisCubit sendiri dan mengisinya dari `extra`.
       // TODO(tech-debt): `extra` hilang saat deep link / restore state.
-      // Setelah VaQrisCubit ada, kirim NOP/id saja lalu muat dari state.
       // Jika extra tidak sesuai, kembali ke layar input NOP.
       // ======================================================
       GoRoute(
         path: AppRoutes.nop,
         name: AppRoutes.nop,
-        builder: (context, state) => const VaQrisNopPage(),
+        builder: (context, state) => _vaQrisNopPage(),
       ),
 
       GoRoute(
@@ -351,8 +403,11 @@ class AppRouter {
         builder: (context, state) {
           final billing = state.extra;
           return billing is TaxBillingEntity
-              ? VaQrisBillingPage(billing: billing)
-              : const VaQrisNopPage();
+              ? BlocProvider(
+                  create: (_) => getIt<VaQrisCubit>()..loadBilling(billing),
+                  child: const VaQrisBillingPage(),
+                )
+              : _vaQrisNopPage();
         },
       ),
 
@@ -362,8 +417,11 @@ class AppRouter {
         builder: (context, state) {
           final session = state.extra;
           return session is PaymentSessionEntity
-              ? QrisPaymentPage(session: session)
-              : const VaQrisNopPage();
+              ? BlocProvider(
+                  create: (_) => getIt<VaQrisCubit>()..startSession(session),
+                  child: QrisPaymentPage(session: session),
+                )
+              : _vaQrisNopPage();
         },
       ),
 
@@ -373,8 +431,11 @@ class AppRouter {
         builder: (context, state) {
           final session = state.extra;
           return session is PaymentSessionEntity
-              ? VaPaymentPage(session: session)
-              : const VaQrisNopPage();
+              ? BlocProvider(
+                  create: (_) => getIt<VaQrisCubit>()..startSession(session),
+                  child: VaPaymentPage(session: session),
+                )
+              : _vaQrisNopPage();
         },
       ),
 
@@ -385,7 +446,7 @@ class AppRouter {
           final session = state.extra;
           return session is PaymentSessionEntity
               ? PaymentSuccessPage(session: session)
-              : const VaQrisNopPage();
+              : _vaQrisNopPage();
         },
       ),
 

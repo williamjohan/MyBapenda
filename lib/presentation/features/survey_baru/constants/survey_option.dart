@@ -68,10 +68,14 @@ class SurveyOptions {
     },
   };
 
-  static const Map<int, String> timSurvey = {
-    1: 'Tim A',
-    2: 'Tim B',
-    3: 'Tim C',
+  /// Daftar petugas survey (dummy, nanti diganti hasil fetch dari API).
+  /// Dipakai untuk "Nama Petugas" dan "Petugas Pembantu".
+  static const Map<int, String> petugas = {
+    1: 'Budi Santoso',
+    2: 'Siti Rahayu',
+    3: 'Agus Prasetyo',
+    4: 'Dewi Lestari',
+    5: 'Eko Wahyudi',
   };
 
   static String kelurahanName(dynamic kecId, dynamic kelId) =>
@@ -106,11 +110,6 @@ class SurveyOptions {
   static String isoDate(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  static const Map<int, String> jenisPengajuan = {
-    1: 'Pendaftaran Baru',
-    2: 'Perubahan Data',
-    3: 'Pemecahan',
-  };
   static const Map<int, String> jenisBangunan = {
     1: 'Rumah Tinggal',
     2: 'Ruko',

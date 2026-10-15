@@ -37,7 +37,7 @@ class HomeCubit extends Cubit<HomeState> {
           updateInfo: updateInfo,
           action: updateInfo != null ? HomeShowUpdateDialog(updateInfo) : null,
           userName: profile?.nama ?? 'Guest',
-          userRole: profile?.jabatan ?? 'Bapenda Core',
+          userRole: profile?.jabatan ?? 'MyBapenda',
         ),
       );
     } catch (e, stackTrace) {
@@ -49,7 +49,7 @@ class HomeCubit extends Cubit<HomeState> {
         state.copyWith(
           isCheckingUpdate: false,
           userName: 'Guest',
-          userRole: 'Bapenda Core',
+          userRole: 'MyBapenda',
         ),
       );
     }

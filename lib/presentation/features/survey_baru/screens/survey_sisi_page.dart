@@ -1,8 +1,8 @@
 // lib/presentation/features/reklame/pages/survey_sisi_page.dart
+import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import '../widgets/survey_sisi_tile.dart';
@@ -70,12 +70,19 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
             showBackButton: true,
             subtitle: Text(
               widget.nomorPelayanan,
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
             ),
           ),
+          if (list.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+                child: SurveyHeaderCard(sisi: list.first),
+              ),
+            ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(18, 22, 18, 10),
@@ -84,7 +91,7 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                   Expanded(
                     child: Text(
                       'Daftar Sisi Reklame',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF1F2933),
@@ -93,7 +100,7 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                   ),
                   Text(
                     '${_results.length}/${list.length} selesai',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFFB8680F),

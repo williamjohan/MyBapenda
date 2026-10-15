@@ -1,12 +1,12 @@
 /// Metode pembayaran yang bisa dipilih petugas saat menagih di lapangan.
-///
-/// TODO(tech-debt): DUMMY ENTITY. Pindahkan/sesuaikan saat domain layer
-/// dibuat (mapping dari kode channel milik Bank Jatim).
 enum PaymentMethod {
-  qris('QRIS'),
-  vaBankJatim('VA Bank Jatim');
+  qris('QRIS', 'qris'),
+  vaBankJatim('VA Bank Jatim', 'va');
 
-  const PaymentMethod(this.label);
+  const PaymentMethod(this.label, this.apiValue);
 
   final String label;
+
+  /// Nilai `tipePembayaran` di API pembayaran.
+  final String apiValue;
 }

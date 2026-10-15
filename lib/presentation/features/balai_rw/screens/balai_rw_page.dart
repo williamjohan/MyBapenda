@@ -8,7 +8,6 @@ import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import '../cubit/balai_rw_hub_cubit.dart';
@@ -144,7 +143,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12,
                 height: 1.5,
                 color: fg,
@@ -183,7 +182,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
                   children: [
                     Text(
                       'Hari ini',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 11,
                         color: const Color(0xFF7B8794),
                       ),
@@ -191,7 +190,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
                     const SizedBox(height: 2),
                     Text(
                       '${DateUtil.hari(now)}, ${DateUtil.tanggal(now)}',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF1F2933),
@@ -232,7 +231,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
             Expanded(
               child: Text(
                 'Progres hari ini',
-                style: GoogleFonts.plusJakartaSans(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1F2933),
@@ -241,7 +240,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
             ),
             Text(
               '$done/3 selesai',
-              style: GoogleFonts.plusJakartaSans(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: _brand,
@@ -277,7 +276,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
           Text(
             st.error ?? 'Gagal memuat data',
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: const TextStyle(
               fontSize: 13,
               color: const Color(0xFF7B8794),
             ),
@@ -497,7 +496,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
                 showBackButton: true,
                 subtitle: Text(
                   'Laporan pelayanan balai RW',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: TextStyle(
                     fontSize: 12.5,
                     color: Colors.white.withValues(alpha: 0.85),
                   ),

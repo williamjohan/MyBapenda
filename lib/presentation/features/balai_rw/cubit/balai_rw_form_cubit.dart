@@ -1,6 +1,5 @@
 // lib/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart
 import 'package:bapendacore/domain/usecases/balai_rw/balai_rw_usecase.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'balai_rw_form_state.dart';
@@ -31,7 +30,7 @@ class BalaiRwFormCubit extends Cubit<BalaiRwFormState> {
     for (final k in kategori) {
       final qs = pertanyaan.where((q) => q.idKategori == k.idKategori).toList()
         ..sort((a, b) => a.seq.compareTo(b.seq));
-      if (qs.isEmpty) continue; // kategori tanpa pertanyaan tidak ditampilkan
+      if (qs.isEmpty) continue; 
       sections.add(BalaiRwSection(kategori: k, pertanyaan: qs));
     }
 

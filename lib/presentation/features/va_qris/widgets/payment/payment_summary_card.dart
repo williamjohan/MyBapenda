@@ -2,7 +2,6 @@ import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
-import '../../../../../core/utils/tax_period_label.dart';
 
 /// Rincian masa pajak yang sedang dibayar (bisa dibuka/ditutup).
 class PaymentSummaryCard extends StatelessWidget {
@@ -37,10 +36,7 @@ class PaymentSummaryCard extends StatelessWidget {
           ),
           children: [
             for (final p in session.periods)
-              _Line(
-                label: p.label,
-                value: CurrencyFormatter.toIdr(p.total),
-              ),
+              _Line(label: p.label, value: CurrencyFormatter.toIdr(p.total)),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Divider(height: 1, color: AppThemeColors.subtleBorder),
@@ -55,6 +51,18 @@ class PaymentSummaryCard extends StatelessWidget {
                 label: 'Denda keterlambatan',
                 value: CurrencyFormatter.toIdr(session.penaltyTotal),
                 color: AppThemeColors.danger,
+              ),
+            if (session.otherTotal > 0)
+              _Line(
+                label: session.periods.first.otherLabel ?? 'Lainnya',
+                value: CurrencyFormatter.toIdr(session.otherTotal),
+                muted: true,
+              ),
+            if (session.discountTotal > 0)
+              _Line(
+                label: 'Potongan',
+                value: CurrencyFormatter.toIdr(-session.discountTotal),
+                color: AppThemeColors.success,
               ),
             _Line(
               label: 'Total bayar',
@@ -85,7 +93,8 @@ class _Line extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolved = color ??
+    final resolved =
+        color ??
         (muted ? AppThemeColors.secondaryText : AppThemeColors.primaryText);
     final weight = bold ? FontWeight.w800 : FontWeight.w500;
 
@@ -96,7 +105,11 @@ class _Line extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: TextStyle(fontSize: 13, fontWeight: weight, color: resolved),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: weight,
+                color: resolved,
+              ),
             ),
           ),
           Text(

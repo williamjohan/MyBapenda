@@ -1,6 +1,5 @@
 // lib/presentation/shared/widgets/step_indicator.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class StepIndicator extends StatelessWidget {
   final List<String> labels;
@@ -80,7 +79,7 @@ class _StepNode extends StatelessWidget {
                 ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
                 : Text(
                     '$number',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: active ? Colors.white : const Color(0xFF9AA5B1),
@@ -90,7 +89,7 @@ class _StepNode extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: GoogleFonts.plusJakartaSans(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
               color: active ? const Color(0xFF1F2933) : const Color(0xFF9AA5B1),

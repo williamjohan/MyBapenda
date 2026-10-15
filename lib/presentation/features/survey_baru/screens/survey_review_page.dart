@@ -1,14 +1,18 @@
-// lib/presentation/features/reklame/pages/survey_review_page.dart
-import 'dart:convert';
+// lib/presentation/features/survey_baru/screens/survey_review_page.dart
+import 'package:bapendacore/core/di/injection.dart';
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
+import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
 import 'package:bapendacore/presentation/shared/widgets/bapenda_image.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:bapendacore/presentation/shared/widgets/photo_preview.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import 'survey_foto_page.dart';
@@ -49,35 +53,26 @@ class SurveyReviewPage extends StatelessWidget {
     );
     if (ok != true || !context.mounted) return;
 
-    // TODO: POST ke API. Sementara cuma print.
-    final out = [
-      for (final s in sisiList)
-        if (results[s['seq']] case final r?)
-          {
-            ...r.data,
-            'foto': {
-              'path': r.foto.path,
-              'lat': r.foto.lat,
-              'lng': r.foto.lng,
-              'box': {
-                'left': r.foto.box.left,
-                'top': r.foto.box.top,
-                'right': r.foto.box.right,
-                'bottom': r.foto.box.bottom,
-              },
-            },
-          },
-    ];
-    debugPrint(
-      const JsonEncoder.withIndent(
-        '  ',
-      ).convert({'informasiSurvey': info, 'sisi': out}),
-    );
-
     final messenger = ScaffoldMessenger.of(context);
+    final res = await context.read<SurveySubmitCubit>().submit(
+      info: info,
+      sisiList: sisiList,
+      results: results,
+    );
+    if (!context.mounted) return;
+
+    if (!res.ok) {
+      if (res.error != null) {
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(res.error!)));
+      }
+      return;
+    }
+
     context.goNamed(AppRoutes.reklameDashboard);
     messenger.showSnackBar(
-      const SnackBar(content: Text('Hasil survey siap dikirim (mode uji).')),
+      const SnackBar(content: Text('Hasil survey berhasil dikirim.')),
     );
   }
 
@@ -93,7 +88,7 @@ class SurveyReviewPage extends StatelessWidget {
             showBackButton: true,
             subtitle: Text(
               nomorPelayanan,
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -109,15 +104,25 @@ class SurveyReviewPage extends StatelessWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(
+          if (sisiList.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+                child: SurveyHeaderCard(
+                  sisi: sisiList.first,
+                  initiallyExpanded: false,
+                ),
+              ),
+            ),
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 20, 18, 4),
+              padding: EdgeInsets.fromLTRB(18, 20, 18, 4),
               child: Text(
                 'Ringkasan Survey',
-                style: GoogleFonts.plusJakartaSans(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1F2933),
+                  color: Color(0xFF1F2933),
                 ),
               ),
             ),
@@ -138,7 +143,12 @@ class SurveyReviewPage extends StatelessWidget {
                 final seq = s['seq'] as int;
                 final r = results[seq];
                 if (r == null) return const SizedBox.shrink();
-                return SisiReviewCard(sisi: s, result: r);
+                return SisiReviewCard(
+                  sisi: s,
+                  result: r,
+                  // Sisi page menunggu seq ini lewat _openReview.
+                  onEdit: () => context.pop<int>(seq),
+                );
               },
             ),
           ),
@@ -148,10 +158,13 @@ class SurveyReviewPage extends StatelessWidget {
         child: Container(
           color: Colors.white,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-          child: Button(
-            label: 'Kirim Hasil Survey',
-            icon: Icons.send_rounded,
-            onPressed: () => _submit(context),
+          child: BlocBuilder<SurveySubmitCubit, bool>(
+            builder: (context, sending) => Button(
+              label: 'Kirim Hasil Survey',
+              icon: Icons.send_rounded,
+              isLoading: sending,
+              onPressed: sending ? null : () => _submit(context),
+            ),
           ),
         ),
       ),
@@ -164,12 +177,24 @@ class SisiReviewCard extends StatelessWidget {
   final SurveyResult result;
   final VoidCallback? onEdit;
 
-  const SisiReviewCard({required this.sisi, required this.result, this.onEdit});
+  const SisiReviewCard({
+    super.key,
+    required this.sisi,
+    required this.result,
+    this.onEdit,
+  });
 
   String _opt(Map<int, String> map, dynamic id) => map[id] ?? '-';
 
   @override
   Widget build(BuildContext context) {
+    // MasterDataCubit singleton: opsi sudah ke-cache saat halaman data dipakai.
+    final m = getIt<MasterDataCubit>().state;
+
+    debugPrint('letak opts: ${m.intOptionsOf(MasterOptionType.letakReklame)}');
+    debugPrint('tanah opts: ${m.intOptionsOf(MasterOptionType.statusTanah)}');
+    debugPrint('produk opts: ${m.intOptionsOf(MasterOptionType.jenisProduk)}');
+
     final d = result.data;
     final f = result.foto;
     final seq = sisi['seq'] as int;
@@ -182,7 +207,7 @@ class SisiReviewCard extends StatelessWidget {
     final nor =
         (sisi['nor'] as String?) ??
         (d['norLabel'] as String?) ??
-        (nb is Map ? 'NOR Baru · NOP ${nb['nopPbb']}' : '-');
+        (nb is Map ? 'NOR Baru · ${nb['noAlamat'] ?? '-'}' : '-');
 
     final ketSisi = (d['ketSisi'] as String?) ?? '';
     final ketSurvey = (d['ketSurvey'] as String?) ?? '';
@@ -207,10 +232,10 @@ class SisiReviewCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Sisi $seq',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1F2933),
+                    color: Color(0xFF1F2933),
                   ),
                 ),
               ),
@@ -218,9 +243,9 @@ class SisiReviewCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onEdit,
                   icon: const Icon(Icons.edit_rounded, size: 16),
-                  label: Text(
+                  label: const Text(
                     'Edit',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
                     ),
@@ -235,47 +260,74 @@ class SisiReviewCard extends StatelessWidget {
           const SizedBox(height: 8),
 
           PhotoPreview(path: f.path, ratio: f.ratio, box: f.box),
-          const SizedBox(height: 10),
-          if (f.lat != 0 || f.lng != 0)
-            Row(
-              children: [
-                const Icon(
-                  Icons.location_on_rounded,
-                  size: 16,
-                  color: Color(0xFFB8680F),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    '${f.lat.toStringAsFixed(6)}, ${f.lng.toStringAsFixed(6)}',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      color: const Color(0xFF52606D),
+          if (f.keterangan.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.notes_rounded,
+                    size: 15,
+                    color: Color(0xFF9AA5B1),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      f.keterangan,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        height: 1.4,
+                        color: Color(0xFF52606D),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
 
           InfoRow(label: 'NOR', value: nor),
+          if (nb is Map) ...[
+            InfoRow(
+              label: 'Jenis Bangunan',
+              value: _opt(
+                m.intOptionsOf(MasterOptionType.jenisBangunan),
+                nb['jenisBangunanId'],
+              ),
+            ),
+            InfoRow(
+              label: 'Nama Jalan',
+              value: '${nb['namaJalanNama'] ?? '-'}',
+            ),
+            InfoRow(label: 'No. Alamat', value: '${nb['noAlamat'] ?? '-'}'),
+            InfoRow(label: 'Persil', value: '${nb['persilLabel'] ?? '-'}'),
+          ],
           InfoRow(label: 'Lokasi', value: '${d['lokPenyelenggaraan'] ?? '-'}'),
           InfoRow(label: 'Materi', value: '${d['materiReklame'] ?? '-'}'),
           InfoRow(
             label: 'Lokasi Tertentu',
-            value: _opt(SurveyOptions.lokasiTertentu, d['lokasiTertentuId']),
+            value: _opt(
+              m.intOptionsOf(MasterOptionType.lokasiTertentu),
+              d['lokasiTertentuId'],
+            ),
           ),
           InfoRow(
             label: 'Letak Reklame',
-            value: _opt(SurveyOptions.letakReklame, d['letakReklame']),
+            value: _opt(
+              m.intOptionsOf(MasterOptionType.letakReklame),
+              d['letakReklame'],
+            ),
           ),
           InfoRow(
             label: 'Status Tanah',
-            value: _opt(SurveyOptions.statusTanah, d['statusTanah']),
+            value: _opt(
+              m.intOptionsOf(MasterOptionType.statusTanah),
+              d['statusTanah'],
+            ),
           ),
           InfoRow(
             label: 'Ukuran (P x L x T)',
@@ -284,15 +336,24 @@ class SisiReviewCard extends StatelessWidget {
           ),
           InfoRow(
             label: 'Jenis Reklame',
-            value: _opt(SurveyOptions.jenisReklame, d['idJenisReklame']),
+            value: _opt(
+              m.intOptionsOf(MasterOptionType.jenisReklame),
+              d['idJenisReklame'],
+            ),
           ),
           InfoRow(
             label: 'Jenis Produk',
-            value: _opt(SurveyOptions.jenisProduk, d['idJenisProduk']),
+            value: _opt(
+              m.intOptionsOf(MasterOptionType.jenisProduk),
+              d['idJenisProduk'],
+            ),
           ),
           InfoRow(
             label: 'Sudut Pandang',
-            value: _opt(SurveyOptions.sudutPandang, d['sudutPandang']),
+            value: _opt(
+              m.intOptionsOf(MasterOptionType.sudutPandang),
+              d['sudutPandang'],
+            ),
           ),
           if (ketSisi.isNotEmpty) InfoRow(label: 'Ket. Sisi', value: ketSisi),
           if (ketSurvey.isNotEmpty)
@@ -309,10 +370,16 @@ class _InfoReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final m = getIt<MasterDataCubit>().state;
+
     final selfie = info['selfiePath'] as String?;
     final lat = (info['latitude'] as num?)?.toStringAsFixed(6) ?? '-';
     final lng = (info['longitude'] as num?)?.toStringAsFixed(6) ?? '-';
     final tgl = DateTime.tryParse('${info['tanggalSurvey']}');
+
+    final kecId = info['kecamatanId'] as String?;
+    final kec = m.optionsOf(MasterOptionType.kecamatan)[kecId] ?? '-';
+    final kel = m.kelurahanOf(kecId)[info['kelurahanId']] ?? '-';
 
     return Container(
       width: double.infinity,
@@ -324,20 +391,20 @@ class _InfoReviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.location_on_outlined,
                 size: 18,
                 color: Color(0xFFB8680F),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'Informasi Survey',
-                style: GoogleFonts.plusJakartaSans(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1F2933),
+                  color: Color(0xFF1F2933),
                 ),
               ),
             ],
@@ -356,13 +423,10 @@ class _InfoReviewCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Text(
                     'Foto selfie petugas',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12.5,
-                      color: const Color(0xFF52606D),
-                    ),
+                    style: TextStyle(fontSize: 12.5, color: Color(0xFF52606D)),
                   ),
                 ),
               ],
@@ -372,23 +436,17 @@ class _InfoReviewCard extends StatelessWidget {
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
-          InfoRow(
-            label: 'Kecamatan',
-            value: SurveyOptions.kecamatan[info['kecamatanId']] ?? '-',
-          ),
-          InfoRow(
-            label: 'Kelurahan',
-            value: SurveyOptions.kelurahanName(
-              info['kecamatanId'],
-              info['kelurahanId'],
-            ),
-          ),
+          InfoRow(label: 'Kecamatan', value: kec),
+          InfoRow(label: 'Kelurahan', value: kel),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),
-          InfoRow(label: 'No IMB', value: '${info['noImb']}'),
-          InfoRow(label: 'Blok', value: '${info['blok']}'),
+          InfoRow(label: 'Keterangan Lokasi', value: '${info['blok'] ?? '-'}'),
           InfoRow(
-            label: 'Tim Survey',
-            value: SurveyOptions.timSurvey[info['timSurveyId']] ?? '-',
+            label: 'Nama Petugas',
+            value: '${info['namaPetugas'] ?? '-'}',
+          ),
+          InfoRow(
+            label: 'Petugas Pembantu',
+            value: '${info['namaPetugasPembantu'] ?? '-'}',
           ),
           InfoRow(
             label: 'Tanggal Survey',

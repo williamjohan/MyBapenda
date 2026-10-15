@@ -1,16 +1,12 @@
-// lib/presentation/features/reklame/pages/survey_sisi_review_page.dart
+// lib/presentation/features/survey_baru/screens/survey_sisi_review_page.dart
+import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import 'survey_foto_page.dart';
 import 'survey_review_page.dart';
 
-/// Review satu sisi sebelum disimpan.
-/// pop(true)  = simpan sisi ini
-/// pop(false) = mau ubah data lagi
-/// pop(null)  = tombol back
 class SurveySisiReviewPage extends StatelessWidget {
   final Map<String, dynamic> sisi;
   final SurveyResult result;
@@ -33,7 +29,7 @@ class SurveySisiReviewPage extends StatelessWidget {
             showBackButton: true,
             subtitle: Text(
               'Sisi ${sisi['seq']}',
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
               ),
@@ -47,6 +43,12 @@ class SurveySisiReviewPage extends StatelessWidget {
                 labels: ['Foto', 'Data', 'Review'],
                 currentIndex: 2,
               ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+            sliver: SliverToBoxAdapter(
+              child: SurveyHeaderCard(sisi: sisi, initiallyExpanded: false),
             ),
           ),
           SliverPadding(

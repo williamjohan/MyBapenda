@@ -8,6 +8,8 @@ class PaymentMethodOptionTile extends StatelessWidget {
     required this.title,
     required this.description,
     required this.onTap,
+    this.enabled = true,
+    this.disabledReason,
   });
 
   final IconData icon;
@@ -15,13 +17,25 @@ class PaymentMethodOptionTile extends StatelessWidget {
   final String description;
   final VoidCallback onTap;
 
+  /// false = metode tidak boleh dipakai (mis. di luar batas nominal).
+  final bool enabled;
+
+  /// Alasan dari API, tampil di bawah deskripsi saat [enabled] false.
+  final String? disabledReason;
+
   @override
   Widget build(BuildContext context) {
+    return Opacity(opacity: enabled ? 1 : 0.6, child: _buildTile());
+  }
+
+  Widget _buildTile() {
     return Material(
-      color: AppThemeColors.defaultSurface,
+      color: enabled
+          ? AppThemeColors.defaultSurface
+          : AppThemeColors.defaultBackground,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
-        onTap: onTap,
+        onTap: enabled ? onTap : null,
         borderRadius: BorderRadius.circular(14),
         child: Container(
           padding: const EdgeInsets.all(14),
@@ -62,11 +76,25 @@ class PaymentMethodOptionTile extends StatelessWidget {
                         color: AppThemeColors.secondaryText,
                       ),
                     ),
+                    if (!enabled && disabledReason != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        disabledReason!,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          height: 1.35,
+                          fontWeight: FontWeight.w600,
+                          color: AppThemeColors.danger,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
+              Icon(
+                enabled
+                    ? Icons.chevron_right_rounded
+                    : Icons.lock_outline_rounded,
                 color: AppThemeColors.tertiaryText,
               ),
             ],
