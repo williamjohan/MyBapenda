@@ -72,7 +72,7 @@ Everything is exported from `core/theme/theme_kit.dart`. Dark mode is **scoped**
 
 ### In-progress modules
 
-- `va_qris` currently runs on mock data (`va_qris/mock/`) with `setState`. `va_qris/cubit_blueprint/va_qris_cubit_blueprint.dart` is a commented spec of the intended Freezed state, Cubit methods, and use cases. Follow it when wiring the real Cubit.
+- `va_qris` is wired to `CekReklameApi`'s `/api/pembayaran/*` (`jenis-pajak`, `tagihan`, `bayar`, `status`). Ordering lives in the API: unpaid masa come oldest first and `bayar` rejects a non-sequential selection, so the client never sorts. `PeriodSelectionLogic` only drives the checkbox UI. The flow still passes data between routes via `extra`, and each route builds its own `VaQrisCubit` (Freezed state) seeded from that `extra`: `init()`, then `loadBilling(billing)`, then `startSession(session)`, which polls `status` every 5 s until lunas or expired.
 - `survey_baru` and the `survey_permohonan_baru` folders contain `readme.md` placeholders.
 
 ## Conventions (from README)

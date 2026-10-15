@@ -4,7 +4,6 @@ import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/app_colors_new.dart';
-import '../../../../../core/utils/tax_period_label.dart';
 
 /// Satu baris masa pajak yang belum dibayar. Jika ada denda, tampil sebagai
 /// segmen terpisah (warna merah lembut) di bawah baris pokok pajak.
@@ -88,8 +87,13 @@ class _MainRow extends StatelessWidget {
             value: isSelected,
             onChanged: isEnabled ? (_) => onTap() : null,
             activeColor: AppThemeColors.primary,
-            side: const BorderSide(color: AppThemeColors.tertiaryText, width: 1.5),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+            side: const BorderSide(
+              color: AppThemeColors.tertiaryText,
+              width: 1.5,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
             visualDensity: VisualDensity.compact,
           ),
           Expanded(
@@ -114,14 +118,16 @@ class _MainRow extends StatelessWidget {
                       _StatusChip(period: period),
                     ],
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Jatuh tempo ${formatTanggalId(period.dueDate)}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppThemeColors.secondaryText,
+                  if (period.dueDate != null) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      'Jatuh tempo ${formatTanggalId(period.dueDate!)}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppThemeColors.secondaryText,
+                      ),
                     ),
-                  ),
+                  ],
                   if (!isEnabled) ...[
                     const SizedBox(height: 6),
                     const Row(
@@ -156,7 +162,10 @@ class _MainRow extends StatelessWidget {
               children: [
                 const Text(
                   'Pokok pajak',
-                  style: TextStyle(fontSize: 11, color: AppThemeColors.tertiaryText),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppThemeColors.tertiaryText,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -189,9 +198,7 @@ class _PenaltySegment extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppThemeColors.dangerSoft,
         border: Border(
-          top: BorderSide(
-            color: AppThemeColors.danger.withValues(alpha: 0.18),
-          ),
+          top: BorderSide(color: AppThemeColors.danger.withValues(alpha: 0.18)),
         ),
       ),
       child: Row(
@@ -233,8 +240,9 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final late = period.lateMonths > 0;
-    final background =
-        late ? AppThemeColors.dangerSoft : AppThemeColors.warningSoft;
+    final background = late
+        ? AppThemeColors.dangerSoft
+        : AppThemeColors.warningSoft;
     final foreground = late ? AppThemeColors.danger : AppThemeColors.gold;
 
     return Container(
@@ -244,7 +252,7 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        late ? 'Terlambat ${period.lateMonths} bln' : 'Bulan ini',
+        late ? 'Terlambat ${period.lateMonths} bln' : 'Belum jatuh tempo',
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,

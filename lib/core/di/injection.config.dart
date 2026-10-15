@@ -25,6 +25,7 @@ import '../../data/datasources/cek_reklame/history_remote_datasource.dart'
     as _i451;
 import '../../data/datasources/cek_reklame/survey_remote_datasource.dart'
     as _i215;
+import '../../data/datasources/va_qris/va_qris_remote_datasource.dart' as _i705;
 import '../../data/repositories/absensi/absensi_repository_impl.dart' as _i242;
 import '../../data/repositories/auth/auth_repository_impl.dart' as _i24;
 import '../../data/repositories/balai_rw/balai_rw_repository_impl.dart'
@@ -37,6 +38,7 @@ import '../../data/repositories/cek_reklame/survey_permohonan_repository_impl.da
     as _i874;
 import '../../data/repositories/geocoding/geocoding_repository_impl.dart'
     as _i793;
+import '../../data/repositories/va_qris/va_qris_repository_impl.dart' as _i562;
 import '../../domain/repositories/absensi/absensi_repository.dart' as _i173;
 import '../../domain/repositories/auth/auth_repository.dart' as _i660;
 import '../../domain/repositories/balai_rw/i_balai_rw_repository.dart' as _i899;
@@ -46,12 +48,14 @@ import '../../domain/repositories/geocoding/geocoding_repository.dart' as _i904;
 import '../../domain/repositories/history/history_repository.dart' as _i169;
 import '../../domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart'
     as _i114;
+import '../../domain/repositories/va_qris/i_va_qris_repository.dart' as _i956;
 import '../../domain/usecases/absensi/absensi_usecase.dart' as _i248;
 import '../../domain/usecases/auth/auth_usecase.dart' as _i826;
 import '../../domain/usecases/balai_rw/balai_rw_usecase.dart' as _i266;
 import '../../domain/usecases/history/history_usecase.dart' as _i1023;
 import '../../domain/usecases/survey_permohonan/survey_permohonan_usecase.dart'
     as _i11;
+import '../../domain/usecases/va_qris/va_qris_usecase.dart' as _i930;
 import '../../presentation/features/absensi/cubit/absen/absen_cubit.dart'
     as _i1039;
 import '../../presentation/features/absensi/cubit/absensi/absensi_cubit.dart'
@@ -69,6 +73,7 @@ import '../../presentation/features/laporan_kehadiran/cubit/laporan_cubit.dart'
     as _i233;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
+import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
 import '../../presentation/shared/master_data/data/datasources/master_local_datasource.dart'
     as _i30;
 import '../../presentation/shared/master_data/data/datasources/master_remote_datasource.dart'
@@ -164,6 +169,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i451.HistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i60.AuthRemoteDataSource>(
         () => _i60.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i705.IVaQrisRemoteDataSource>(
+        () => _i705.VaQrisRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i766.ICekReklameRemoteDataSource>(
         () => _i766.CekReklameRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i60.MasterDataUseCase>(
@@ -186,6 +193,8 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i766.ICekReklameRemoteDataSource>()));
     gh.lazySingleton<_i169.HistoryRepository>(
         () => _i535.HistoryRepositoryImpl(gh<_i451.HistoryRemoteDataSource>()));
+    gh.lazySingleton<_i956.IVaQrisRepository>(
+        () => _i562.VaQrisRepositoryImpl(gh<_i705.IVaQrisRemoteDataSource>()));
     gh.lazySingleton<_i660.AuthRepository>(() => _i24.AuthRepositoryImpl(
           gh<_i60.AuthRemoteDataSource>(),
           gh<_i233.AppSecureStorage>(),
@@ -199,6 +208,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i904.GeocodingRepository>(),
           gh<_i127.CekReklameRepository>(),
         ));
+    gh.lazySingleton<_i930.VaQrisUseCase>(
+        () => _i930.VaQrisUseCase(gh<_i956.IVaQrisRepository>()));
     gh.lazySingleton<_i826.AuthUseCase>(
         () => _i826.AuthUseCase(gh<_i660.AuthRepository>()));
     gh.lazySingleton<_i248.AbsensiUseCase>(
@@ -215,6 +226,8 @@ extension GetItInjectableX on _i174.GetIt {
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
         ));
+    gh.factory<_i197.VaQrisCubit>(
+        () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i662.AbsensiCubit>(
         () => _i662.AbsensiCubit(gh<_i248.AbsensiUseCase>()));
     gh.factory<_i233.LaporanCubit>(

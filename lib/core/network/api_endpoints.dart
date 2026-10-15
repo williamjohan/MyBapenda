@@ -48,6 +48,16 @@ class ApiEndpoints {
   static const String surveyCariNor = '/api/reklame/bo/cari-nor';
 
   // ==========================================
+  // CREATE VA & QRIS
+  // ==========================================
+  static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
+  static const String pembayaranTagihan = '/api/pembayaran/tagihan';
+  static const String pembayaranCheckNominal =
+      '/api/pembayaran/check-nominal';
+  static const String pembayaranBayar = '/api/pembayaran/bayar';
+  static const String pembayaranStatus = '/api/pembayaran/status';
+
+  // ==========================================
   // MASTER DATA
   // ==========================================
   static const reklameMasterLokasiTertentu =
