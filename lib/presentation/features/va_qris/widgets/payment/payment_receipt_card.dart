@@ -1,10 +1,8 @@
-import 'package:bapendacore/core/utils/app_formatters_utils.dart';
 import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
-import '../../../../../core/utils/tax_period_label.dart';
 
 class PaymentReceiptCard extends StatelessWidget {
   const PaymentReceiptCard({super.key, required this.session});
@@ -26,7 +24,7 @@ class PaymentReceiptCard extends StatelessWidget {
       child: Column(
         children: [
           _Row(label: 'Wajib pajak', value: session.taxpayerName),
-          _Row(label: 'NOP', value: AppFormatters.nop(session.nop)),
+          _Row(label: session.referenceLabel, value: session.referenceNumber),
           _Row(label: 'Masa pajak', value: periodText),
           _Row(label: 'Metode', value: session.method.label),
           _Row(label: 'Referensi', value: session.reference),
