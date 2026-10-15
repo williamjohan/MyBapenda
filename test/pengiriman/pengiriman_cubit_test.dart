@@ -11,8 +11,8 @@ import 'package:bapendacore/presentation/features/pengiriman/cubit/lacak/lacak_c
 import 'package:bapendacore/presentation/features/pengiriman/cubit/lacak/lacak_state.dart';
 import 'package:bapendacore/presentation/features/pengiriman/cubit/pantau/pantau_cubit.dart';
 import 'package:bapendacore/presentation/features/pengiriman/cubit/pantau/pantau_state.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/pantau_logic.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/tugas_tab_logic.dart';
+import 'package:bapendacore/presentation/features/pengiriman/utils/pantau_ui_helper.dart';
+import 'package:bapendacore/presentation/features/pengiriman/utils/tugas_tab_ui_helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -12,7 +12,6 @@ import 'package:bapendacore/domain/entities/pengiriman/pengiriman_payload_entity
 import 'package:bapendacore/domain/usecases/pengiriman/pengiriman_usecase.dart';
 import 'package:bapendacore/core/errors/failure.dart';
 import 'package:bapendacore/presentation/features/pengiriman/cubit/aksi/aksi_cubit.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/aksi_validasi.dart';
 import 'package:bapendacore/presentation/features/pengiriman/pages/aksi/checkin_page.dart';
 import 'package:bapendacore/presentation/features/pengiriman/pages/aksi/gagal_page.dart';
 import 'package:bapendacore/presentation/features/pengiriman/pages/aksi/scan_berkas_page.dart';
@@ -174,7 +173,7 @@ void main() {
         expect(find.textContaining('-7.290000, 112.750000'), findsOneWidget);
 
         await _kirim(tester, 'Kirim Check-in Tiba');
-        expect(find.text(AksiValidasi.tiba({})!), findsOneWidget);
+        expect(find.text('Foto lokasi wajib saat tiba.'), findsOneWidget);
         expect(uji.repo.payload, isEmpty);
 
         await _foto(tester, FotoSlot.lokasi);

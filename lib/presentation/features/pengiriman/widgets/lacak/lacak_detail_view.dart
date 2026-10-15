@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../shared/widgets/section_label.dart';
-import '../../logic/lacak_view_data.dart';
+import '../../utils/lacak_ui_helper.dart';
 import 'jejak_timeline.dart';
 import 'lacak_status_card.dart';
 

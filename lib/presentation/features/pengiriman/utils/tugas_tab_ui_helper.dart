@@ -11,11 +11,11 @@ enum TabTugas {
   final String label;
   const TabTugas(this.label);
 
-  /// null = bukan tugas lagi (sudah final di server): tidak tampil di
+  /// null = bukan tugas lagi ([BerkasEntity.masihTugas]): tidak tampil di
   /// Pengiriman Surat, cukup di Pantau.
   static TabTugas? dari(BerkasEntity b) {
     if (b.perluDikembalikan) return TabTugas.gagal;
-    if (b.status.isFinal && b.antreanTertunda == 0) return null;
+    if (!b.masihTugas) return null;
     return switch (b.status) {
       StatusBerkas.disiapkan || StatusBerkas.ditugaskan => TabTugas.ambil,
       // Diterima/via pos dari aksi yang masih di antrean HP: tetap di
@@ -33,8 +33,8 @@ enum TabTugas {
   }
 }
 
-class TugasTabLogic {
-  TugasTabLogic._();
+class TugasTabUiHelper {
+  TugasTabUiHelper._();
 
   /// Cari di no resi, nama WP, no surat, dan NPWPD (tidak peka huruf).
   static List<BerkasEntity> filter(

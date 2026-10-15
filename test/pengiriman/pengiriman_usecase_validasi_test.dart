@@ -1,8 +1,14 @@
 import 'package:bapendacore/domain/entities/pengiriman/master_pengiriman_entity.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/aksi_validasi.dart';
+import 'package:bapendacore/domain/entities/pengiriman/pengiriman_payload_entity.dart';
+import 'package:bapendacore/domain/usecases/pengiriman/pengiriman_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers/pengiriman_fakes.dart';
+
 void main() {
+  // Aturan isian wajib aksi ada di usecase (domain), tanpa akses repository.
+  final uc = PengirimanUseCase(FakePengirimanRepository());
+
   group('serah', () {
     String? serah({
       CaraSerah? cara = CaraSerah.langsung,
@@ -11,7 +17,7 @@ void main() {
       bool adaTtd = true,
       bool wajibFotoObjek = false,
       Set<FotoSlot> foto = const {FotoSlot.serah},
-    }) => AksiValidasi.serah(
+    }) => uc.validasiSerah(
       cara: cara,
       namaPenerima: nama,
       idHubungan: idHubungan,
@@ -70,29 +76,34 @@ void main() {
     const foto = {FotoSlot.gagal};
 
     expect(
-      AksiValidasi.gagal(alasan: lainnya, keterangan: '', foto: foto),
+      uc.validasiGagal(alasan: lainnya, keterangan: '', foto: foto),
       contains('Keterangan'),
     );
     expect(
-      AksiValidasi.gagal(alasan: kosong, keterangan: '', foto: foto),
+      uc.validasiGagal(alasan: kosong, keterangan: '', foto: foto),
       isNull,
     );
     expect(
-      AksiValidasi.gagal(alasan: kosong, keterangan: '', foto: const {}),
+      uc.validasiGagal(alasan: kosong, keterangan: '', foto: const {}),
       contains('Foto'),
     );
   });
 
   test('tiba wajib foto lokasi; ambil wajib resi + foto', () {
-    expect(AksiValidasi.tiba(const {}), isNotNull);
-    expect(AksiValidasi.tiba(const {FotoSlot.lokasi}), isNull);
+    expect(uc.validasiTiba(const {}), isNotNull);
+    expect(uc.validasiTiba(const {FotoSlot.lokasi}), isNull);
     expect(
-      AksiValidasi.ambil(jumlahResi: 0, foto: const {FotoSlot.ambil}),
+      uc.validasiAmbil(jumlahResi: 0, foto: const {FotoSlot.ambil}),
       isNotNull,
     );
     expect(
-      AksiValidasi.ambil(jumlahResi: 2, foto: const {FotoSlot.ambil}),
+      uc.validasiAmbil(jumlahResi: 2, foto: const {FotoSlot.ambil}),
       isNull,
     );
+  });
+
+  test('kembalikan wajib minimal satu resi', () {
+    expect(uc.validasiKembalikan(jumlahResi: 0), isNotNull);
+    expect(uc.validasiKembalikan(jumlahResi: 1), isNull);
   });
 }

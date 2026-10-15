@@ -67,7 +67,7 @@ Older code (auth, history, geocoding) is inconsistent: no `I` prefix (`AuthRepos
 - States use `Equatable`. Two styles are accepted: `sealed class XState extends Equatable` with subclasses (`AbsenState`, `LaporanState`), or a single class with a `XStatus` enum + `copyWith` (`BalaiRwHubState`). Freezed is only used by the older camera/home states, so don't add new Freezed states.
 - After every `await`, check `if (isClosed) return;` before calling `emit`.
 - Failure handling: `result.fold((f) => emit(XFailure(f.message)), (data) => ...)`. `Failure.message` is already a user-friendly message in Indonesian.
-- Pure business logic that isn't state (rules, validation, calculations) goes in `features/<fitur>/logic/` as plain classes/functions that are easy to unit test (e.g. `rekap_harian_logic.dart`, `period_selection_logic.dart`).
+- Logic that isn't state (DevOps review): business rules go in the domain. Rules about one entity become a getter/method on that entity (e.g. `BerkasEntity.sla(now)`, `perluPerhatian`); rules that decide an action (required fields, validation) go in the feature UseCase (e.g. `PengirimanUseCase.validasiSerah`). Display-only helpers (tab grouping, labels, view data, map projection) go in `features/<fitur>/utils/` with the `_ui_helper.dart` suffix (e.g. `pantau_ui_helper.dart`). The pengiriman module follows this; older modules still have a `logic/` folder (`rekap_harian_logic.dart`, `period_selection_logic.dart`) and should migrate when touched.
 
 ### Errors
 

@@ -56,6 +56,45 @@ enum JenisSurat {
   }
 }
 
+enum SlaLevel { aman, mendekati, lewat }
+
+/// Posisi berkas terhadap batas SLA (serah terima ke WP).
+class SlaBerkas extends Equatable {
+  final SlaLevel level;
+
+  /// Sisa waktu (aman/mendekati) atau lama terlambat (lewat); null bila
+  /// tidak diketahui (terlambat menurut server tanpa batas yang terlewati).
+  final Duration? selisih;
+
+  const SlaBerkas(this.level, [this.selisih]);
+
+  static const batasMendekati = Duration(hours: 24);
+
+  /// Aturan:
+  /// - status final atau tanpa batas SLA → tidak dihitung (null),
+  /// - `terlambat` dari server atau lewat batas → [SlaLevel.lewat],
+  /// - sisa < 24 jam → [SlaLevel.mendekati], selebihnya [SlaLevel.aman].
+  static SlaBerkas? hitung({
+    required StatusBerkas status,
+    required DateTime? batasSla,
+    required bool terlambat,
+    required DateTime now,
+  }) {
+    if (status.isFinal) return null;
+    if (batasSla == null) {
+      return terlambat ? const SlaBerkas(SlaLevel.lewat) : null;
+    }
+    final sisa = batasSla.difference(now);
+    if (sisa.isNegative) return SlaBerkas(SlaLevel.lewat, -sisa);
+    if (terlambat) return const SlaBerkas(SlaLevel.lewat);
+    if (sisa < batasMendekati) return SlaBerkas(SlaLevel.mendekati, sisa);
+    return SlaBerkas(SlaLevel.aman, sisa);
+  }
+
+  @override
+  List<Object?> get props => [level, selisih];
+}
+
 /// Kode tombol yang boleh tampil (`aksi[]` dari server).
 enum AksiBerkas {
   ambil('AMBIL'),
@@ -144,6 +183,25 @@ class BerkasEntity extends Equatable {
   bool get punyaKoordinat => latTujuan != null && longTujuan != null;
 
   bool boleh(AksiBerkas a) => aksi.contains(a);
+
+  SlaBerkas? sla(DateTime now) => SlaBerkas.hitung(
+    status: status,
+    batasSla: tglBatasSla,
+    terlambat: terlambat,
+    now: now,
+  );
+
+  /// Butuh perhatian: terlambat, gagal/dibatalkan, atau surat harus kembali.
+  bool get perluPerhatian =>
+      terlambat ||
+      perluDikembalikan ||
+      status == StatusBerkas.gagalAntar ||
+      status == StatusBerkas.dibatalkan;
+
+  /// Masih pekerjaan petugas. Berkas yang sudah final di server bukan tugas
+  /// lagi, kecuali aksinya masih di antrean HP atau surat harus kembali.
+  bool get masihTugas =>
+      perluDikembalikan || !status.isFinal || antreanTertunda > 0;
 
   /// Untuk tampilan sementara aksi yang masih di antrean.
   BerkasEntity copyWith({

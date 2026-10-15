@@ -6,7 +6,7 @@ import '../../../shared/widgets/bapenda_sliver_header.dart';
 import '../../../shared/widgets/theme_toggle_button.dart';
 import '../cubit/detail_berkas/detail_berkas_cubit.dart';
 import '../cubit/detail_berkas/detail_berkas_state.dart';
-import '../logic/lacak_view_data.dart';
+import '../utils/lacak_ui_helper.dart';
 import '../widgets/aksi/aksi_bar.dart';
 import '../widgets/antrean/antrean_indicator.dart';
 import '../widgets/common/pengiriman_message.dart';

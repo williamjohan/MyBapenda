@@ -3,6 +3,20 @@ import 'package:equatable/equatable.dart';
 import 'berkas_entity.dart';
 import 'master_pengiriman_entity.dart';
 
+/// Jenis foto yang dilampirkan pada aksi; nama field multipart ditentukan
+/// di payload.
+enum FotoSlot {
+  ambil('Foto Pengambilan'),
+  lokasi('Foto Lokasi'),
+  serah('Foto Penyerahan'),
+  tempel('Foto Surat Tertempel'),
+  objek('Foto Objek Pajak'),
+  gagal('Foto Bukti Gagal');
+
+  final String label;
+  const FotoSlot(this.label);
+}
+
 /// Field check-in yang ikut di semua POST pengiriman.
 /// [checkinUuid] dibuat di HP dan tetap sama saat retry (idempoten di server).
 class CheckinPengirimanEntity extends Equatable {

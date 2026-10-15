@@ -6,7 +6,6 @@ import 'package:bapendacore/domain/entities/pengiriman/pengiriman_payload_entity
 import 'package:bapendacore/domain/usecases/pengiriman/pengiriman_usecase.dart';
 import 'package:bapendacore/presentation/features/pengiriman/cubit/aksi/aksi_cubit.dart';
 import 'package:bapendacore/presentation/features/pengiriman/cubit/aksi/aksi_state.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/aksi_validasi.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -154,11 +153,51 @@ void main() {
 
   group('kirim', () {
     test('tanpa lokasi: tidak dikirim, minta tunggu GPS', () async {
-      await cubit.kirimCheckin(JenisCheckin.tiba, 'A');
+      await cubit.kirimCheckin(JenisCheckin.perjalanan, 'A');
 
       expect(repo.payload, isEmpty);
       expect(cubit.state.kirim, KirimStatus.idle);
       expect(cubit.state.error, 'Lokasi belum didapat. Tunggu GPS siap.');
+    });
+
+    test('isian wajib (aturan usecase) dicek sebelum kirim', () async {
+      await cubit.cariLokasi();
+
+      await cubit.kirimCheckin(JenisCheckin.tiba, 'A');
+      expect(cubit.state.error, 'Foto lokasi wajib saat tiba.');
+      await cubit.kirimAmbil(const []);
+      expect(cubit.state.error, 'Scan minimal satu QR berkas.');
+      await cubit.kirimKembalikan(const []);
+      expect(cubit.state.error, 'Scan minimal satu QR berkas.');
+      await cubit.kirimGagal(noResi: 'A', alasan: null);
+      expect(cubit.state.error, 'Pilih alasan gagal antar.');
+      expect(
+        cubit.cekSerah(
+          cara: CaraSerah.langsung,
+          namaPenerima: '',
+          idHubungan: null,
+          adaTtd: false,
+          wajibFotoObjek: false,
+        ),
+        isFalse,
+      );
+      expect(cubit.state.error, 'Nama penerima wajib diisi.');
+
+      expect(repo.payload, isEmpty);
+      expect(cubit.state.kirim, KirimStatus.idle);
+
+      await cubit.ambilFoto(FotoSlot.tempel, noResi: 'A');
+      await cubit.ambilFoto(FotoSlot.lokasi, noResi: 'A');
+      expect(
+        cubit.cekSerah(
+          cara: CaraSerah.ditempel,
+          namaPenerima: '',
+          idHubungan: null,
+          adaTtd: false,
+          wajibFotoObjek: false,
+        ),
+        isTrue,
+      );
     });
 
     test('ambil: online, hasil per berkas, check-in dari GPS', () async {
@@ -245,7 +284,11 @@ void main() {
     test('gagal antar & kembalikan masuk antrean', () async {
       await cubit.cariLokasi();
       await cubit.ambilFoto(FotoSlot.gagal, noResi: 'A');
-      await cubit.kirimGagal(noResi: 'A', idAlasan: 3, keterangan: 'Kosong');
+      await cubit.kirimGagal(
+        noResi: 'A',
+        alasan: const OpsiMasterEntity(id: 3, nama: 'Rumah kosong'),
+        keterangan: 'Kosong',
+      );
 
       final g = repo.payload.single as GagalPayloadEntity;
       expect(g.idAlasan, 3);

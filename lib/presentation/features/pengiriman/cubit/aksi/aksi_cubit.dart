@@ -10,7 +10,6 @@ import '../../../../../domain/entities/pengiriman/antrean_entity.dart';
 import '../../../../../domain/entities/pengiriman/master_pengiriman_entity.dart';
 import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import '../../../../../domain/usecases/pengiriman/pengiriman_usecase.dart';
-import '../../logic/aksi_validasi.dart';
 import '../../utils/pengiriman_foto.dart';
 import 'aksi_state.dart';
 
@@ -127,8 +126,44 @@ class AksiCubit extends Cubit<AksiState> {
   // Kirim
   // ---------------------------------------------------------------------------
 
+  /// Lolos aturan isian wajib (usecase); bila tidak, tampilkan pesannya.
+  bool _lolos(String? error) {
+    if (error == null) return true;
+    tampilkanError(error);
+    return false;
+  }
+
+  Set<FotoSlot> get _fotoAda => state.foto.keys.toSet();
+
+  /// Cek isian serah terima sebelum tanda tangan diekspor halaman.
+  bool cekSerah({
+    required CaraSerah? cara,
+    required String namaPenerima,
+    required int? idHubungan,
+    required bool adaTtd,
+    required bool wajibFotoObjek,
+  }) => _lolos(
+    _useCase.validasiSerah(
+      cara: cara,
+      namaPenerima: namaPenerima,
+      idHubungan: idHubungan,
+      adaTtd: adaTtd,
+      wajibFotoObjek: wajibFotoObjek,
+      foto: _fotoAda,
+    ),
+  );
+
   /// Ambil selalu online: hasil per berkas langsung ditampilkan.
-  Future<void> kirimAmbil(List<String> noResiList) => _kirim(
+  Future<void> kirimAmbil(List<String> noResiList) async {
+    final error = _useCase.validasiAmbil(
+      jumlahResi: noResiList.length,
+      foto: _fotoAda,
+    );
+    if (!_lolos(error)) return;
+    return _kirimAmbil(noResiList);
+  }
+
+  Future<void> _kirimAmbil(List<String> noResiList) => _kirim(
     (c) => _useCase.postAmbil(
       AmbilPayloadEntity(
         noResiList: noResiList,
@@ -140,6 +175,18 @@ class AksiCubit extends Cubit<AksiState> {
   );
 
   Future<void> kirimCheckin(
+    JenisCheckin jenis,
+    String noResi, {
+    String? keterangan,
+  }) async {
+    if (jenis == JenisCheckin.tiba &&
+        !_lolos(_useCase.validasiTiba(_fotoAda))) {
+      return;
+    }
+    return _antreCheckin(jenis, noResi, keterangan: keterangan);
+  }
+
+  Future<void> _antreCheckin(
     JenisCheckin jenis,
     String noResi, {
     String? keterangan,
@@ -176,21 +223,38 @@ class AksiCubit extends Cubit<AksiState> {
 
   Future<void> kirimGagal({
     required String noResi,
-    required int idAlasan,
-    String? keterangan,
-  }) => _antre(
-    (c) => _useCase.antreGagal(
-      GagalPayloadEntity(
-        noResi: noResi,
-        idAlasan: idAlasan,
-        fotoGagalPath: state.foto[FotoSlot.gagal]!,
-        checkin: c,
-      ),
-    ),
-    keterangan: keterangan,
-  );
+    required OpsiMasterEntity? alasan,
+    String keterangan = '',
+  }) async {
+    final error = _useCase.validasiGagal(
+      alasan: alasan,
+      keterangan: keterangan,
+      foto: _fotoAda,
+    );
+    if (!_lolos(error)) return;
+    return _antreGagal(noResi, alasan!.id, keterangan);
+  }
 
-  Future<void> kirimKembalikan(List<String> noResiList) => _antre(
+  Future<void> _antreGagal(String noResi, int idAlasan, String keterangan) =>
+      _antre(
+        (c) => _useCase.antreGagal(
+          GagalPayloadEntity(
+            noResi: noResi,
+            idAlasan: idAlasan,
+            fotoGagalPath: state.foto[FotoSlot.gagal]!,
+            checkin: c,
+          ),
+        ),
+        keterangan: keterangan,
+      );
+
+  Future<void> kirimKembalikan(List<String> noResiList) async {
+    final error = _useCase.validasiKembalikan(jumlahResi: noResiList.length);
+    if (!_lolos(error)) return;
+    return _antreKembalikan(noResiList);
+  }
+
+  Future<void> _antreKembalikan(List<String> noResiList) => _antre(
     (c) => _useCase.antreKembalikan(
       KembalikanPayloadEntity(noResiList: noResiList, checkin: c),
     ),

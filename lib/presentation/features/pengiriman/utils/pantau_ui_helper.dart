@@ -22,7 +22,7 @@ enum PantauFilter {
     PantauFilter.tiba => b.status == StatusBerkas.tiba,
     // Sudah diserahterimakan ke WP (termasuk yang masih di antrean HP).
     PantauFilter.diterima => b.status == StatusBerkas.diterima,
-    PantauFilter.bermasalah => PantauLogic.bermasalah(b),
+    PantauFilter.bermasalah => b.perluPerhatian,
   };
 }
 
@@ -37,14 +37,8 @@ enum TahapKirim {
   const TahapKirim(this.label);
 }
 
-class PantauLogic {
-  PantauLogic._();
-
-  static bool bermasalah(BerkasEntity b) =>
-      b.terlambat ||
-      b.perluDikembalikan ||
-      b.status == StatusBerkas.gagalAntar ||
-      b.status == StatusBerkas.dibatalkan;
+class PantauUiHelper {
+  PantauUiHelper._();
 
   /// Indeks tahap yang sudah dicapai; null bila alur terputus
   /// (gagal/dibatalkan/dikembalikan) sehingga progres tidak ditampilkan.

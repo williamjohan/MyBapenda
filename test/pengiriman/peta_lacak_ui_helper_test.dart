@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
 import 'package:bapendacore/domain/entities/pengiriman/jejak_entity.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/peta_lacak_logic.dart';
+import 'package:bapendacore/presentation/features/pengiriman/utils/peta_lacak_ui_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 JejakEntity _j(StatusBerkas s, {double? lat, double? lng}) =>
@@ -12,7 +12,7 @@ void main() {
   group('pin', () {
     test('kronologis, lewati tanpa koordinat, tujuan di depan', () {
       // Terbaru di atas.
-      final pin = PetaLacakLogic.pin(
+      final pin = PetaLacakUiHelper.pin(
         [
           _j(StatusBerkas.tiba, lat: -7.30, lng: 112.78),
           _j(StatusBerkas.dalamPerjalanan),
@@ -35,14 +35,17 @@ void main() {
     });
 
     test('tanpa koordinat tujuan & jejak → kosong', () {
-      expect(PetaLacakLogic.pin([_j(StatusBerkas.diambil)]), isEmpty);
+      expect(PetaLacakUiHelper.pin([_j(StatusBerkas.diambil)]), isEmpty);
     });
 
     test('jenis dari status', () {
-      expect(PetaLacakLogic.jenisDari(StatusBerkas.diterima), JenisPin.tiba);
-      expect(PetaLacakLogic.jenisDari(StatusBerkas.gagalAntar), JenisPin.gagal);
+      expect(PetaLacakUiHelper.jenisDari(StatusBerkas.diterima), JenisPin.tiba);
       expect(
-        PetaLacakLogic.jenisDari(StatusBerkas.dalamPerjalanan),
+        PetaLacakUiHelper.jenisDari(StatusBerkas.gagalAntar),
+        JenisPin.gagal,
+      );
+      expect(
+        PetaLacakUiHelper.jenisDari(StatusBerkas.dalamPerjalanan),
         JenisPin.transit,
       );
     });
@@ -58,8 +61,8 @@ void main() {
         jenis: JenisPin.transit,
         label: '',
       );
-      final v = PetaLacakLogic.viewport([p], ukuran)!;
-      expect(v.zoom, PetaLacakLogic.zoomTunggal);
+      final v = PetaLacakUiHelper.viewport([p], ukuran)!;
+      expect(v.zoom, PetaLacakUiHelper.zoomTunggal);
       final o = v.posisi(p.lat, p.lng, ukuran);
       expect(o.dx, closeTo(180, 0.01));
       expect(o.dy, closeTo(90, 0.01));
@@ -70,7 +73,7 @@ void main() {
         PinPeta(lat: -7.25, lng: 112.73, jenis: JenisPin.transit, label: ''),
         PinPeta(lat: -7.30, lng: 112.78, jenis: JenisPin.tiba, label: ''),
       ];
-      final v = PetaLacakLogic.viewport(pin, ukuran, tepi: 32)!;
+      final v = PetaLacakUiHelper.viewport(pin, ukuran, tepi: 32)!;
       for (final p in pin) {
         final o = v.posisi(p.lat, p.lng, ukuran);
         expect(o.dx, inInclusiveRange(32, 328));
@@ -86,7 +89,7 @@ void main() {
     });
 
     test('kosong → null', () {
-      expect(PetaLacakLogic.viewport(const [], ukuran), isNull);
+      expect(PetaLacakUiHelper.viewport(const [], ukuran), isNull);
     });
   });
 }

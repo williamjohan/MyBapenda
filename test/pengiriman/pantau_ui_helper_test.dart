@@ -1,5 +1,5 @@
 import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/pantau_logic.dart';
+import 'package:bapendacore/presentation/features/pengiriman/utils/pantau_ui_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 BerkasEntity _b(
@@ -28,7 +28,7 @@ void main() {
   ];
 
   test('jumlah per filter; terlambat juga masuk Perlu Perhatian', () {
-    expect(PantauLogic.hitung(semua), {
+    expect(PantauUiHelper.hitung(semua), {
       PantauFilter.semua: 4,
       PantauFilter.menunggu: 1,
       PantauFilter.diantar: 1,
@@ -45,31 +45,34 @@ void main() {
       _b('T3', StatusBerkas.dalamPerjalanan),
     ];
     List<String> isi(PantauFilter f) =>
-        PantauLogic.filter(data, f, '').map((b) => b.noResi).toList();
+        PantauUiHelper.filter(data, f, '').map((b) => b.noResi).toList();
 
     expect(isi(PantauFilter.tiba), ['T1']);
     expect(isi(PantauFilter.diterima), ['T2']);
     expect(isi(PantauFilter.diantar), ['T3']);
     expect(isi(PantauFilter.semua), ['T1', 'T2', 'T3']);
-    expect(PantauLogic.hitung(data)[PantauFilter.diterima], 1);
+    expect(PantauUiHelper.hitung(data)[PantauFilter.diterima], 1);
   });
 
   test('filter + cari', () {
     expect(
-      PantauLogic.filter(
+      PantauUiHelper.filter(
         semua,
         PantauFilter.diantar,
         'a3',
       ).map((b) => b.noResi),
       ['A3'],
     );
-    expect(PantauLogic.filter(semua, PantauFilter.semua, 'pemuda').length, 4);
+    expect(
+      PantauUiHelper.filter(semua, PantauFilter.semua, 'pemuda').length,
+      4,
+    );
   });
 
   test('tahap progres; alur terputus tanpa progres', () {
-    expect(PantauLogic.tahap(StatusBerkas.ditugaskan), 0);
-    expect(PantauLogic.tahap(StatusBerkas.tiba), 2);
-    expect(PantauLogic.tahap(StatusBerkas.diterima), 3);
-    expect(PantauLogic.tahap(StatusBerkas.gagalAntar), isNull);
+    expect(PantauUiHelper.tahap(StatusBerkas.ditugaskan), 0);
+    expect(PantauUiHelper.tahap(StatusBerkas.tiba), 2);
+    expect(PantauUiHelper.tahap(StatusBerkas.diterima), 3);
+    expect(PantauUiHelper.tahap(StatusBerkas.gagalAntar), isNull);
   });
 }

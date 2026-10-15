@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import '../../../../shared/widgets/section_label.dart';
 import '../../cubit/aksi/aksi_cubit.dart';
-import '../../logic/aksi_validasi.dart';
 import '../../widgets/aksi/aksi_form_scaffold.dart';
 import '../../widgets/aksi/foto_slot_tile.dart';
 
@@ -32,12 +31,7 @@ class _CheckinPageState extends State<CheckinPage> {
   }
 
   void _kirim() {
-    final cubit = context.read<AksiCubit>();
-    if (_tiba) {
-      final error = AksiValidasi.tiba(cubit.state.foto.keys.toSet());
-      if (error != null) return cubit.tampilkanError(error);
-    }
-    cubit.kirimCheckin(
+    context.read<AksiCubit>().kirimCheckin(
       widget.jenis,
       widget.noResi,
       keterangan: _keterangan.text,

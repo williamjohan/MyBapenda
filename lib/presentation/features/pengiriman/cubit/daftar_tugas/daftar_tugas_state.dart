@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../../../domain/entities/pengiriman/berkas_entity.dart';
-import '../../logic/tugas_tab_logic.dart';
+import '../../utils/tugas_tab_ui_helper.dart';
 
 enum DaftarTugasStatus { initial, loading, loaded, failure }
 
@@ -27,7 +27,7 @@ class DaftarTugasState extends Equatable {
   /// Badge per tab; null selama belum pernah termuat.
   Map<TabTugas, int>? get jumlah =>
       status == DaftarTugasStatus.loaded || semua.isNotEmpty
-      ? TugasTabLogic.hitung(semua)
+      ? TugasTabUiHelper.hitung(semua)
       : null;
 
   DaftarTugasState copyWith({

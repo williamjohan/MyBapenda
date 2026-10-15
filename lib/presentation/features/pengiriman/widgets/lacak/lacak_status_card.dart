@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
-import '../../logic/berkas_sla_logic.dart';
-import '../../logic/lacak_view_data.dart';
-import '../../logic/peta_lacak_logic.dart';
+import '../../../../../domain/entities/pengiriman/berkas_entity.dart';
+import '../../utils/berkas_sla_ui_helper.dart';
+import '../../utils/lacak_ui_helper.dart';
+import '../../utils/peta_lacak_ui_helper.dart';
 import '../../utils/berkas_style.dart';
 import '../common/tone_chip.dart';
 import 'peta_lacak.dart';
@@ -33,14 +34,14 @@ class LacakStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final tone = data.status.tone(palette);
-    final sla = BerkasSlaLogic.hitung(
+    final sla = SlaBerkas.hitung(
       status: data.status,
       batasSla: data.tglBatasSla,
       terlambat: data.terlambat,
       now: DateTime.now(),
     );
     final pin = denganPeta
-        ? PetaLacakLogic.pin(
+        ? PetaLacakUiHelper.pin(
             data.jejak,
             latTujuan: data.latTujuan,
             longTujuan: data.longTujuan,

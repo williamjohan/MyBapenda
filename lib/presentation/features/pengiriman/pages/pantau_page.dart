@@ -9,7 +9,7 @@ import '../../../../domain/entities/pengiriman/berkas_entity.dart';
 import '../../../../routes/app_routes.dart';
 import '../cubit/pantau/pantau_cubit.dart';
 import '../cubit/pantau/pantau_state.dart';
-import '../logic/pantau_logic.dart';
+import '../utils/pantau_ui_helper.dart';
 import '../utils/berkas_style.dart';
 import '../widgets/antrean/antrean_indicator.dart';
 import '../widgets/common/status_tab_bar.dart';
@@ -164,7 +164,7 @@ class _PantauPageState extends State<PantauPage>
       ];
     }
 
-    final items = PantauLogic.filter(state.semua, filter, state.query);
+    final items = PantauUiHelper.filter(state.semua, filter, state.query);
     if (items.isEmpty) {
       final cari = state.query;
       return [

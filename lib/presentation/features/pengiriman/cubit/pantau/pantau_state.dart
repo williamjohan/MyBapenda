@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../../../domain/entities/pengiriman/berkas_entity.dart';
-import '../../logic/pantau_logic.dart';
+import '../../utils/pantau_ui_helper.dart';
 
 enum PantauStatus { loading, loaded, failure }
 
@@ -24,7 +24,7 @@ class PantauState extends Equatable {
     this.tglCache,
   });
 
-  Map<PantauFilter, int> get jumlah => PantauLogic.hitung(semua);
+  Map<PantauFilter, int> get jumlah => PantauUiHelper.hitung(semua);
 
   PantauState copyWith({
     PantauStatus? status,
