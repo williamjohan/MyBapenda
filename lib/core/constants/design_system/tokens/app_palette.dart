@@ -23,6 +23,12 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color accent;
   final Color accentSoft;
 
+  /// Oranye brand (tombol utama, checkbox, item terpilih).
+  final Color brand;
+
+  /// Coklat brand untuk teks/ikon aksen di atas [accentSoft].
+  final Color brandStrong;
+
   /// Gradient header halaman (oranye/emas).
   final List<Color> headerGradient;
 
@@ -63,6 +69,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.textTertiary,
     required this.accent,
     required this.accentSoft,
+    required this.brand,
+    required this.brandStrong,
     required this.headerGradient,
     required this.success,
     required this.successSoft,
@@ -95,6 +103,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     textTertiary: AppThemeColors.tertiaryText,
     accent: AppThemeColors.gold,
     accentSoft: AppThemeColors.primarySoft,
+    brand: AppThemeColors.primary,
+    brandStrong: AppThemeColors.brown,
     headerGradient: [Color(0xFFE59C00), Color(0xFFA65A00)],
     success: AppThemeColors.success,
     successSoft: AppThemeColors.successSoft,
@@ -127,6 +137,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     textTertiary: Color(0xFF7C828D),
     accent: Color(0xFFFFB547),
     accentSoft: Color(0xFF3A2A12),
+    brand: Color(0xFFF08A2C),
+    brandStrong: Color(0xFFFFB547),
     headerGradient: [Color(0xFFB87A00), Color(0xFF6B3A00)],
     success: Color(0xFF34D399),
     successSoft: Color(0xFF0F2E22),
@@ -170,6 +182,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? textTertiary,
     Color? accent,
     Color? accentSoft,
+    Color? brand,
+    Color? brandStrong,
     List<Color>? headerGradient,
     Color? success,
     Color? successSoft,
@@ -201,6 +215,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       textTertiary: textTertiary ?? this.textTertiary,
       accent: accent ?? this.accent,
       accentSoft: accentSoft ?? this.accentSoft,
+      brand: brand ?? this.brand,
+      brandStrong: brandStrong ?? this.brandStrong,
       headerGradient: headerGradient ?? this.headerGradient,
       success: success ?? this.success,
       successSoft: successSoft ?? this.successSoft,
@@ -237,6 +253,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       accentSoft: Color.lerp(accentSoft, other.accentSoft, t)!,
+      brand: Color.lerp(brand, other.brand, t)!,
+      brandStrong: Color.lerp(brandStrong, other.brandStrong, t)!,
       headerGradient: [
         for (var i = 0; i < headerGradient.length; i++)
           Color.lerp(headerGradient[i], other.headerGradient[i], t)!,

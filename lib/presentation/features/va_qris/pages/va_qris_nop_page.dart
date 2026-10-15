@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors_new.dart';
+import '../../../../core/theme/theme_kit.dart';
 import '../../../../routes/app_routes.dart';
 import '../cubit/va_qris_cubit.dart';
 import '../cubit/va_qris_state.dart';
@@ -73,7 +73,7 @@ class _VaQrisNopPageState extends State<VaQrisNopPage> {
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          backgroundColor: AppThemeColors.defaultBackground,
+          backgroundColor: context.palette.surfaceMuted,
           appBar: const VaQrisAppBar(title: 'Create VA & QRIS'),
           body: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -148,10 +148,10 @@ class _TaxTypeLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state.status != VaQrisStatus.failure) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
         child: Center(
-          child: CircularProgressIndicator(color: AppThemeColors.primary),
+          child: CircularProgressIndicator(color: context.palette.brand),
         ),
       );
     }

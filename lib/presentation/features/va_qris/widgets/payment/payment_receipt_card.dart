@@ -2,7 +2,8 @@ import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
+import '../../utils/va_qris_ui_helper.dart';
 
 class PaymentReceiptCard extends StatelessWidget {
   const PaymentReceiptCard({super.key, required this.session});
@@ -13,17 +14,21 @@ class PaymentReceiptCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final periodText = session.periods.map((p) => p.label).join(', ');
+    final palette = context.palette;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppThemeColors.subtleBorder),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         children: [
-          _Row(label: 'Wajib pajak', value: session.taxpayerName),
+          _Row(
+            label: 'Wajib pajak',
+            value: VaQrisUiHelper.teks(session.taxpayerName),
+          ),
           _Row(label: session.referenceLabel, value: session.referenceNumber),
           _Row(label: 'Masa pajak', value: periodText),
           _Row(label: 'Metode', value: session.method.label),
@@ -32,9 +37,9 @@ class PaymentReceiptCard extends StatelessWidget {
             label: 'Waktu',
             value: '${formatTanggalId(now)}, ${formatJamId(now)}',
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Divider(height: 1, color: AppThemeColors.subtleBorder),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Divider(height: 1, color: palette.border),
           ),
           _Row(
             label: 'Total dibayar',
@@ -56,6 +61,8 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -65,10 +72,7 @@ class _Row extends StatelessWidget {
             width: 108,
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 12.5,
-                color: AppThemeColors.secondaryText,
-              ),
+              style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
             ),
           ),
           Expanded(
@@ -78,7 +82,7 @@ class _Row extends StatelessWidget {
               style: TextStyle(
                 fontSize: bold ? 15 : 12.5,
                 fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-                color: bold ? AppThemeColors.brown : AppThemeColors.primaryText,
+                color: bold ? palette.brandStrong : palette.textPrimary,
               ),
             ),
           ),

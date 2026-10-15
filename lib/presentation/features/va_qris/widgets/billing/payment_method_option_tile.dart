@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 class PaymentMethodOptionTile extends StatelessWidget {
   const PaymentMethodOptionTile({
@@ -25,14 +25,15 @@ class PaymentMethodOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(opacity: enabled ? 1 : 0.6, child: _buildTile());
+    return Opacity(
+      opacity: enabled ? 1 : 0.6,
+      child: _buildTile(context.palette),
+    );
   }
 
-  Widget _buildTile() {
+  Widget _buildTile(AppPalette palette) {
     return Material(
-      color: enabled
-          ? AppThemeColors.defaultSurface
-          : AppThemeColors.defaultBackground,
+      color: enabled ? palette.surface : palette.surfaceMuted,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: enabled ? onTap : null,
@@ -41,7 +42,7 @@ class PaymentMethodOptionTile extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppThemeColors.defaultBorder),
+            border: Border.all(color: palette.borderStrong),
           ),
           child: Row(
             children: [
@@ -49,10 +50,10 @@ class PaymentMethodOptionTile extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: AppThemeColors.primarySoft,
+                  color: palette.accentSoft,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: AppThemeColors.brown, size: 26),
+                child: Icon(icon, color: palette.brandStrong, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -61,30 +62,30 @@ class PaymentMethodOptionTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: AppThemeColors.titleText,
+                        color: palette.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.5,
                         height: 1.35,
-                        color: AppThemeColors.secondaryText,
+                        color: palette.textSecondary,
                       ),
                     ),
                     if (!enabled && disabledReason != null) ...[
                       const SizedBox(height: 6),
                       Text(
                         disabledReason!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           height: 1.35,
                           fontWeight: FontWeight.w600,
-                          color: AppThemeColors.danger,
+                          color: palette.danger,
                         ),
                       ),
                     ],
@@ -95,7 +96,7 @@ class PaymentMethodOptionTile extends StatelessWidget {
                 enabled
                     ? Icons.chevron_right_rounded
                     : Icons.lock_outline_rounded,
-                color: AppThemeColors.tertiaryText,
+                color: palette.textTertiary,
               ),
             ],
           ),

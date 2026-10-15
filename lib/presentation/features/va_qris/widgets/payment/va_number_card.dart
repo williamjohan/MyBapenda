@@ -1,7 +1,7 @@
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import 'payment_expired_overlay.dart';
 
 class VaNumberCard extends StatelessWidget {
@@ -38,12 +38,14 @@ class VaNumberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppThemeColors.subtleBorder),
+        border: Border.all(color: palette.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -62,30 +64,30 @@ class VaNumberCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppThemeColors.primarySoft,
+                      color: palette.accentSoft,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.account_balance_outlined,
                       size: 20,
-                      color: AppThemeColors.brown,
+                      color: palette.brandStrong,
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
+                  Text(
                     'Virtual Account Bank Jatim',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: AppThemeColors.titleText,
+                      color: palette.textPrimary,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 18),
-              const Text(
+              Text(
                 'Nomor Virtual Account',
-                style: TextStyle(fontSize: 12.5, color: AppThemeColors.secondaryText),
+                style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
               ),
               const SizedBox(height: 6),
               FittedBox(
@@ -93,11 +95,11 @@ class VaNumberCard extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   _groupedVa,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.5,
-                    color: AppThemeColors.brown,
+                    color: palette.brandStrong,
                   ),
                 ),
               ),
@@ -109,8 +111,8 @@ class VaNumberCard extends StatelessWidget {
                   icon: const Icon(Icons.copy_rounded, size: 18),
                   label: const Text('Salin nomor VA'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppThemeColors.gold,
-                    side: const BorderSide(color: AppThemeColors.primary),
+                    foregroundColor: palette.accent,
+                    side: BorderSide(color: palette.brand),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -118,9 +120,9 @@ class VaNumberCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                child: Divider(height: 1, color: AppThemeColors.subtleBorder),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: Divider(height: 1, color: palette.border),
               ),
               const _InfoRow(label: 'Nama penerima', value: 'Bapenda Kota Surabaya'),
               const SizedBox(height: 8),
@@ -145,6 +147,8 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -152,17 +156,17 @@ class _InfoRow extends StatelessWidget {
           width: 110,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 12.5, color: AppThemeColors.secondaryText),
+            style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
           ),
         ),
         Expanded(
           child: Text(
             value,
             textAlign: TextAlign.right,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
-              color: AppThemeColors.primaryText,
+              color: palette.textPrimary,
             ),
           ),
         ),

@@ -3,7 +3,7 @@ import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../cubit/va_qris_cubit.dart';
 import '../../cubit/va_qris_state.dart';
@@ -78,7 +78,9 @@ class PaymentPageLayout extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppThemeColors.danger),
+            style: TextButton.styleFrom(
+              foregroundColor: context.palette.danger,
+            ),
             child: const Text('Batalkan'),
           ),
         ],
@@ -125,7 +127,7 @@ class PaymentPageLayout extends StatelessWidget {
               if (leave && context.mounted) Navigator.of(context).pop();
             },
             child: Scaffold(
-              backgroundColor: AppThemeColors.defaultBackground,
+              backgroundColor: context.palette.surfaceMuted,
               appBar: VaQrisAppBar(
                 title: appBarTitle,
                 subtitle: 'Tunjukkan ke wajib pajak',
