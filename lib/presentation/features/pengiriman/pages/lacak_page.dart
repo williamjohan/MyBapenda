@@ -71,7 +71,7 @@ class LacakPage extends StatelessWidget {
           message: 'Data berkas tidak tersedia untuk akun Anda.',
         );
       }
-      return LacakDetailView(data: data);
+      return LacakDetailView(data: data, rute: state.rute);
     }
     if (state.status == LacakStatus.failure) {
       return PengirimanMessage(

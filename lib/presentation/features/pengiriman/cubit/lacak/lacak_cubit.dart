@@ -1,10 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../../core/utils/app_logger.dart';
+import '../../../../../domain/entities/pengiriman/lacak_entity.dart';
 import '../../../../../domain/usecases/pengiriman/pengiriman_usecase.dart';
 import 'lacak_state.dart';
 
-/// Pantau berkas lewat `GET lacak?kode=` (no resi atau isi QR mentah).
+/// Pantau berkas lewat `GET lacak?kode=` (no resi atau isi QR mentah),
+/// lalu rute jalan antar titik perjalanannya untuk peta.
 @injectable
 class LacakCubit extends Cubit<LacakState> {
   final PengirimanUseCase _useCase;
@@ -26,11 +29,33 @@ class LacakCubit extends Cubit<LacakState> {
     );
     final result = await _useCase.getLacak(k);
     if (isClosed || reqId != _requestId) return;
+    LacakResultEntity? data;
     result.fold(
       (failure) => emit(
         state.copyWith(status: LacakStatus.failure, error: failure.message),
       ),
-      (data) => emit(state.copyWith(status: LacakStatus.loaded, result: data)),
+      (d) {
+        data = d;
+        emit(state.copyWith(status: LacakStatus.loaded, result: d));
+      },
+    );
+    if (data != null) await _muatRute(data!, reqId);
+  }
+
+  /// Rute jalan untuk peta. Gagal (mis. Routes API belum aktif) cukup
+  /// dicatat: peta tetap menampilkan titik-titiknya.
+  Future<void> _muatRute(LacakResultEntity data, int reqId) async {
+    final titik = data.titikRute;
+    if (titik.length < 2) return;
+    final result = await _useCase.getRute(titik);
+    if (isClosed || reqId != _requestId) return;
+    result.fold(
+      (f) => AppLogger.warning(
+        '[Pengiriman] rute peta tidak tersedia: ${f.message}',
+      ),
+      (rute) {
+        if (rute.length >= 2) emit(state.copyWith(rute: rute));
+      },
     );
   }
 

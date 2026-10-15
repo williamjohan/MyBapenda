@@ -95,4 +95,8 @@ class ApiEndpoints {
 
   /// `?key=`; tanpa header Authorization, key berlaku hari itu saja.
   static const String pengirimanFoto = '/api/pengiriman/foto';
+
+  /// Google Routes API (rute motor di peta lacak). URL penuh: host Google.
+  static const String googleRoutes =
+      'https://routes.googleapis.com/directions/v2:computeRoutes';
 }

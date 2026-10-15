@@ -78,6 +78,20 @@ class _Repo implements IPengirimanRepository {
         : Right(HasilBacaEntity(detail!, tglCache: tglCache));
   }
 
+  /// Jalur jalan dari Routes API; null = belum aktif (peta hanya titik).
+  List<TitikRute>? rute;
+  final ruteDiminta = <List<TitikRute>>[];
+
+  @override
+  Future<Either<Failure, List<TitikRute>>> getRute(
+    List<TitikRute> titik,
+  ) async {
+    ruteDiminta.add(titik);
+    return rute == null
+        ? const Left(ServerFailure('Routes API diblokir'))
+        : Right(rute!);
+  }
+
   @override
   Future<HasilLacak> getLacak(String kode) async => lacak == null
       ? const Left(ServerFailure('Berkas tidak ditemukan.'))
@@ -734,17 +748,35 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('peta: pin per check-in + tujuan, rute, tombol peta', (
+    testWidgets('peta: pin per check-in + tujuan, rute jalan, buka rute', (
       tester,
     ) async {
       final p = pasangPlatformPalsu(addTearDown);
-      await _pump(tester, page, repo: _Repo()..lacak = hasil());
+      const jalan = [
+        TitikRute(-7.27, 112.75),
+        TitikRute(-7.275, 112.755),
+        TitikRute(-7.29, 112.77),
+        TitikRute(-7.30, 112.78),
+        TitikRute(-7.301, 112.781),
+      ];
+      final repo = _Repo()
+        ..lacak = hasil()
+        ..rute = jalan;
+      await _pump(tester, page, repo: repo);
       await tungguPin(tester);
 
       expect(find.byType(PetaLacak), findsOneWidget);
       // 3 check-in berkoordinat + alamat tujuan.
       expect(p.peta.marker, hasLength(4));
-      expect(p.peta.polyline.single.points, hasLength(3));
+      // Rute diminta lewat titik urut waktu → ke tujuan.
+      expect(repo.ruteDiminta.single, const [
+        TitikRute(-7.27, 112.75),
+        TitikRute(-7.29, 112.77),
+        TitikRute(-7.30, 112.78),
+        TitikRute(-7.301, 112.781),
+      ]);
+      // Garis mengikuti jalur jalan, bukan garis lurus antar pin.
+      expect(p.peta.polyline.single.points, hasLength(jalan.length));
       for (final l in [
         'Posisi petugas',
         'Tiba / diterima',
@@ -760,15 +792,31 @@ void main() {
       await tester.pump();
       expect(p.peta.kamera, isNotEmpty);
 
-      await tester.tap(find.text('Buka Maps'));
+      await tester.tap(find.text('Buka Rute'));
       await tester.pump();
-      expect(p.url.dibuka.single, contains('query=-7.3,112.78'));
+      final url = Uri.parse(p.url.dibuka.single);
+      expect(url.path, '/maps/dir/');
+      expect(url.queryParameters['origin'], '-7.27,112.75');
+      expect(url.queryParameters['destination'], '-7.301,112.781');
 
       p.url.berhasil = false;
-      await tester.tap(find.text('Buka Maps'));
+      await tester.tap(find.text('Buka Rute'));
       await tester.pumpAndSettle();
       expect(find.text('Tidak bisa membuka aplikasi peta'), findsOneWidget);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('Routes API belum aktif: hanya titik, tanpa garis lurus', (
+      tester,
+    ) async {
+      final p = pasangPlatformPalsu(addTearDown);
+      await _pump(tester, page, repo: _Repo()..lacak = hasil());
+      await tungguPin(tester);
+
+      expect(p.peta.marker, hasLength(4));
+      expect(p.peta.polyline, isEmpty);
+      // Tombol tetap membuka rute lengkap di Google Maps (tanpa API key).
+      expect(find.text('Buka Rute'), findsOneWidget);
     });
 
     testWidgets('riwayat: penanda, foto, lokasi check-in', (tester) async {

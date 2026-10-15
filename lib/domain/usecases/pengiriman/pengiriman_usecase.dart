@@ -28,6 +28,9 @@ class PengirimanUseCase {
   Future<Either<Failure, LacakResultEntity>> getLacak(String kode) =>
       _repository.getLacak(kode);
 
+  Future<Either<Failure, List<TitikRute>>> getRute(List<TitikRute> titik) =>
+      _repository.getRute(titik);
+
   Future<Either<Failure, List<HasilCheckinEntity>>> postAmbil(
     AmbilPayloadEntity payload,
   ) => _repository.postAmbil(payload);

@@ -95,6 +95,41 @@ class PetaLacakUiHelper {
     ];
   }
 
+  /// Titik perjalanan urut waktu (check-in lama → baru), diakhiri alamat
+  /// tujuan; urutan yang sama dengan rute di peta.
+  static List<PinPeta> titikUrut(List<PinPeta> pin) => [
+    ...pin.where((p) => p.jenis != JenisPin.tujuan),
+    ...pin.where((p) => p.jenis == JenisPin.tujuan),
+  ];
+
+  /// Batas titik singgah di URL arah Google Maps (aplikasi HP).
+  static const int maksSinggah = 8;
+
+  /// URL Google Maps: arah dari check-in pertama melewati titik singgah ke
+  /// tujuan (atau posisi terakhir); satu titik saja → cari lokasi.
+  static Uri urlMaps(List<PinPeta> pin) {
+    final t = titikUrut(pin);
+    String k(PinPeta p) => '${p.lat},${p.lng}';
+    if (t.length == 1) {
+      return Uri.https('www.google.com', '/maps/search/', {
+        'api': '1',
+        'query': k(t.single),
+      });
+    }
+    // Terlalu banyak titik: pakai yang terbaru (paling dekat tujuan).
+    final singgah = t.sublist(1, t.length - 1);
+    final dipakai = singgah.length > maksSinggah
+        ? singgah.sublist(singgah.length - maksSinggah)
+        : singgah;
+    return Uri.https('www.google.com', '/maps/dir/', {
+      'api': '1',
+      'origin': k(t.first),
+      'destination': k(t.last),
+      if (dipakai.isNotEmpty) 'waypoints': dipakai.map(k).join('|'),
+      'travelmode': 'two-wheeler',
+    });
+  }
+
   /// Zoom terbesar yang memuat semua [pin] dengan jarak [tepi] piksel dari
   /// sisi peta; satu titik saja memakai [zoomTunggal].
   static ViewportPeta? viewport(
