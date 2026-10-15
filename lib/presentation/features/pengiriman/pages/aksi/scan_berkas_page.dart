@@ -5,7 +5,7 @@ import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../shared/widgets/qr_scanner_view.dart';
 import '../../../../shared/widgets/section_label.dart';
 import '../../cubit/aksi/aksi_cubit.dart';
-import '../../logic/aksi_validasi.dart';
+import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import '../../widgets/aksi/aksi_form_scaffold.dart';
 import '../../widgets/aksi/foto_slot_tile.dart';
 
@@ -62,19 +62,7 @@ class _ScanBerkasPageState extends State<ScanBerkasPage> {
 
   void _kirim() {
     final cubit = context.read<AksiCubit>();
-    if (_ambil) {
-      final error = AksiValidasi.ambil(
-        jumlahResi: _resi.length,
-        foto: cubit.state.foto.keys.toSet(),
-      );
-      if (error != null) return cubit.tampilkanError(error);
-      cubit.kirimAmbil(_resi);
-    } else {
-      if (_resi.isEmpty) {
-        return cubit.tampilkanError('Scan minimal satu QR berkas.');
-      }
-      cubit.kirimKembalikan(_resi);
-    }
+    _ambil ? cubit.kirimAmbil(_resi) : cubit.kirimKembalikan(_resi);
   }
 
   @override

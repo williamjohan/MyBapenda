@@ -1,15 +1,15 @@
 import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/berkas_sla_logic.dart';
+import 'package:bapendacore/presentation/features/pengiriman/utils/berkas_sla_ui_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   final now = DateTime(2026, 10, 14, 10);
 
-  SlaInfo? hitung({
+  SlaBerkas? hitung({
     DateTime? sla,
     StatusBerkas status = StatusBerkas.diambil,
     bool terlambat = false,
-  }) => BerkasSlaLogic.hitung(
+  }) => SlaBerkas.hitung(
     status: status,
     batasSla: sla,
     terlambat: terlambat,
@@ -43,5 +43,35 @@ void main() {
 
   test('masih lama: level aman', () {
     expect(hitung(sla: now.add(const Duration(days: 3)))!.level, SlaLevel.aman);
+  });
+
+  test('label aman & lewat tanpa batas', () {
+    expect(hitung(sla: now.add(const Duration(days: 3)))!.label, 'SLA 3 hari');
+    expect(
+      hitung(sla: now.subtract(const Duration(minutes: 30)))!.label,
+      'Lewat SLA 30 menit',
+    );
+  });
+
+  test('entity: sla(now), perluPerhatian, masihTugas', () {
+    final b = BerkasEntity(
+      noResi: 'A',
+      jenis: JenisSurat.himbauan,
+      jenisNama: 'Himbauan',
+      namaWp: 'WP',
+      alamatTujuan: '-',
+      status: StatusBerkas.diambil,
+      statusNama: 'Diambil',
+      tglBatasSla: now.add(const Duration(hours: 5)),
+    );
+    expect(b.sla(now)!.level, SlaLevel.mendekati);
+    expect(b.perluPerhatian, isFalse);
+    expect(b.copyWith(status: StatusBerkas.gagalAntar).perluPerhatian, isTrue);
+    expect(b.masihTugas, isTrue);
+
+    final diterima = b.copyWith(status: StatusBerkas.diterima);
+    expect(diterima.masihTugas, isFalse);
+    expect(diterima.copyWith(antreanTertunda: 1).masihTugas, isTrue);
+    expect(diterima.copyWith(perluDikembalikan: true).masihTugas, isTrue);
   });
 }

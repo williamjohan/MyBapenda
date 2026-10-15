@@ -8,13 +8,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../../core/utils/date_format_id.dart';
-import '../../logic/peta_lacak_logic.dart';
+import '../../utils/peta_lacak_ui_helper.dart';
 
 /// Peta Google interaktif riwayat perjalanan: pin per check-in (motor saat
 /// transit, bendera saat tiba/diterima, silang saat gagal), pin alamat
 /// tujuan, dan garis rute urut waktu. Ketuk pin untuk status & jam.
 class PetaLacak extends StatefulWidget {
-  /// Urut kronologis (lihat [PetaLacakLogic.pin]); tidak boleh kosong.
+  /// Urut kronologis (lihat [PetaLacakUiHelper.pin]); tidak boleh kosong.
   final List<PinPeta> pin;
   final double tinggi;
 
@@ -90,7 +90,7 @@ class _PetaLacakState extends State<PetaLacak> {
       peta.animateCamera(
         CameraUpdate.newLatLngZoom(
           LatLng(pin.first.lat, pin.first.lng),
-          PetaLacakLogic.zoomTunggal.toDouble(),
+          PetaLacakUiHelper.zoomTunggal.toDouble(),
         ),
       );
       return;
@@ -143,7 +143,7 @@ class _PetaLacakState extends State<PetaLacak> {
           child: LayoutBuilder(
             builder: (context, c) {
               // Posisi awal sudah memuat semua pin, jadi tidak "loncat".
-              final awal = _awal ??= PetaLacakLogic.viewport(
+              final awal = _awal ??= PetaLacakUiHelper.viewport(
                 widget.pin,
                 Size(c.maxWidth, widget.tinggi),
               )!;

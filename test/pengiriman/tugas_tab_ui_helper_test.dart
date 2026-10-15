@@ -1,5 +1,5 @@
 import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
-import 'package:bapendacore/presentation/features/pengiriman/logic/tugas_tab_logic.dart';
+import 'package:bapendacore/presentation/features/pengiriman/utils/tugas_tab_ui_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 BerkasEntity _b(
@@ -29,7 +29,7 @@ void main() {
   ];
 
   test('pembagian tab per status, perluDikembalikan selalu ke Gagal', () {
-    expect(TugasTabLogic.hitung(semua), {
+    expect(TugasTabUiHelper.hitung(semua), {
       TabTugas.ambil: 1,
       // SKB5 sudah diterima di server: bukan tugas lagi (hanya di Pantau).
       TabTugas.diantar: 1,
@@ -47,15 +47,19 @@ void main() {
       TabTugas.diantar,
     );
     expect(TabTugas.dari(kembali.copyWith(antreanTertunda: 1)), TabTugas.gagal);
-    expect(TugasTabLogic.filter([diterima], TabTugas.diantar, ''), isEmpty);
+    expect(TugasTabUiHelper.filter([diterima], TabTugas.diantar, ''), isEmpty);
   });
 
   test('cari no resi / nama WP tanpa peka huruf, tetap dalam tab', () {
     expect(
-      TugasTabLogic.filter(semua, TabTugas.ambil, 'maju').map((b) => b.noResi),
+      TugasTabUiHelper.filter(
+        semua,
+        TabTugas.ambil,
+        'maju',
+      ).map((b) => b.noResi),
       ['HMB1'],
     );
-    expect(TugasTabLogic.filter(semua, TabTugas.gagal, 'tgr').length, 2);
-    expect(TugasTabLogic.filter(semua, TabTugas.diantar, 'HMB1'), isEmpty);
+    expect(TugasTabUiHelper.filter(semua, TabTugas.gagal, 'tgr').length, 2);
+    expect(TugasTabUiHelper.filter(semua, TabTugas.diantar, 'HMB1'), isEmpty);
   });
 }

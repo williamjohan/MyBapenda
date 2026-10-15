@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../cubit/aksi/aksi_cubit.dart';
 import '../../cubit/aksi/aksi_state.dart';
-import '../../logic/aksi_validasi.dart';
+import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
 
 /// Kotak foto untuk satu [FotoSlot]: ketuk untuk ambil dari kamera,
 /// tampil pratinjau + tombol ulang/hapus setelah ada.

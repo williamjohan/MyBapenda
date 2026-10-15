@@ -4,11 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../../domain/entities/pengiriman/berkas_entity.dart';
 import '../../../../../domain/entities/pengiriman/master_pengiriman_entity.dart';
+import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import '../../../../shared/widgets/section_label.dart';
 import '../../../../shared/widgets/signature_pad.dart';
 import '../../cubit/aksi/aksi_cubit.dart';
 import '../../cubit/aksi/aksi_state.dart';
-import '../../logic/aksi_validasi.dart';
 import '../../widgets/aksi/aksi_form_scaffold.dart';
 import '../../widgets/aksi/foto_slot_tile.dart';
 import '../../widgets/aksi/opsi_master_picker.dart';
@@ -46,18 +46,17 @@ class _SerahPageState extends State<SerahPage> {
 
   Future<void> _kirim() async {
     final cubit = context.read<AksiCubit>();
-    final error = AksiValidasi.serah(
+    setState(
+      () => _ttdKosong = (_cara?.butuhPenerima ?? false) && _ttd.isEmpty,
+    );
+    final lengkap = cubit.cekSerah(
       cara: _cara,
       namaPenerima: _nama.text,
       idHubungan: _hubungan?.id,
       adaTtd: !_ttd.isEmpty,
       wajibFotoObjek: widget.berkas.wajibFotoObjek,
-      foto: cubit.state.foto.keys.toSet(),
     );
-    setState(
-      () => _ttdKosong = (_cara?.butuhPenerima ?? false) && _ttd.isEmpty,
-    );
-    if (error != null) return cubit.tampilkanError(error);
+    if (!lengkap) return;
 
     final cara = _cara!;
     String? ttdPath;

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../../core/utils/date_format_id.dart';
 import '../../../../../domain/entities/pengiriman/berkas_entity.dart';
-import '../../logic/berkas_sla_logic.dart';
-import '../../logic/pantau_logic.dart';
+import '../../utils/berkas_sla_ui_helper.dart';
+import '../../utils/pantau_ui_helper.dart';
 import '../../utils/berkas_style.dart';
 import '../common/tone_chip.dart';
 
@@ -26,8 +26,8 @@ class PantauBerkasCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final tone = berkas.status.tone(palette);
-    final sla = BerkasSlaLogic.dariBerkas(berkas, now);
-    final tahap = PantauLogic.tahap(berkas.status);
+    final sla = berkas.sla(now);
+    final tahap = PantauUiHelper.tahap(berkas.status);
 
     return Material(
       color: palette.surface,

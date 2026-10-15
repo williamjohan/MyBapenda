@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../../domain/entities/pengiriman/berkas_entity.dart';
-import '../../logic/berkas_sla_logic.dart';
+import '../../utils/berkas_sla_ui_helper.dart';
 import '../../utils/berkas_style.dart';
 import '../common/tone_chip.dart';
 
@@ -21,7 +21,7 @@ class BerkasCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final sla = BerkasSlaLogic.dariBerkas(berkas, now);
+    final sla = berkas.sla(now);
 
     return Material(
       color: palette.surface,

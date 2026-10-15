@@ -4,7 +4,6 @@ import '../../../../../core/services/geo_location_service.dart';
 import '../../../../../domain/entities/pengiriman/antrean_entity.dart';
 import '../../../../../domain/entities/pengiriman/master_pengiriman_entity.dart';
 import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
-import '../../logic/aksi_validasi.dart';
 
 enum LokasiStatus { mencari, siap, gagal }
 

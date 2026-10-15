@@ -56,7 +56,7 @@ class ViewportPeta {
   }
 }
 
-class PetaLacakLogic {
+class PetaLacakUiHelper {
   static const int zoomMaks = 17;
   static const int zoomTunggal = 16;
 

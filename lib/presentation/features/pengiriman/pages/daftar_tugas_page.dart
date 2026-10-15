@@ -10,7 +10,7 @@ import '../../../../routes/app_routes.dart';
 import '../cubit/daftar_tugas/daftar_tugas_cubit.dart';
 import '../cubit/daftar_tugas/daftar_tugas_state.dart';
 import 'aksi/scan_berkas_page.dart';
-import '../logic/tugas_tab_logic.dart';
+import '../utils/tugas_tab_ui_helper.dart';
 import '../widgets/antrean/antrean_indicator.dart';
 import '../widgets/common/pengiriman_message.dart';
 import '../widgets/daftar_tugas/berkas_card.dart';
@@ -167,7 +167,7 @@ class _DaftarTugasPageState extends State<DaftarTugasPage>
     TabTugas tab,
   ) {
     final now = DateTime.now();
-    final items = TugasTabLogic.filter(state.semua, tab, state.query);
+    final items = TugasTabUiHelper.filter(state.semua, tab, state.query);
 
     switch (state.status) {
       case DaftarTugasStatus.initial:

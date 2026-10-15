@@ -6,7 +6,7 @@ import '../../../../../domain/entities/pengiriman/master_pengiriman_entity.dart'
 import '../../../../shared/widgets/section_label.dart';
 import '../../cubit/aksi/aksi_cubit.dart';
 import '../../cubit/aksi/aksi_state.dart';
-import '../../logic/aksi_validasi.dart';
+import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import '../../widgets/aksi/aksi_form_scaffold.dart';
 import '../../widgets/aksi/foto_slot_tile.dart';
 import '../../widgets/aksi/opsi_master_picker.dart';
@@ -31,20 +31,11 @@ class _GagalPageState extends State<GagalPage> {
     super.dispose();
   }
 
-  void _kirim() {
-    final cubit = context.read<AksiCubit>();
-    final error = AksiValidasi.gagal(
-      alasan: _alasan,
-      keterangan: _keterangan.text,
-      foto: cubit.state.foto.keys.toSet(),
-    );
-    if (error != null) return cubit.tampilkanError(error);
-    cubit.kirimGagal(
-      noResi: widget.noResi,
-      idAlasan: _alasan!.id,
-      keterangan: _keterangan.text,
-    );
-  }
+  void _kirim() => context.read<AksiCubit>().kirimGagal(
+    noResi: widget.noResi,
+    alasan: _alasan,
+    keterangan: _keterangan.text,
+  );
 
   @override
   Widget build(BuildContext context) {
