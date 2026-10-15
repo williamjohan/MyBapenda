@@ -238,25 +238,7 @@ class AppRouter {
             '${Uri.encodeComponent(state.pathParameters['kode']!)}',
       ),
 
-      GoRoute(
-        path: AppRoutes.reklameDashboard,
-        name: AppRoutes.reklameDashboard,
-        builder: (context, state) => const ReklameDashboardPage(),
-      ),
-
-      //  CAMERA PAGE
-      GoRoute(
-        path: AppRoutes.camera,
-        name: AppRoutes.camera,
-        builder: (context, state) {
-          return BlocProvider<CameraCubit>(
-            // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
-            create: (_) => getIt<CameraCubit>()..start(),
-            child: const CameraPage(),
-          );
-        },
-      ),
-
+      //  CEK REKLAME
       GoRoute(
         path: AppRoutes.reklameDashboard,
         name: AppRoutes.reklameDashboard,
@@ -283,25 +265,6 @@ class AppRouter {
           create: (_) => getIt<ProfileCubit>()..load(),
           child: const AdaptiveThemeScope(child: ProfilePage()),
         ),
-      ),
-
-      GoRoute(
-        path: AppRoutes.reklameDashboard,
-        name: AppRoutes.reklameDashboard,
-        builder: (context, state) => const ReklameDashboardPage(),
-      ),
-
-      //  CAMERA PAGE
-      GoRoute(
-        path: AppRoutes.camera,
-        name: AppRoutes.camera,
-        builder: (context, state) {
-          return BlocProvider<CameraCubit>(
-            // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
-            create: (_) => getIt<CameraCubit>()..start(),
-            child: const CameraPage(),
-          );
-        },
       ),
 
       GoRoute(
@@ -527,12 +490,6 @@ class AppRouter {
         },
       ),
 
-      // ======================================================
-      // VA & QRIS
-      // Tiap route membuat VaQrisCubit sendiri dan mengisinya dari `extra`.
-      // TODO(tech-debt): `extra` hilang saat deep link / restore state.
-      // Jika extra tidak sesuai, kembali ke layar input NOP.
-      // ======================================================
       GoRoute(
         path: AppRoutes.nop,
         name: AppRoutes.nop,
