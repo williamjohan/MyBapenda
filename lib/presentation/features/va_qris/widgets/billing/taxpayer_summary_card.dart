@@ -1,4 +1,3 @@
-import 'package:bapendacore/core/utils/app_formatters_utils.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
@@ -38,7 +37,7 @@ class TaxpayerSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      AppFormatters.nop(billing.nop),
+                      '${billing.referenceLabel} ${billing.referenceNumber}',
                       style: const TextStyle(
                         fontSize: 13,
                         letterSpacing: 0.4,
@@ -51,7 +50,10 @@ class TaxpayerSummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppThemeColors.primarySoft,
                   borderRadius: BorderRadius.circular(20),
@@ -71,7 +73,10 @@ class TaxpayerSummaryCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(height: 1, color: AppThemeColors.subtleBorder),
           ),
-          _DetailLine(icon: Icons.storefront_outlined, text: billing.objectName),
+          _DetailLine(
+            icon: Icons.storefront_outlined,
+            text: billing.objectName,
+          ),
           const SizedBox(height: 6),
           _DetailLine(icon: Icons.place_outlined, text: billing.address),
         ],
