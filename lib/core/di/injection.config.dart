@@ -27,6 +27,7 @@ import '../../data/datasources/cek_reklame/survey_remote_datasource.dart'
     as _i215;
 import '../../data/datasources/pengiriman/pengiriman_remote_datasource.dart'
     as _i294;
+import '../../data/datasources/pengiriman/rute_remote_datasource.dart' as _i569;
 import '../../data/datasources/va_qris/va_qris_remote_datasource.dart' as _i705;
 import '../../data/repositories/absensi/absensi_repository_impl.dart' as _i242;
 import '../../data/repositories/auth/auth_repository_impl.dart' as _i24;
@@ -161,6 +162,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i877.PengirimanQueueStorage(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i869.GeoLocationService>(
         () => _i869.GeoLocationServiceImpl());
+    gh.lazySingleton<_i569.IRuteRemoteDataSource>(
+        () => _i569.RuteRemoteDataSourceImpl());
     gh.lazySingleton<_i30.AppIntegrityService>(
         () => _i30.AppIntegrityServiceImpl());
     gh.lazySingleton<_i30.IMasterLocalDataSource>(
@@ -216,13 +219,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i218.DeviceIdentityService>(),
           gh<_i233.AppSecureStorage>(),
         ));
-    gh.lazySingleton<_i969.IPengirimanRepository>(
-        () => _i673.PengirimanRepositoryImpl(
-              gh<_i294.IPengirimanRemoteDataSource>(),
-              gh<_i877.PengirimanQueueStorage>(),
-              gh<_i148.PengirimanCacheStorage>(),
-              gh<_i233.AppSecureStorage>(),
-            ));
     gh.lazySingleton<_i899.IBalaiRwRepository>(() =>
         _i518.BalaiRwRepositoryImpl(gh<_i348.IBalaiRwRemoteDataSource>()));
     gh.lazySingleton<_i127.CekReklameRepository>(() =>
@@ -238,8 +234,6 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i215.ISurveyPermohonanRemoteDataSource>(
         () => _i215.SurveyPermohonanRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i578.PengirimanUseCase>(
-        () => _i578.PengirimanUseCase(gh<_i969.IPengirimanRepository>()));
     gh.lazySingleton<_i801.MasterDataCubit>(
         () => _i801.MasterDataCubit(gh<_i60.MasterDataUseCase>()));
     gh.factory<_i755.CameraCubit>(() => _i755.CameraCubit(
@@ -251,6 +245,14 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i930.VaQrisUseCase(gh<_i956.IVaQrisRepository>()));
     gh.lazySingleton<_i826.AuthUseCase>(
         () => _i826.AuthUseCase(gh<_i660.AuthRepository>()));
+    gh.lazySingleton<_i969.IPengirimanRepository>(
+        () => _i673.PengirimanRepositoryImpl(
+              gh<_i294.IPengirimanRemoteDataSource>(),
+              gh<_i877.PengirimanQueueStorage>(),
+              gh<_i148.PengirimanCacheStorage>(),
+              gh<_i233.AppSecureStorage>(),
+              gh<_i569.IRuteRemoteDataSource>(),
+            ));
     gh.lazySingleton<_i248.AbsensiUseCase>(
         () => _i248.AbsensiUseCase(gh<_i173.AbsensiRepository>()));
     gh.lazySingleton<_i266.BalaiRwUseCase>(
@@ -265,11 +267,6 @@ extension GetItInjectableX on _i174.GetIt {
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
         ));
-    gh.factory<_i572.AksiCubit>(() => _i572.AksiCubit(
-          gh<_i578.PengirimanUseCase>(),
-          gh<_i869.GeoLocationService>(),
-          gh<_i798.PengirimanFoto>(),
-        ));
     gh.factory<_i197.VaQrisCubit>(
         () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i662.AbsensiCubit>(
@@ -280,14 +277,8 @@ extension GetItInjectableX on _i174.GetIt {
         _i11.SurveyPermohonanUseCase(gh<_i114.ISurveyPermohonanRepository>()));
     gh.lazySingleton<_i224.AuthCubit>(
         () => _i224.AuthCubit(authUseCase: gh<_i826.AuthUseCase>()));
-    gh.factory<_i379.DaftarTugasCubit>(
-        () => _i379.DaftarTugasCubit(gh<_i578.PengirimanUseCase>()));
-    gh.factory<_i374.DetailBerkasCubit>(
-        () => _i374.DetailBerkasCubit(gh<_i578.PengirimanUseCase>()));
-    gh.factory<_i554.LacakCubit>(
-        () => _i554.LacakCubit(gh<_i578.PengirimanUseCase>()));
-    gh.factory<_i493.PantauCubit>(
-        () => _i493.PantauCubit(gh<_i578.PengirimanUseCase>()));
+    gh.lazySingleton<_i578.PengirimanUseCase>(
+        () => _i578.PengirimanUseCase(gh<_i969.IPengirimanRepository>()));
     gh.factory<_i720.BalaiRwFormCubit>(
         () => _i720.BalaiRwFormCubit(gh<_i266.BalaiRwUseCase>()));
     gh.factory<_i149.BalaiRwHubCubit>(
@@ -304,6 +295,19 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i224.AuthCubit>(),
               gh<_i11.NetworkCubit>(),
             ));
+    gh.factory<_i572.AksiCubit>(() => _i572.AksiCubit(
+          gh<_i578.PengirimanUseCase>(),
+          gh<_i869.GeoLocationService>(),
+          gh<_i798.PengirimanFoto>(),
+        ));
+    gh.factory<_i379.DaftarTugasCubit>(
+        () => _i379.DaftarTugasCubit(gh<_i578.PengirimanUseCase>()));
+    gh.factory<_i374.DetailBerkasCubit>(
+        () => _i374.DetailBerkasCubit(gh<_i578.PengirimanUseCase>()));
+    gh.factory<_i554.LacakCubit>(
+        () => _i554.LacakCubit(gh<_i578.PengirimanUseCase>()));
+    gh.factory<_i493.PantauCubit>(
+        () => _i493.PantauCubit(gh<_i578.PengirimanUseCase>()));
     return this;
   }
 }

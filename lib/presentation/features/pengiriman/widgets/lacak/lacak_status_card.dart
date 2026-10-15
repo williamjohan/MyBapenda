@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../domain/entities/pengiriman/lacak_entity.dart';
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../../domain/entities/pengiriman/berkas_entity.dart';
 import '../../utils/berkas_sla_ui_helper.dart';
@@ -16,11 +17,13 @@ import 'peta_lacak.dart';
 class LacakStatusCard extends StatelessWidget {
   final LacakViewData data;
   final bool denganPeta;
+  final List<TitikRute>? rute;
 
   const LacakStatusCard({
     super.key,
     required this.data,
     this.denganPeta = false,
+    this.rute,
   });
 
   void _salin(BuildContext context) {
@@ -164,7 +167,7 @@ class LacakStatusCard extends StatelessWidget {
           if (pin.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: PetaLacak(pin: pin),
+              child: PetaLacak(pin: pin, rute: rute),
             )
           else
             _Tujuan(data: data),

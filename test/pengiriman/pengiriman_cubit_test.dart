@@ -1,6 +1,7 @@
 import 'package:bapendacore/core/errors/failure.dart';
 import 'package:bapendacore/domain/entities/pengiriman/antrean_entity.dart';
 import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:bapendacore/domain/entities/pengiriman/jejak_entity.dart';
 import 'package:bapendacore/domain/entities/pengiriman/lacak_entity.dart';
 import 'package:bapendacore/domain/usecases/pengiriman/pengiriman_usecase.dart';
 import 'package:bapendacore/presentation/features/pengiriman/cubit/daftar_tugas/daftar_tugas_cubit.dart';
@@ -168,6 +169,77 @@ void main() {
 
       expect(cubit.state.status, PantauStatus.loaded);
       expect(cubit.state.semua.single.noResi, 'B');
+      await cubit.close();
+    });
+  });
+
+  group('LacakCubit: rute peta', () {
+    LacakResultEntity hasil() => LacakResultEntity(
+      noResi: 'A',
+      tugas: BerkasDetailEntity(
+        berkas: berkas(noResi: 'A'),
+        jejak: [
+          JejakEntity(
+            status: StatusBerkas.tiba,
+            statusNama: 'Tiba',
+            latitude: -7.29,
+            longitude: 112.75,
+          ),
+          const JejakEntity(
+            status: StatusBerkas.diambil,
+            statusNama: 'Diambil',
+          ),
+          JejakEntity(
+            status: StatusBerkas.diambil,
+            statusNama: 'Diambil',
+            latitude: -7.25,
+            longitude: 112.73,
+          ),
+        ],
+      ),
+    );
+
+    test('titik rute: check-in berkoordinat urut waktu', () {
+      expect(hasil().titikRute, const [
+        TitikRute(-7.25, 112.73),
+        TitikRute(-7.29, 112.75),
+      ]);
+    });
+
+    test('setelah lacak: rute jalan dimuat untuk peta', () async {
+      repo.rute = const [
+        TitikRute(-7.25, 112.73),
+        TitikRute(-7.27, 112.74),
+        TitikRute(-7.29, 112.75),
+      ];
+      final cubit = LacakCubit(useCase);
+      final f = cubit.lacak('A');
+      repo.lacak.single.c.complete(Right(hasil()));
+      await f;
+
+      expect(repo.ruteDiminta.single, hasil().titikRute);
+      expect(cubit.state.rute, hasLength(3));
+      await cubit.close();
+    });
+
+    test('Routes API gagal: rute kosong, hasil lacak tetap tampil', () async {
+      final cubit = LacakCubit(useCase);
+      final f = cubit.lacak('A');
+      repo.lacak.single.c.complete(Right(hasil()));
+      await f;
+
+      expect(cubit.state.status, LacakStatus.loaded);
+      expect(cubit.state.rute, isNull);
+      await cubit.close();
+    });
+
+    test('kurang dari 2 titik: rute tidak diminta', () async {
+      final cubit = LacakCubit(useCase);
+      final f = cubit.lacak('A');
+      repo.lacak.single.c.complete(const Right(LacakResultEntity(noResi: 'A')));
+      await f;
+
+      expect(repo.ruteDiminta, isEmpty);
       await cubit.close();
     });
   });

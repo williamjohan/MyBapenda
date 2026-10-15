@@ -20,6 +20,9 @@ abstract class IPengirimanRepository {
 
   Future<Either<Failure, LacakResultEntity>> getLacak(String kode);
 
+  /// Jalur jalan (motor) melewati [titik] berurutan, untuk digambar di peta.
+  Future<Either<Failure, List<TitikRute>>> getRute(List<TitikRute> titik);
+
   /// Ambil selalu online: server bisa menolak sebagian berkas.
   Future<Either<Failure, List<HasilCheckinEntity>>> postAmbil(
     AmbilPayloadEntity payload,
