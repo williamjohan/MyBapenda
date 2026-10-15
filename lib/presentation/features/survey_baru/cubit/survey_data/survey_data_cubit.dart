@@ -1,0 +1,153 @@
+import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'survey_data_state.dart';
+
+typedef SurveyDataTexts = ({
+  String? noAlamat,
+  String lokasi,
+  String materi,
+  String panjang,
+  String lebar,
+  String tinggi,
+  String ketSisi,
+  String ketSurvey,
+});
+
+class SurveyDataCubit extends Cubit<SurveyDataState> {
+  final Map<String, dynamic> sisi;
+  final Map<String, dynamic>? initial;
+
+  SurveyDataCubit({required this.sisi, this.initial})
+    : super(_initialState(initial));
+
+  bool get sudahPunyaNor => sisi['nor'] != null;
+
+  // 0 adalah pilihan sah (mis. "Luar Ruang"), jadi hanya null yang kosong.
+  static int? _id(dynamic v) => v is int ? v : null;
+
+  static SurveyDataState _initialState(Map<String, dynamic>? d) {
+    if (d == null) return const SurveyDataState();
+    final nb = d['norBaru'];
+    return SurveyDataState(
+      lokasiTertentuId: _id(d['lokasiTertentuId']),
+      lokasiPenyelenggaraanId: _id(d['lokasiPenyelenggaraanId']),
+      letakId: _id(d['letakReklame']),
+      statusTanahId: _id(d['statusTanah']),
+      jenisReklameId: _id(d['idJenisReklame']),
+      jenisProdukId: _id(d['idJenisProduk']),
+      sudutId: _id(d['sudutPandang']),
+      jenisBangunanId: nb is Map ? _id(nb['jenisBangunanId']) : null,
+      namaJalanId: nb is Map ? _id(nb['namaJalanId']) : null,
+      namaJalanNama: nb is Map ? nb['namaJalanNama'] as String? : null,
+      persilId: nb is Map ? nb['persilId'] as String? : null,
+      persilLabel: nb is Map ? nb['persilLabel'] as String? : null,
+    );
+  }
+
+  /// Nilai awal field teks (dari data sisi, atau hasil simpan sebelumnya).
+  SurveyDataTexts get initialTexts {
+    final d = initial;
+    final nb = d?['norBaru'];
+    String txt(dynamic v) => (v is num && v > 0) ? SurveyOptions.fmtNum(v) : '';
+
+    return (
+      noAlamat: nb is Map ? (nb['noAlamat'] as String? ?? '') : '',
+      // Tidak dipakai halaman: lokasi sekarang dipilih dari dropdown master.
+      lokasi: d?['lokPenyelenggaraan'] as String? ?? '',
+      materi:
+          d?['materiReklame'] as String? ??
+          sisi['materiReklamePermohonan'] as String? ??
+          '',
+      panjang: txt(d?['panjang']),
+      lebar: txt(d?['lebar']),
+      tinggi: txt(d?['tinggi']),
+      ketSisi: d?['ketSisi'] as String? ?? '',
+      ketSurvey: d?['ketSurvey'] as String? ?? '',
+    );
+  }
+
+  // ---- Setter dropdown ----
+
+  void setLokasiTertentu(int? v) => emit(state.copyWith(lokasiTertentuId: v));
+  void setLokasi(int? v) => emit(state.copyWith(lokasiPenyelenggaraanId: v));
+  void setLetak(int? v) => emit(state.copyWith(letakId: v));
+  void setStatusTanah(int? v) => emit(state.copyWith(statusTanahId: v));
+  void setJenisReklame(int? v) => emit(state.copyWith(jenisReklameId: v));
+  void setJenisProduk(int? v) => emit(state.copyWith(jenisProdukId: v));
+  void setSudut(int? v) => emit(state.copyWith(sudutId: v));
+  void setJenisBangunan(int? v) => emit(state.copyWith(jenisBangunanId: v));
+  void setNamaJalan(int id, String nama) =>
+      emit(state.copyWith(namaJalanId: id, namaJalanNama: nama));
+  void setPersil(String id, String label) =>
+      emit(state.copyWith(persilId: id, persilLabel: label));
+
+  void clearError() => emit(state.copyWith(error: () => null));
+
+  // ---- Simpan ----
+
+  double _num(String s) => double.tryParse(s.replaceAll(',', '.')) ?? 0;
+
+  String? _validate(SurveyDataTexts t) {
+    if (!sudahPunyaNor &&
+        (state.jenisBangunanId == null ||
+            state.namaJalanId == null ||
+            state.persilId == null ||
+            (t.noAlamat ?? '').trim().isEmpty)) {
+      return 'Lengkapi semua data NOR baru';
+    }
+    if (state.lokasiTertentuId == null ||
+        state.lokasiPenyelenggaraanId == null ||
+        state.letakId == null ||
+        state.statusTanahId == null ||
+        state.jenisReklameId == null ||
+        state.jenisProdukId == null ||
+        state.sudutId == null) {
+      return 'Lengkapi semua pilihan dulu';
+    }
+    if (t.lokasi.trim().isEmpty) {
+      return 'Lokasi penyelenggaraan belum termuat. Pilih ulang lokasinya';
+    }
+    if (_num(t.panjang) <= 0 || _num(t.lebar) <= 0 || _num(t.tinggi) <= 0) {
+      return 'Ukuran reklame harus lebih dari 0';
+    }
+    return null;
+  }
+
+  Map<String, dynamic> _payload(SurveyDataTexts t) => {
+    'seq': sisi['seq'],
+    'idNor': null,
+    'norBaru': sudahPunyaNor
+        ? null
+        : {
+            'jenisBangunanId': state.jenisBangunanId,
+            'namaJalanId': state.namaJalanId,
+            'namaJalanNama': state.namaJalanNama,
+            'noAlamat': t.noAlamat?.trim(),
+            'persilId': state.persilId,
+            'persilLabel': state.persilLabel,
+          },
+    'lokasiTertentuId': state.lokasiTertentuId ?? 0,
+    'lokasiPenyelenggaraanId': state.lokasiPenyelenggaraanId,
+    'lokPenyelenggaraan': t.lokasi.trim(),
+    'letakReklame': state.letakId ?? 0,
+    'statusTanah': state.statusTanahId ?? 0,
+    'panjang': _num(t.panjang),
+    'lebar': _num(t.lebar),
+    'tinggi': _num(t.tinggi),
+    'idJenisReklame': state.jenisReklameId ?? 0,
+    'idJenisProduk': state.jenisProdukId ?? 0,
+    'sudutPandang': state.sudutId ?? 0,
+    'ketSisi': t.ketSisi.trim(),
+    'materiReklame': t.materi.trim(),
+    'ketSurvey': t.ketSurvey.trim(),
+  };
+
+  void save(SurveyDataTexts texts) {
+    final err = _validate(texts);
+    if (err != null) {
+      emit(state.copyWith(error: () => err));
+      return;
+    }
+    emit(state.copyWith(result: _payload(texts)));
+  }
+}

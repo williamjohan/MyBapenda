@@ -1,38 +1,60 @@
+import 'package:equatable/equatable.dart';
 import 'tax_period_entity.dart';
 
-/// Tagihan pajak milik satu NOP (satu NOP = satu jenis pajak).
+/// Tagihan pajak milik satu nomor referensi (No SKPD / NOP).
 ///
-/// TODO(tech-debt): DUMMY ENTITY. Final-kan field setelah kontrak API siap.
-class TaxBillingEntity {
+/// Urutan daftar ditentukan API: [unpaidPeriods] dari masa pajak TERLAMA
+/// (dasar aturan "bayar berurutan"), [paidPeriods] dari yang terbaru.
+class TaxBillingEntity extends Equatable {
   const TaxBillingEntity({
-    required this.nop,
+    required this.taxTypeId,
+    required this.taxType,
+    required this.referenceLabel,
+    required this.referenceNumber,
+    required this.npwpd,
     required this.taxpayerName,
+    required this.taxpayerAddress,
     required this.objectName,
     required this.address,
-    required this.taxType,
-    required this.periods,
+    required this.unpaidPeriods,
+    required this.paidPeriods,
+    this.serviceNumber,
   });
 
-  final String nop;
+  final int taxTypeId;
+  final String taxType;
+
+  /// "No SKPD" / "NOP".
+  final String referenceLabel;
+
+  /// No SKPD (Reklame) / NOP berformat (Air Tanah).
+  final String referenceNumber;
+
+  /// Reklame: no pelayanan permohonan asal SKPD.
+  final String? serviceNumber;
+
+  final String npwpd;
   final String taxpayerName;
+  final String taxpayerAddress;
   final String objectName;
   final String address;
-  final String taxType;
-  final List<TaxPeriodEntity> periods;
 
-  /// Belum dibayar, urut dari masa pajak TERLAMA. Urutan ini menjadi dasar
-  /// aturan "bayar berurutan".
-  List<TaxPeriodEntity> get unpaidPeriods {
-    final list = periods.where((p) => !p.isPaid).toList()
-      ..sort((a, b) => a.id.compareTo(b.id));
-    return list;
-  }
+  final List<TaxPeriodEntity> unpaidPeriods;
+  final List<TaxPeriodEntity> paidPeriods;
 
-  /// Sudah dibayar pada tahun berjalan, terbaru di atas.
-  List<TaxPeriodEntity> get paidPeriodsThisYear {
-    final year = DateTime.now().year;
-    final list = periods.where((p) => p.isPaid && p.year == year).toList()
-      ..sort((a, b) => b.id.compareTo(a.id));
-    return list;
-  }
+  @override
+  List<Object?> get props => [
+    taxTypeId,
+    taxType,
+    referenceLabel,
+    referenceNumber,
+    serviceNumber,
+    npwpd,
+    taxpayerName,
+    taxpayerAddress,
+    objectName,
+    address,
+    unpaidPeriods,
+    paidPeriods,
+  ];
 }

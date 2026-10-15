@@ -1,4 +1,5 @@
 // lib/presentation/features/reklame/pages/survey_sisi_page.dart
+import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -75,6 +76,13 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
               ),
             ),
           ),
+          if (list.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+                child: SurveyHeaderCard(sisi: list.first),
+              ),
+            ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(18, 22, 18, 10),

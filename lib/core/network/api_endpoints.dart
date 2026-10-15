@@ -42,10 +42,39 @@ class ApiEndpoints {
   // ==========================================
   // SURVEY PERMOHONAN BARU
   // ==========================================
-  static const String surveyPermohonanHeader = '/api/reklame/bo/simpan-survey';
+  static const String surveyPermohonanHeader = '/api/reklame/bo/header';
   static const String surveyPermohonanDetail = '/api/reklame/bo/survey-form';
   static const String surveySimpan = '/api/reklame/bo/simpan-survey';
   static const String surveyCariNor = '/api/reklame/bo/cari-nor';
+
+  // ==========================================
+  // CREATE VA & QRIS
+  // ==========================================
+  static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
+  static const String pembayaranTagihan = '/api/pembayaran/tagihan';
+  static const String pembayaranCheckNominal =
+      '/api/pembayaran/check-nominal';
+  static const String pembayaranBayar = '/api/pembayaran/bayar';
+  static const String pembayaranStatus = '/api/pembayaran/status';
+
+  // ==========================================
+  // MASTER DATA
+  // ==========================================
+  static const reklameMasterLokasiTertentu =
+      '/api/reklame/master/lokasi-tertentu';
+  static const reklameMasterJenisReklame = '/api/reklame/master/jenis-reklame';
+  static const reklameMasterLetakReklame = '/api/reklame/master/letak-reklame';
+  static const reklameMasterStatusTanah = '/api/reklame/master/status-tanah';
+  static const reklameMasterSudutPandang = '/api/reklame/master/sudut-pandang';
+  static const reklameMasterPersil = '/api/reklame/master/persil';
+  static const reklameMasterJenisBangunan =
+      '/api/reklame/master/jenis-bangunan';
+  static const reklameMasterNamaJalan = '/api/reklame/master/nama-jalan';
+  static const reklameMasterKecamatan = '/api/reklame/master/kecamatan';
+  static const reklameMasterKelurahan = '/api/reklame/master/kelurahan';
+  static const reklameMasterJenisProduk = '/api/reklame/master/jenis-produk';
+  static const reklameMasterPegawaiSurvey = '/api/reklame/master/pegawai-survey';
+  static const reklameMasterLokasiPenyelenggaraan = '/api/reklame/master/lokasi-penyelenggaraan';
 
   // ==========================================
   // PENGIRIMAN SURAT (CekReklameApi, Bearer NIP)

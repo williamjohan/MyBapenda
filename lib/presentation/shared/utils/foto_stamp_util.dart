@@ -83,3 +83,5 @@ class FotoStampUtil {
     return file.path;
   }
 }
+
+
