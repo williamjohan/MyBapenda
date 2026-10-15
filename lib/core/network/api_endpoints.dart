@@ -46,6 +46,8 @@ class ApiEndpoints {
   static const String surveyPermohonanDetail = '/api/reklame/bo/survey-form';
   static const String surveySimpan = '/api/reklame/bo/simpan-survey';
   static const String surveyCariNor = '/api/reklame/bo/cari-nor';
+  static const String surveyHistory = '/api/reklame/bo/history-survey';
+  static const String surveyHistoryDetail = '/api/reklame/bo/history-survey/detail';
 
   // ==========================================
   // CREATE VA & QRIS

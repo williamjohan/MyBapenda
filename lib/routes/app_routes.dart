@@ -11,12 +11,16 @@ class AppRoutes {
   static const String results = '/reklame-results';
   static const String reklameDashboard = '/reklame-dashboard';
   static const String history = '/history';
+
+  // SURVEY
   static const String surveyPermohonanBaru = '/survey-permohonan-baru';
   static const String surveySisi = '/survey-sisi';
   static const String surveyFoto = '/survey-foto';
   static const String surveyData = '/survey-data';
   static const String surveyReview = '/survey-review';
   static const String surveyInfo = '/survey-info';
+  static const String surveyHistory = '/survey-history';
+  static const String surveyHistoryDetail = '/survey-history-detail';
 
   /// Absensi pegawai
   static const String absensi = '/absensi';

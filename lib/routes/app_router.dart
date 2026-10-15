@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
 import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
+import 'package:bapendacore/domain/usecases/survey_permohonan/survey_history_usecase.dart';
 import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart';
 import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart';
@@ -10,11 +11,16 @@ import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_lapo
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_page.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_history/survey_history_detail_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_history/survey_history_list_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_history/survey_history_detail_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_history/survey_history_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_review_page.dart';
@@ -260,10 +266,15 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.surveyPermohonanBaru,
         name: AppRoutes.surveyPermohonanBaru,
-        builder: (context, state) => BlocProvider(
-          create: (_) =>
-              SurveyListCubit(useCase: getIt<SurveyPermohonanUseCase>())
-                ..load(),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) =>
+                  SurveyListCubit(useCase: getIt<SurveyPermohonanUseCase>())
+                    ..load(),
+            ),
+            BlocProvider(create: (_) => SurveyMapCubit()..start()),
+          ],
           child: const SurveyPermohonanBaruPage(),
         ),
       ),
@@ -273,7 +284,11 @@ class AppRouter {
         builder: (context, state) {
           final args =
               state.extra
-                  as ({String nomor, String key, List<Map<String, dynamic>> sisiList});
+                  as ({
+                    String nomor,
+                    String key,
+                    List<Map<String, dynamic>> sisiList,
+                  });
 
           return MultiBlocProvider(
             providers: [
@@ -371,6 +386,30 @@ class AppRouter {
               ),
             ],
             child: SurveyDataPage(sisi: args.sisi, initial: args.initial),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.surveyHistory,
+        name: AppRoutes.surveyHistory,
+        builder: (context, state) => BlocProvider(
+          create: (_) =>
+              SurveyHistoryListCubit(useCase: getIt<SurveyHistoryUseCase>())
+                ..load(),
+          child: const SurveyHistoryPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.surveyHistoryDetail,
+        name: AppRoutes.surveyHistoryDetail,
+        builder: (context, state) {
+          final args = state.extra as ({String key, String nomor});
+          return BlocProvider(
+            create: (_) => SurveyHistoryDetailCubit(
+              useCase: getIt<SurveyHistoryUseCase>(),
+              key: args.key,
+            )..load(),
+            child: SurveyHistoryDetailPage(nomor: args.nomor),
           );
         },
       ),
