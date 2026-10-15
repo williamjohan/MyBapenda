@@ -33,6 +33,8 @@ import '../presentation/features/cek_reklame/screens/ambil_gambar_reklame/reklam
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
 import '../presentation/features/my_task/pages/my_task_dashboard_page.dart';
+import '../presentation/features/profile/cubit/profile_cubit.dart';
+import '../presentation/features/profile/pages/profile_page.dart';
 import '../presentation/features/my_task/pages/my_task_detail_page.dart';
 import '../presentation/features/my_task/pages/my_task_success_page.dart';
 import '../presentation/features/my_task/pages/my_task_work_page.dart';
@@ -40,6 +42,10 @@ import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
 import '../presentation/features/splashscreen/pages/splash_page.dart';
 import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
+import '../presentation/features/auth/cubit/lupa_password_cubit.dart';
+import '../presentation/features/auth/pages/lupa_password_page.dart';
+import '../presentation/features/auth/cubit/reset_password_cubit.dart';
+import '../presentation/features/auth/pages/reset_password_page.dart';
 import '../presentation/features/camera/cubit/camera_cubit.dart';
 import '../presentation/features/camera/pages/camera_page.dart';
 import '../presentation/features/va_qris/pages/payment_success_page.dart';
@@ -61,6 +67,7 @@ class AppRouter {
     AppRoutes.splashscreen,
     AppRoutes.onboarding,
     AppRoutes.login,
+    AppRoutes.lupaPassword,
   ];
 
   static final GoRouter router = GoRouter(
@@ -78,6 +85,13 @@ class AppRouter {
 
       if (location == AppRoutes.splashscreen) return null;
 
+      // Login pakai reset key: wajib ganti kata sandi dulu.
+      if (authState is AuthNeedsPasswordReset) {
+        return location == AppRoutes.resetPassword
+            ? null
+            : AppRoutes.resetPassword;
+      }
+
       final isAuthenticated = authState is AuthAuthenticated;
       final isPublicRoute = _publicRoutes.contains(location);
 
@@ -86,7 +100,9 @@ class AppRouter {
       }
 
       if (isAuthenticated &&
-          (location == AppRoutes.login || location == AppRoutes.onboarding)) {
+          (location == AppRoutes.login ||
+              location == AppRoutes.onboarding ||
+              location == AppRoutes.resetPassword)) {
         return AppRoutes.home;
       }
 
@@ -116,6 +132,24 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: AppRoutes.lupaPassword,
+        name: AppRoutes.lupaPassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<LupaPasswordCubit>(),
+          child: const LupaPasswordPage(),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        name: AppRoutes.resetPassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ResetPasswordCubit>(),
+          child: const ResetPasswordPage(),
+        ),
+      ),
+
+      GoRoute(
         path: AppRoutes.home,
         name: AppRoutes.home,
         pageBuilder: (context, state) {
@@ -131,6 +165,15 @@ class AppRouter {
                 },
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.profile,
+        name: AppRoutes.profile,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ProfileCubit>()..load(),
+          child: const AdaptiveThemeScope(child: ProfilePage()),
+        ),
       ),
 
       GoRoute(

@@ -8,6 +8,8 @@ class ApiEndpoints {
   static const String login = '/api/auth/login';
   static const String refreshToken = '/api/auth/refresh';
   static const String logout = '/api/auth/logout';
+  static const String lupaPassword = '/api/auth/lupapassword';
+  static const String resetPassword = '/api/auth/resetpassword';
   static const String validasiKontak = '/api/wajibpajak/validasi-kontak';
   static const String register = '/api/wajibpajak/buat-permohonan';
 

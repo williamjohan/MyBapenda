@@ -3,10 +3,13 @@ class AppRoutes {
 
   static const String onboarding = '/onboarding';
   static const String home = '/home';
+  static const String profile = '/profile';
   static const String camera = '/camera';
   static const String map = '/map';
   static const String detail = '/detail';
   static const String login = '/login';
+  static const String lupaPassword = '/lupa-password';
+  static const String resetPassword = '/reset-password';
   static const String splashscreen = '/splashscreen';
   static const String results = '/reklame-results';
   static const String reklameDashboard = '/reklame-dashboard';
