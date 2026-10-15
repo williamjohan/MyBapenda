@@ -8,6 +8,8 @@ class ApiEndpoints {
   static const String login = '/api/auth/login';
   static const String refreshToken = '/api/auth/refresh';
   static const String logout = '/api/auth/logout';
+  static const String lupaPassword = '/api/auth/lupapassword';
+  static const String resetPassword = '/api/auth/resetpassword';
   static const String validasiKontak = '/api/wajibpajak/validasi-kontak';
   static const String register = '/api/wajibpajak/buat-permohonan';
 
@@ -52,8 +54,7 @@ class ApiEndpoints {
   // ==========================================
   static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
   static const String pembayaranTagihan = '/api/pembayaran/tagihan';
-  static const String pembayaranCheckNominal =
-      '/api/pembayaran/check-nominal';
+  static const String pembayaranCheckNominal = '/api/pembayaran/check-nominal';
   static const String pembayaranBayar = '/api/pembayaran/bayar';
   static const String pembayaranStatus = '/api/pembayaran/status';
 
@@ -73,8 +74,10 @@ class ApiEndpoints {
   static const reklameMasterKecamatan = '/api/reklame/master/kecamatan';
   static const reklameMasterKelurahan = '/api/reklame/master/kelurahan';
   static const reklameMasterJenisProduk = '/api/reklame/master/jenis-produk';
-  static const reklameMasterPegawaiSurvey = '/api/reklame/master/pegawai-survey';
-  static const reklameMasterLokasiPenyelenggaraan = '/api/reklame/master/lokasi-penyelenggaraan';
+  static const reklameMasterPegawaiSurvey =
+      '/api/reklame/master/pegawai-survey';
+  static const reklameMasterLokasiPenyelenggaraan =
+      '/api/reklame/master/lokasi-penyelenggaraan';
 
   // ==========================================
   // PENGIRIMAN SURAT (CekReklameApi, Bearer NIP)
