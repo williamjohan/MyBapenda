@@ -1,6 +1,6 @@
 import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import '../common/va_qris_primary_button.dart';
 
 /// Bar tetap di bawah layar: rincian pokok, denda, lainnya, potongan, total,
@@ -36,14 +36,13 @@ class BillingTotalBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasSelection = selectedCount > 0;
+    final palette = context.palette;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
-        border: const Border(
-          top: BorderSide(color: AppThemeColors.subtleBorder),
-        ),
+        color: palette.surface,
+        border: Border(top: BorderSide(color: palette.border)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -72,7 +71,7 @@ class BillingTotalBar extends StatelessWidget {
                           _AmountRow(
                             label: 'Denda keterlambatan',
                             amount: penalty,
-                            color: AppThemeColors.danger,
+                            color: palette.danger,
                           ),
                         ],
                         if (other > 0) ...[
@@ -87,15 +86,12 @@ class BillingTotalBar extends StatelessWidget {
                           _AmountRow(
                             label: 'Potongan',
                             amount: -discount,
-                            color: AppThemeColors.success,
+                            color: palette.success,
                           ),
                         ],
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Divider(
-                            height: 1,
-                            color: AppThemeColors.subtleBorder,
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Divider(height: 1, color: palette.border),
                         ),
                       ],
                     )
@@ -103,11 +99,11 @@ class BillingTotalBar extends StatelessWidget {
             ),
             Row(
               children: [
-                const Text(
+                Text(
                   'Total bayar',
                   style: TextStyle(
                     fontSize: 13.5,
-                    color: AppThemeColors.secondaryText,
+                    color: palette.textSecondary,
                   ),
                 ),
                 const Spacer(),
@@ -117,8 +113,8 @@ class BillingTotalBar extends StatelessWidget {
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: hasSelection
-                        ? AppThemeColors.brown
-                        : AppThemeColors.tertiaryText,
+                        ? palette.brandStrong
+                        : palette.textTertiary,
                   ),
                 ),
               ],
@@ -138,18 +134,18 @@ class BillingTotalBar extends StatelessWidget {
 }
 
 class _AmountRow extends StatelessWidget {
-  const _AmountRow({
-    required this.label,
-    required this.amount,
-    this.color = AppThemeColors.secondaryText,
-  });
+  const _AmountRow({required this.label, required this.amount, this.color});
 
   final String label;
   final int amount;
-  final Color color;
+
+  /// null = warna teks sekunder.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.palette.textSecondary;
+
     return Row(
       children: [
         Expanded(

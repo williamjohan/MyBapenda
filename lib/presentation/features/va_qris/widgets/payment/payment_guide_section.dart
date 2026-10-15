@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 /// Panduan langkah pembayaran. Satu-satunya tempat angka berurutan dipakai
 /// karena isinya memang urutan langkah.
@@ -16,11 +16,13 @@ class PaymentGuideSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppThemeColors.subtleBorder),
+        border: Border.all(color: palette.border),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -29,18 +31,15 @@ class PaymentGuideSection extends StatelessWidget {
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
           shape: const Border(),
           collapsedShape: const Border(),
-          iconColor: AppThemeColors.gold,
-          collapsedIconColor: AppThemeColors.tertiaryText,
-          leading: const Icon(
-            Icons.help_outline_rounded,
-            color: AppThemeColors.gold,
-          ),
+          iconColor: palette.accent,
+          collapsedIconColor: palette.textTertiary,
+          leading: Icon(Icons.help_outline_rounded, color: palette.accent),
           title: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: AppThemeColors.titleText,
+              color: palette.textPrimary,
             ),
           ),
           children: [
@@ -54,16 +53,16 @@ class PaymentGuideSection extends StatelessWidget {
                       width: 22,
                       height: 22,
                       alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        color: AppThemeColors.primarySoft,
+                      decoration: BoxDecoration(
+                        color: palette.accentSoft,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
                         '${i + 1}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
-                          color: AppThemeColors.brown,
+                          color: palette.brandStrong,
                         ),
                       ),
                     ),
@@ -71,10 +70,10 @@ class PaymentGuideSection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         steps[i],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           height: 1.4,
-                          color: AppThemeColors.secondaryText,
+                          color: palette.textSecondary,
                         ),
                       ),
                     ),

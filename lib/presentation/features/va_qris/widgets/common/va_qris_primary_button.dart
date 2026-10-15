@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 class VaQrisPrimaryButton extends StatelessWidget {
   const VaQrisPrimaryButton({
@@ -18,16 +18,18 @@ class VaQrisPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppThemeColors.primary,
+          backgroundColor: palette.brand,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: AppThemeColors.grey4,
-          disabledForegroundColor: AppThemeColors.tertiaryText,
+          disabledBackgroundColor: palette.borderStrong,
+          disabledForegroundColor: palette.textTertiary,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
