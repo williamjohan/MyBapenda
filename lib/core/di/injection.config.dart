@@ -68,6 +68,10 @@ import '../../presentation/features/absensi/cubit/absen/absen_cubit.dart'
 import '../../presentation/features/absensi/cubit/absensi/absensi_cubit.dart'
     as _i662;
 import '../../presentation/features/auth/cubit/auth_cubit.dart' as _i224;
+import '../../presentation/features/auth/cubit/lupa_password_cubit.dart'
+    as _i405;
+import '../../presentation/features/auth/cubit/reset_password_cubit.dart'
+    as _i216;
 import '../../presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart'
     as _i720;
 import '../../presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart'
@@ -92,6 +96,7 @@ import '../../presentation/features/pengiriman/cubit/pantau/pantau_cubit.dart'
     as _i493;
 import '../../presentation/features/pengiriman/utils/pengiriman_foto.dart'
     as _i798;
+import '../../presentation/features/profile/cubit/profile_cubit.dart' as _i239;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
@@ -292,6 +297,12 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i720.BalaiRwFormCubit(gh<_i266.BalaiRwUseCase>()));
     gh.factory<_i149.BalaiRwHubCubit>(
         () => _i149.BalaiRwHubCubit(gh<_i266.BalaiRwUseCase>()));
+    gh.factory<_i405.LupaPasswordCubit>(
+        () => _i405.LupaPasswordCubit(gh<_i826.AuthUseCase>()));
+    gh.factory<_i216.ResetPasswordCubit>(
+        () => _i216.ResetPasswordCubit(gh<_i826.AuthUseCase>()));
+    gh.factory<_i239.ProfileCubit>(
+        () => _i239.ProfileCubit(gh<_i826.AuthUseCase>()));
     gh.factory<_i1039.AbsenCubit>(() => _i1039.AbsenCubit(
           gh<_i248.AbsensiUseCase>(),
           gh<_i869.GeoLocationService>(),

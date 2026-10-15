@@ -41,6 +41,8 @@ import '../presentation/features/cek_reklame/screens/ambil_gambar_reklame/reklam
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
 import '../presentation/features/my_task/pages/my_task_dashboard_page.dart';
+import '../presentation/features/profile/cubit/profile_cubit.dart';
+import '../presentation/features/profile/pages/profile_page.dart';
 import '../presentation/features/my_task/pages/my_task_detail_page.dart';
 import '../presentation/features/my_task/pages/my_task_success_page.dart';
 import '../presentation/features/my_task/pages/my_task_work_page.dart';
@@ -64,6 +66,10 @@ import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
 import '../presentation/features/splashscreen/pages/splash_page.dart';
 import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
+import '../presentation/features/auth/cubit/lupa_password_cubit.dart';
+import '../presentation/features/auth/pages/lupa_password_page.dart';
+import '../presentation/features/auth/cubit/reset_password_cubit.dart';
+import '../presentation/features/auth/pages/reset_password_page.dart';
 import '../presentation/features/camera/cubit/camera_cubit.dart';
 import '../presentation/features/camera/pages/camera_page.dart';
 import '../presentation/features/va_qris/cubit/va_qris_cubit.dart';
@@ -95,6 +101,7 @@ class AppRouter {
     AppRoutes.splashscreen,
     AppRoutes.onboarding,
     AppRoutes.login,
+    AppRoutes.lupaPassword,
   ];
 
   static Widget _vaQrisNopPage() => BlocProvider(
@@ -117,6 +124,13 @@ class AppRouter {
 
       if (location == AppRoutes.splashscreen) return null;
 
+      // Login pakai reset key: wajib ganti kata sandi dulu.
+      if (authState is AuthNeedsPasswordReset) {
+        return location == AppRoutes.resetPassword
+            ? null
+            : AppRoutes.resetPassword;
+      }
+
       final isAuthenticated = authState is AuthAuthenticated;
       final isPublicRoute = _publicRoutes.contains(location);
 
@@ -137,7 +151,9 @@ class AppRouter {
       }
 
       if (isAuthenticated &&
-          (location == AppRoutes.login || location == AppRoutes.onboarding)) {
+          (location == AppRoutes.login ||
+              location == AppRoutes.onboarding ||
+              location == AppRoutes.resetPassword)) {
         return AppRoutes.home;
       }
 
@@ -164,6 +180,24 @@ class AppRouter {
         path: AppRoutes.login,
         name: AppRoutes.login,
         builder: (context, state) => const LoginPage(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.lupaPassword,
+        name: AppRoutes.lupaPassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<LupaPasswordCubit>(),
+          child: const LupaPasswordPage(),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        name: AppRoutes.resetPassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ResetPasswordCubit>(),
+          child: const ResetPasswordPage(),
+        ),
       ),
 
       GoRoute(
@@ -221,6 +255,34 @@ class AppRouter {
             child: const CameraPage(),
           );
         },
+      ),
+
+      GoRoute(
+        path: AppRoutes.reklameDashboard,
+        name: AppRoutes.reklameDashboard,
+        builder: (context, state) => const ReklameDashboardPage(),
+      ),
+
+      //  CAMERA PAGE
+      GoRoute(
+        path: AppRoutes.camera,
+        name: AppRoutes.camera,
+        builder: (context, state) {
+          return BlocProvider<CameraCubit>(
+            // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
+            create: (_) => getIt<CameraCubit>()..start(),
+            child: const CameraPage(),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.profile,
+        name: AppRoutes.profile,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ProfileCubit>()..load(),
+          child: const AdaptiveThemeScope(child: ProfilePage()),
+        ),
       ),
 
       GoRoute(
@@ -349,7 +411,11 @@ class AppRouter {
         builder: (context, state) {
           final args =
               state.extra
-                  as ({String nomor, String key, List<Map<String, dynamic>> sisiList});
+                  as ({
+                    String nomor,
+                    String key,
+                    List<Map<String, dynamic>> sisiList,
+                  });
 
           return MultiBlocProvider(
             providers: [
