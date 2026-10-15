@@ -25,6 +25,10 @@
         android:usesCleartextTraffic="true"
         android:allowBackup="false"
         android:fullBackupContent="false">
+        <!-- Peta lacak berkas (google_maps_flutter); nilai dari .env lewat build.gradle.kts -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googleMapsApiKey}" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -41,6 +45,20 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- App Link QR surat Pengiriman: https://apibapenda.surabaya.go.id:9191/lacak/{noResi}.
+                 Verifikasi butuh /.well-known/assetlinks.json (port 443, TLS valid). -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="apibapenda.surabaya.go.id"
+                    android:port="9191"
+                    android:pathPrefix="/lacak/"/>
             </intent-filter>
         </activity>
 

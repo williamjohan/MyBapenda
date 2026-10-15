@@ -33,6 +33,20 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color danger;
   final Color dangerSoft;
 
+  /// Status proses bisnis (mis. pengiriman surat). `*Soft` untuk latar chip.
+  final Color statusSukses;
+  final Color statusSuksesSoft;
+  final Color statusProses;
+  final Color statusProsesSoft;
+  final Color statusGagal;
+  final Color statusGagalSoft;
+  final Color statusBatal;
+  final Color statusBatalSoft;
+
+  /// Peringatan tenggat (badge SLA).
+  final Color statusWarning;
+  final Color statusWarningSoft;
+
   final Color shadow;
 
   /// Opasitas gambar pola di kartu menu.
@@ -56,6 +70,16 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.warningSoft,
     required this.danger,
     required this.dangerSoft,
+    required this.statusSukses,
+    required this.statusSuksesSoft,
+    required this.statusProses,
+    required this.statusProsesSoft,
+    required this.statusGagal,
+    required this.statusGagalSoft,
+    required this.statusBatal,
+    required this.statusBatalSoft,
+    required this.statusWarning,
+    required this.statusWarningSoft,
     required this.shadow,
     required this.patternOpacity,
   });
@@ -78,6 +102,16 @@ class AppPalette extends ThemeExtension<AppPalette> {
     warningSoft: AppThemeColors.warningSoft,
     danger: AppThemeColors.danger,
     dangerSoft: AppThemeColors.dangerSoft,
+    statusSukses: AppThemeColors.success,
+    statusSuksesSoft: AppThemeColors.successSoft,
+    statusProses: AppThemeColors.information,
+    statusProsesSoft: AppThemeColors.informationSoft,
+    statusGagal: AppThemeColors.danger,
+    statusGagalSoft: AppThemeColors.dangerSoft,
+    statusBatal: Color(0xFF6B7280),
+    statusBatalSoft: Color(0xFFEEF0F3),
+    statusWarning: Color(0xFFD97706),
+    statusWarningSoft: AppThemeColors.warningSoft,
     shadow: Color(0x0D000000),
     patternOpacity: 1,
   );
@@ -100,6 +134,16 @@ class AppPalette extends ThemeExtension<AppPalette> {
     warningSoft: Color(0xFF33280A),
     danger: Color(0xFFF87171),
     dangerSoft: Color(0xFF3A1418),
+    statusSukses: Color(0xFF34D399),
+    statusSuksesSoft: Color(0xFF0F2E22),
+    statusProses: Color(0xFF38BDC8),
+    statusProsesSoft: Color(0xFF0C2A2E),
+    statusGagal: Color(0xFFF87171),
+    statusGagalSoft: Color(0xFF3A1418),
+    statusBatal: Color(0xFF9CA3AF),
+    statusBatalSoft: Color(0xFF26282D),
+    statusWarning: Color(0xFFFBBF24),
+    statusWarningSoft: Color(0xFF33280A),
     shadow: Color(0x4D000000),
     patternOpacity: 0.06,
   );
@@ -133,6 +177,16 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? warningSoft,
     Color? danger,
     Color? dangerSoft,
+    Color? statusSukses,
+    Color? statusSuksesSoft,
+    Color? statusProses,
+    Color? statusProsesSoft,
+    Color? statusGagal,
+    Color? statusGagalSoft,
+    Color? statusBatal,
+    Color? statusBatalSoft,
+    Color? statusWarning,
+    Color? statusWarningSoft,
     Color? shadow,
     double? patternOpacity,
   }) {
@@ -154,6 +208,16 @@ class AppPalette extends ThemeExtension<AppPalette> {
       warningSoft: warningSoft ?? this.warningSoft,
       danger: danger ?? this.danger,
       dangerSoft: dangerSoft ?? this.dangerSoft,
+      statusSukses: statusSukses ?? this.statusSukses,
+      statusSuksesSoft: statusSuksesSoft ?? this.statusSuksesSoft,
+      statusProses: statusProses ?? this.statusProses,
+      statusProsesSoft: statusProsesSoft ?? this.statusProsesSoft,
+      statusGagal: statusGagal ?? this.statusGagal,
+      statusGagalSoft: statusGagalSoft ?? this.statusGagalSoft,
+      statusBatal: statusBatal ?? this.statusBatal,
+      statusBatalSoft: statusBatalSoft ?? this.statusBatalSoft,
+      statusWarning: statusWarning ?? this.statusWarning,
+      statusWarningSoft: statusWarningSoft ?? this.statusWarningSoft,
       shadow: shadow ?? this.shadow,
       patternOpacity: patternOpacity ?? this.patternOpacity,
     );
@@ -183,6 +247,28 @@ class AppPalette extends ThemeExtension<AppPalette> {
       warningSoft: Color.lerp(warningSoft, other.warningSoft, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
       dangerSoft: Color.lerp(dangerSoft, other.dangerSoft, t)!,
+      statusSukses: Color.lerp(statusSukses, other.statusSukses, t)!,
+      statusSuksesSoft: Color.lerp(
+        statusSuksesSoft,
+        other.statusSuksesSoft,
+        t,
+      )!,
+      statusProses: Color.lerp(statusProses, other.statusProses, t)!,
+      statusProsesSoft: Color.lerp(
+        statusProsesSoft,
+        other.statusProsesSoft,
+        t,
+      )!,
+      statusGagal: Color.lerp(statusGagal, other.statusGagal, t)!,
+      statusGagalSoft: Color.lerp(statusGagalSoft, other.statusGagalSoft, t)!,
+      statusBatal: Color.lerp(statusBatal, other.statusBatal, t)!,
+      statusBatalSoft: Color.lerp(statusBatalSoft, other.statusBatalSoft, t)!,
+      statusWarning: Color.lerp(statusWarning, other.statusWarning, t)!,
+      statusWarningSoft: Color.lerp(
+        statusWarningSoft,
+        other.statusWarningSoft,
+        t,
+      )!,
       shadow: Color.lerp(shadow, other.shadow, t)!,
       patternOpacity:
           patternOpacity + (other.patternOpacity - patternOpacity) * t,

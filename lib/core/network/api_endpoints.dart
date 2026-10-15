@@ -75,4 +75,21 @@ class ApiEndpoints {
   static const reklameMasterJenisProduk = '/api/reklame/master/jenis-produk';
   static const reklameMasterPegawaiSurvey = '/api/reklame/master/pegawai-survey';
   static const reklameMasterLokasiPenyelenggaraan = '/api/reklame/master/lokasi-penyelenggaraan';
+
+  // ==========================================
+  // PENGIRIMAN SURAT (CekReklameApi, Bearer NIP)
+  // ==========================================
+  static const String pengirimanMaster = '/api/pengiriman/master';
+  static const String pengirimanDaftar = '/api/pengiriman/daftar';
+  static const String pengirimanDetail = '/api/pengiriman/detail';
+  static const String pengirimanLacak = '/api/pengiriman/lacak';
+  static const String pengirimanAmbil = '/api/pengiriman/ambil';
+  static const String pengirimanPerjalanan = '/api/pengiriman/perjalanan';
+  static const String pengirimanTiba = '/api/pengiriman/tiba';
+  static const String pengirimanSerah = '/api/pengiriman/serah';
+  static const String pengirimanGagal = '/api/pengiriman/gagal';
+  static const String pengirimanKembalikan = '/api/pengiriman/kembalikan';
+
+  /// `?key=`; tanpa header Authorization, key berlaku hari itu saja.
+  static const String pengirimanFoto = '/api/pengiriman/foto';
 }
