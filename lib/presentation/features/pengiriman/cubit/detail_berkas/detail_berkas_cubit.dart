@@ -10,13 +10,19 @@ class DetailBerkasCubit extends Cubit<DetailBerkasState> {
   final PengirimanUseCase _useCase;
   DetailBerkasCubit(this._useCase) : super(const DetailBerkasState());
 
+  /// Nomor request terakhir. Setelah aksi, load bisa dipanggil berdekatan
+  /// (halaman aksi ditutup lalu antrean terkirim); respons lama yang datang
+  /// belakangan tidak boleh menimpa data baru (tombol aksi lama muncul lagi).
+  int _urutan = 0;
+
   Future<void> load(String noResi) async {
+    final urutan = ++_urutan;
     // Refresh tetap menampilkan data lama sampai yang baru datang.
     if (state.detail == null) {
       emit(state.copyWith(status: DetailBerkasStatus.loading));
     }
     final result = await _useCase.getDetail(noResi);
-    if (isClosed) return;
+    if (isClosed || urutan != _urutan) return;
     result.fold(
       (failure) => emit(
         state.copyWith(

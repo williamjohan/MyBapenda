@@ -10,7 +10,6 @@ class DaftarTugasState extends Equatable {
 
   /// Semua tugas dari server (sudah urut batas SLA).
   final List<BerkasEntity> semua;
-  final TabTugas tab;
   final String query;
   final String? error;
 
@@ -20,13 +19,10 @@ class DaftarTugasState extends Equatable {
   const DaftarTugasState({
     this.status = DaftarTugasStatus.initial,
     this.semua = const [],
-    this.tab = TabTugas.ambil,
     this.query = '',
     this.error,
     this.tglCache,
   });
-
-  List<BerkasEntity> get items => TugasTabLogic.filter(semua, tab, query);
 
   /// Badge per tab; null selama belum pernah termuat.
   Map<TabTugas, int>? get jumlah =>
@@ -37,7 +33,6 @@ class DaftarTugasState extends Equatable {
   DaftarTugasState copyWith({
     DaftarTugasStatus? status,
     List<BerkasEntity>? semua,
-    TabTugas? tab,
     String? query,
     String? error,
     DateTime? tglCache,
@@ -46,7 +41,6 @@ class DaftarTugasState extends Equatable {
     return DaftarTugasState(
       status: status ?? this.status,
       semua: semua ?? this.semua,
-      tab: tab ?? this.tab,
       query: query ?? this.query,
       // Error di-reset tiap kali tidak diisi eksplisit.
       error: error,
@@ -55,5 +49,5 @@ class DaftarTugasState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, semua, tab, query, error, tglCache];
+  List<Object?> get props => [status, semua, query, error, tglCache];
 }

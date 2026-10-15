@@ -288,10 +288,18 @@ class _Titik extends StatelessWidget {
     required this.warna,
   });
 
+  /// Kotak tetap untuk semua titik supaya garis antar-tahap sejajar.
+  static const double _kotak = 16;
+
   @override
   Widget build(BuildContext context) {
-    final palette = context.palette;
+    return SizedBox.square(
+      dimension: _kotak,
+      child: Center(child: _bulatan(context.palette)),
+    );
+  }
 
+  Widget _bulatan(AppPalette palette) {
     if (kini) {
       return Container(
         width: 16,

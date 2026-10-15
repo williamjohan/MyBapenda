@@ -5,6 +5,8 @@ enum PantauFilter {
   semua('Semua'),
   menunggu('Belum Diambil'),
   diantar('Sedang Diantar'),
+  tiba('Tiba di Tujuan'),
+  diterima('Diterima'),
   bermasalah('Perlu Perhatian');
 
   final String label;
@@ -16,8 +18,10 @@ enum PantauFilter {
       b.status == StatusBerkas.disiapkan || b.status == StatusBerkas.ditugaskan,
     PantauFilter.diantar =>
       b.status == StatusBerkas.diambil ||
-          b.status == StatusBerkas.dalamPerjalanan ||
-          b.status == StatusBerkas.tiba,
+          b.status == StatusBerkas.dalamPerjalanan,
+    PantauFilter.tiba => b.status == StatusBerkas.tiba,
+    // Sudah diserahterimakan ke WP (termasuk yang masih di antrean HP).
+    PantauFilter.diterima => b.status == StatusBerkas.diterima,
     PantauFilter.bermasalah => PantauLogic.bermasalah(b),
   };
 }

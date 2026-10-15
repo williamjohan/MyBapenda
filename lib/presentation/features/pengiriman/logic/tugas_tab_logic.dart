@@ -1,30 +1,36 @@
 import '../../../../domain/entities/pengiriman/berkas_entity.dart';
 
-/// Tab daftar tugas. `GET daftar` mengembalikan semua tugas sekaligus,
-/// jadi pembagian tab, jumlah badge, dan pencarian dilakukan di HP.
+/// Tab daftar tugas. `GET daftar` mengembalikan semua tugas sekaligus
+/// (termasuk yang sudah diterima, untuk Pantau), jadi pembagian tab, jumlah
+/// badge, dan pencarian dilakukan di HP.
 enum TabTugas {
   ambil('Untuk Diambil'),
   diantar('Diantar'),
-  selesai('Selesai'),
   gagal('Gagal/Kembali');
 
   final String label;
   const TabTugas(this.label);
 
-  static TabTugas dari(BerkasEntity b) {
+  /// null = bukan tugas lagi (sudah final di server): tidak tampil di
+  /// Pengiriman Surat, cukup di Pantau.
+  static TabTugas? dari(BerkasEntity b) {
     if (b.perluDikembalikan) return TabTugas.gagal;
+    if (b.status.isFinal && b.antreanTertunda == 0) return null;
     return switch (b.status) {
       StatusBerkas.disiapkan || StatusBerkas.ditugaskan => TabTugas.ambil,
+      // Diterima/via pos dari aksi yang masih di antrean HP: tetap di
+      // Diantar (bertanda "Belum terkirim") sampai terkirim.
       StatusBerkas.diambil ||
       StatusBerkas.dalamPerjalanan ||
-      StatusBerkas.tiba => TabTugas.diantar,
-      StatusBerkas.gagalAntar || StatusBerkas.dibatalkan => TabTugas.gagal,
-      _ => TabTugas.selesai,
+      StatusBerkas.tiba ||
+      StatusBerkas.diterima ||
+      StatusBerkas.dikirimViaPos => TabTugas.diantar,
+      StatusBerkas.gagalAntar ||
+      StatusBerkas.dibatalkan ||
+      StatusBerkas.dikembalikan ||
+      StatusBerkas.tidakTerkirim => TabTugas.gagal,
     };
   }
-
-  /// Tab yang butuh tindakan petugas (badge disorot).
-  bool get perluTindakan => this != TabTugas.selesai;
 }
 
 class TugasTabLogic {
@@ -53,7 +59,7 @@ class TugasTabLogic {
     final jumlah = {for (final t in TabTugas.values) t: 0};
     for (final b in semua) {
       final t = TabTugas.dari(b);
-      jumlah[t] = jumlah[t]! + 1;
+      if (t != null) jumlah[t] = jumlah[t]! + 1;
     }
     return jumlah;
   }

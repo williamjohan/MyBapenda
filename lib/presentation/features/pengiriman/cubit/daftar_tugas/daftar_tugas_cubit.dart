@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../domain/usecases/pengiriman/pengiriman_usecase.dart';
-import '../../logic/tugas_tab_logic.dart';
 import 'daftar_tugas_state.dart';
 
 /// Daftar tugas petugas. Server mengirim semua tugas sekaligus (tanpa paging),
@@ -12,13 +11,17 @@ class DaftarTugasCubit extends Cubit<DaftarTugasState> {
   final PengirimanUseCase _useCase;
   DaftarTugasCubit(this._useCase) : super(const DaftarTugasState());
 
+  /// Nomor request terakhir; respons lama yang datang belakangan diabaikan.
+  int _urutan = 0;
+
   Future<void> load() async {
+    final urutan = ++_urutan;
     // Muat ulang tidak mengosongkan daftar lama (tetap terlihat saat refresh).
     if (state.semua.isEmpty) {
       emit(state.copyWith(status: DaftarTugasStatus.loading));
     }
     final result = await _useCase.getDaftar();
-    if (isClosed) return;
+    if (isClosed || urutan != _urutan) return;
     result.fold(
       (failure) => emit(
         state.copyWith(
@@ -35,10 +38,6 @@ class DaftarTugasCubit extends Cubit<DaftarTugasState> {
         ),
       ),
     );
-  }
-
-  void changeTab(TabTugas tab) {
-    if (tab != state.tab) emit(state.copyWith(tab: tab));
   }
 
   void search(String query) {

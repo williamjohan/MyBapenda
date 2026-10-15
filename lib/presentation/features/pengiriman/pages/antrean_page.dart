@@ -133,8 +133,14 @@ class _ItemAntrean extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    ToneChip(label: item.jenis.label, tone: tone),
-                    const Spacer(),
+                    // Chip mengalah (elipsis) bila layar sempit / huruf besar.
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ToneChip(label: item.jenis.label, tone: tone),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Text(
                       '${formatTanggalId(t)} ${formatJamId(t)}',
                       style: TextStyle(

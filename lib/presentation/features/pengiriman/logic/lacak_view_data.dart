@@ -21,6 +21,10 @@ class LacakViewData {
   final String? ringkasan;
   final String namaWp;
   final String? alamatTujuan;
+
+  /// Koordinat alamat tujuan; hanya ada dari `detail` (tugas petugas).
+  final double? latTujuan;
+  final double? longTujuan;
   final List<InfoSeksi> seksi;
   final List<JejakEntity> jejak;
 
@@ -35,14 +39,23 @@ class LacakViewData {
     this.ringkasan,
     required this.namaWp,
     this.alamatTujuan,
+    this.latTujuan,
+    this.longTujuan,
     this.seksi = const [],
     this.jejak = const [],
   });
 
-  /// Monitoring diutamakan karena memuat foto jejak.
+  /// Monitoring diutamakan karena memuat foto jejak; koordinat tujuan
+  /// diambil dari bagian tugas bila ada (monitoring tidak memuatnya).
   static LacakViewData? fromLacak(LacakResultEntity r) {
     final m = r.monitoring, t = r.tugas;
-    if (m != null) return LacakViewData.fromMonitoring(m);
+    if (m != null) {
+      return LacakViewData.fromMonitoring(
+        m,
+        latTujuan: t?.berkas.latTujuan,
+        longTujuan: t?.berkas.longTujuan,
+      );
+    }
     if (t != null) return LacakViewData.fromDetail(t);
     return null;
   }
@@ -63,6 +76,8 @@ class LacakViewData {
       ringkasan: _ringkasan(b.status, d.namaPenerima, d.tglTerima),
       namaWp: b.namaWp,
       alamatTujuan: b.alamatTujuan,
+      latTujuan: b.latTujuan,
+      longTujuan: b.longTujuan,
       seksi: _seksi([
         (
           judul: 'Info Penerbitan',
@@ -107,7 +122,11 @@ class LacakViewData {
     );
   }
 
-  factory LacakViewData.fromMonitoring(MonitoringBerkasEntity m) {
+  factory LacakViewData.fromMonitoring(
+    MonitoringBerkasEntity m, {
+    double? latTujuan,
+    double? longTujuan,
+  }) {
     final ambil = _jejakAmbil(m.jejak);
     final percobaan = m.maksPercobaan == null
         ? (m.jumlahGagal > 0 ? '${m.jumlahGagal}x gagal' : null)
@@ -123,6 +142,8 @@ class LacakViewData {
       ringkasan: _ringkasan(m.status, null, m.tglTerima),
       namaWp: m.namaWp,
       alamatTujuan: m.alamatWp,
+      latTujuan: latTujuan,
+      longTujuan: longTujuan,
       seksi: _seksi([
         (
           judul: 'Info Penerbitan',

@@ -86,6 +86,8 @@ import '../../presentation/features/pengiriman/cubit/lacak/lacak_cubit.dart'
     as _i554;
 import '../../presentation/features/pengiriman/cubit/pantau/pantau_cubit.dart'
     as _i493;
+import '../../presentation/features/pengiriman/utils/pengiriman_foto.dart'
+    as _i798;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
 import '../network/dio_auth_interceptor.dart' as _i817;
@@ -131,6 +133,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i463.NetworkService>(() => _i463.NetworkService());
     gh.lazySingleton<_i438.UpdateVersionService>(
         () => _i438.UpdateVersionService());
+    gh.lazySingleton<_i798.PengirimanFoto>(() => _i798.PengirimanFoto());
     gh.lazySingleton<_i164.IPermissionService>(
         () => _i1018.PermissionServiceImpl());
     gh.lazySingleton<_i594.AppPreferences>(
@@ -213,10 +216,6 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i826.AuthUseCase>(
         () => _i826.AuthUseCase(gh<_i660.AuthRepository>()));
-    gh.factory<_i572.AksiCubit>(() => _i572.AksiCubit(
-          gh<_i578.PengirimanUseCase>(),
-          gh<_i869.GeoLocationService>(),
-        ));
     gh.lazySingleton<_i248.AbsensiUseCase>(
         () => _i248.AbsensiUseCase(gh<_i173.AbsensiRepository>()));
     gh.lazySingleton<_i266.BalaiRwUseCase>(
@@ -230,6 +229,11 @@ extension GetItInjectableX on _i174.GetIt {
           updateService: gh<_i919.UpdateService>(),
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
+        ));
+    gh.factory<_i572.AksiCubit>(() => _i572.AksiCubit(
+          gh<_i578.PengirimanUseCase>(),
+          gh<_i869.GeoLocationService>(),
+          gh<_i798.PengirimanFoto>(),
         ));
     gh.factory<_i662.AbsensiCubit>(
         () => _i662.AbsensiCubit(gh<_i248.AbsensiUseCase>()));

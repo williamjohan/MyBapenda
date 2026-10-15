@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../domain/usecases/pengiriman/pengiriman_usecase.dart';
-import '../../logic/pantau_logic.dart';
 import 'pantau_state.dart';
 
 /// Pantau berkas milik NIP login: daftar langsung tampil, filter & cari lokal.
@@ -11,13 +10,17 @@ class PantauCubit extends Cubit<PantauState> {
   final PengirimanUseCase _useCase;
   PantauCubit(this._useCase) : super(const PantauState());
 
+  /// Nomor request terakhir; respons lama yang datang belakangan diabaikan.
+  int _urutan = 0;
+
   Future<void> load() async {
+    final urutan = ++_urutan;
     // Refresh tetap menampilkan daftar lama sampai yang baru datang.
     if (state.semua.isEmpty) {
       emit(state.copyWith(status: PantauStatus.loading));
     }
     final result = await _useCase.getDaftar();
-    if (isClosed) return;
+    if (isClosed || urutan != _urutan) return;
     result.fold(
       (failure) => emit(
         state.copyWith(status: PantauStatus.failure, error: failure.message),
@@ -31,10 +34,6 @@ class PantauCubit extends Cubit<PantauState> {
         ),
       ),
     );
-  }
-
-  void changeFilter(PantauFilter filter) {
-    if (filter != state.filter) emit(state.copyWith(filter: filter));
   }
 
   void search(String query) {

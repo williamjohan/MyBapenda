@@ -59,7 +59,9 @@ class AntreanPengirimanCubit extends Cubit<AntreanPengirimanState> {
   Future<void> close() {
     _subAntrean?.cancel();
     _subJaringan?.cancel();
+    // Null-kan supaya close() kedua tidak dispose listener dua kali (assert).
     _lifecycle?.dispose();
+    _lifecycle = null;
     return super.close();
   }
 }

@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/design_system/tokens/app_palette.dart';
-import '../../../../domain/entities/pengiriman/lacak_entity.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
+import '../../../shared/widgets/button.dart';
 import '../../../shared/widgets/theme_toggle_button.dart';
 import '../cubit/lacak/lacak_cubit.dart';
 import '../cubit/lacak/lacak_state.dart';
@@ -13,8 +13,9 @@ import '../logic/lacak_view_data.dart';
 import '../widgets/common/pengiriman_message.dart';
 import '../widgets/lacak/lacak_detail_view.dart';
 
-/// Hasil lacak satu berkas (`GET lacak?kode=`), tampil seperti lacak paket.
-/// Foto jejak hanya ada bila login punya akses monitoring.
+/// Hasil lacak satu berkas (`GET lacak?kode=`), tampil seperti lacak paket:
+/// kartu status + peta jejak, riwayat, lalu info. Foto jejak hanya ada bila
+/// login punya akses monitoring.
 class LacakPage extends StatelessWidget {
   const LacakPage({super.key});
 
@@ -25,6 +26,16 @@ class LacakPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: palette.background,
+      bottomNavigationBar: BlocBuilder<LacakCubit, LacakState>(
+        buildWhen: (a, b) => a.result != b.result,
+        builder: (context, state) {
+          final result = state.result;
+          if (result == null || !result.tugasSaya) {
+            return const SizedBox.shrink();
+          }
+          return _TugasSayaBar(noResi: result.noResi);
+        },
+      ),
       body: BlocBuilder<LacakCubit, LacakState>(
         builder: (context, state) => RefreshIndicator(
           onRefresh: cubit.refresh,
@@ -40,7 +51,7 @@ class LacakPage extends StatelessWidget {
                 trailing: ThemeToggleButton(),
               ),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                 sliver: SliverToBoxAdapter(child: _body(context, state)),
               ),
             ],
@@ -60,10 +71,7 @@ class LacakPage extends StatelessWidget {
           message: 'Data berkas tidak tersedia untuk akun Anda.',
         );
       }
-      return LacakDetailView(
-        data: data,
-        header: result.tugasSaya ? _TugasSayaBanner(result: result) : null,
-      );
+      return LacakDetailView(data: data);
     }
     if (state.status == LacakStatus.failure) {
       return PengirimanMessage(
@@ -82,42 +90,33 @@ class LacakPage extends StatelessWidget {
   }
 }
 
-/// Berkas ini tugas login: tawarkan buka detail tugas (tempat tombol aksi).
-class _TugasSayaBanner extends StatelessWidget {
-  final LacakResultEntity result;
-  const _TugasSayaBanner({required this.result});
+/// Berkas ini tugas login: satu tombol tetap di bawah supaya aksi tugas
+/// selalu terjangkau tanpa menggulir.
+class _TugasSayaBar extends StatelessWidget {
+  final String noResi;
+  const _TugasSayaBar({required this.noResi});
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
 
-    return Material(
-      color: palette.accentSoft,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () =>
-            context.push(AppRoutes.pengirimanDetail, extra: result.noResi),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              Icon(Icons.assignment_ind_outlined, color: palette.accent),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Berkas ini tugas Anda. Buka detail tugas.',
-                  style: TextStyle(
-                    color: palette.textPrimary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: palette.accent),
-            ],
-          ),
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        border: Border(top: BorderSide(color: palette.border)),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        8 + MediaQuery.paddingOf(context).bottom,
+      ),
+      child: Button(
+        label: 'Tugas Anda · Buka Detail Tugas',
+        icon: Icons.assignment_ind_outlined,
+        height: 42,
+        onPressed: () =>
+            context.push(AppRoutes.pengirimanDetail, extra: noResi),
       ),
     );
   }

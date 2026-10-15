@@ -37,22 +37,13 @@ class _PantauPageState extends State<PantauPage>
     _tabController = TabController(
       length: PantauFilter.values.length,
       vsync: this,
-    )..addListener(_onTabChanged);
+    );
   }
 
   @override
   void dispose() {
-    _tabController
-      ..removeListener(_onTabChanged)
-      ..dispose();
+    _tabController.dispose();
     super.dispose();
-  }
-
-  void _onTabChanged() {
-    if (_tabController.indexIsChanging) return;
-    context.read<PantauCubit>().changeFilter(
-      PantauFilter.values[_tabController.index],
-    );
   }
 
   void _lacak(BuildContext context, String kode) {
@@ -119,17 +110,27 @@ class _PantauPageState extends State<PantauPage>
                     ..showSnackBar(
                       SnackBar(content: Text(state.error ?? 'Gagal memuat.')),
                     ),
-                  builder: (context, state) => RefreshIndicator(
-                    onRefresh: cubit.load,
-                    color: palette.accent,
-                    backgroundColor: palette.surface,
-                    child: CustomScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        ..._isi(context, state),
-                        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                      ],
-                    ),
+                  // Geser kiri/kanan untuk pindah tab; tiap halaman
+                  // menghitung isinya sendiri dari daftar yang sama.
+                  builder: (context, state) => TabBarView(
+                    controller: _tabController,
+                    children: [
+                      for (final f in PantauFilter.values)
+                        RefreshIndicator(
+                          onRefresh: cubit.load,
+                          color: palette.accent,
+                          backgroundColor: palette.surface,
+                          child: CustomScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            slivers: [
+                              ..._isi(context, state, f),
+                              const SliverToBoxAdapter(
+                                child: SizedBox(height: 24),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -140,7 +141,11 @@ class _PantauPageState extends State<PantauPage>
     );
   }
 
-  List<Widget> _isi(BuildContext context, PantauState state) {
+  List<Widget> _isi(
+    BuildContext context,
+    PantauState state,
+    PantauFilter filter,
+  ) {
     final now = DateTime.now();
 
     if (state.status == PantauStatus.loading) {
@@ -159,7 +164,7 @@ class _PantauPageState extends State<PantauPage>
       ];
     }
 
-    final items = state.items;
+    final items = PantauLogic.filter(state.semua, filter, state.query);
     if (items.isEmpty) {
       final cari = state.query;
       return [
@@ -169,9 +174,9 @@ class _PantauPageState extends State<PantauPage>
                 ? Icons.inbox_outlined
                 : Icons.search_off_rounded,
             message: cari.isEmpty
-                ? (state.filter == PantauFilter.semua
+                ? (filter == PantauFilter.semua
                       ? 'Belum ada berkas yang terhubung dengan akun Anda.'
-                      : 'Tidak ada berkas "${state.filter.label}".')
+                      : 'Tidak ada berkas "${filter.label}".')
                 : '"$cari" tidak ada di daftar Anda. '
                       'Lacak langsung dengan no resi ini?',
             actionLabel: cari.isEmpty ? null : 'Lacak "$cari"',

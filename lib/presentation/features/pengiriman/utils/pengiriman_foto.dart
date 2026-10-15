@@ -1,4 +1,5 @@
 import 'package:image_picker/image_picker.dart';
+import 'package:injectable/injectable.dart';
 
 import '../../../../core/services/geo_location_service.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -8,13 +9,13 @@ import '../../../shared/widgets/bt_image_compressor.dart';
 
 /// Ambil foto kamera untuk aksi pengiriman (pola balai_rw):
 /// kamera → cap waktu + koordinat → JPEG (±300 KB, server menolak > 2 MB).
+/// Di-inject ke cubit supaya bisa diganti fake di tes.
+@lazySingleton
 class PengirimanFoto {
-  PengirimanFoto._();
-
-  static final _picker = ImagePicker();
+  final _picker = ImagePicker();
 
   /// null bila dibatalkan.
-  static Future<String?> ambil({
+  Future<String?> ambil({
     required String judul,
     required String noResi,
     GeoPosition? lokasi,

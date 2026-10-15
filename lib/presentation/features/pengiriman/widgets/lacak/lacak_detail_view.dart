@@ -7,20 +7,17 @@ import 'jejak_timeline.dart';
 import 'lacak_status_card.dart';
 
 /// Isi halaman berkas: ringkasan status, riwayat perjalanan (opsional),
-/// lalu seksi info. Lacak (Pantau) menampilkan riwayat; Detail Berkas tidak.
+/// lalu seksi info. Lacak (Pantau) menampilkan peta + riwayat; Detail
+/// Berkas tidak.
 class LacakDetailView extends StatelessWidget {
   final LacakViewData data;
 
-  /// Konten tambahan di atas kartu status (mis. penanda "Tugas Anda").
-  final Widget? header;
-
-  /// Timeline jejak; Detail Berkas mematikannya (riwayat ada di Lacak).
+  /// Peta & timeline jejak; Detail Berkas mematikannya (riwayat ada di Lacak).
   final bool tampilkanRiwayat;
 
   const LacakDetailView({
     super.key,
     required this.data,
-    this.header,
     this.tampilkanRiwayat = true,
   });
 
@@ -29,23 +26,22 @@ class LacakDetailView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (header != null) ...[header!, const SizedBox(height: 12)],
-        LacakStatusCard(data: data),
+        LacakStatusCard(data: data, denganPeta: tampilkanRiwayat),
         if (tampilkanRiwayat) ...[
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           const SectionLabel(
             text: 'Riwayat Perjalanan',
             icon: Icons.route_outlined,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           SurfaceCard(child: JejakTimeline(jejak: data.jejak)),
         ],
         for (final s in data.seksi) ...[
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           SectionLabel(text: s.judul, icon: _ikonSeksi(s.judul)),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           SurfaceCard(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             child: Column(
               children: [
                 for (var i = 0; i < s.baris.length; i++) ...[
@@ -70,7 +66,7 @@ class _Baris extends StatelessWidget {
     final palette = context.palette;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

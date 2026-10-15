@@ -10,7 +10,6 @@ class PantauState extends Equatable {
 
   /// Semua berkas milik NIP login (dari `GET daftar`).
   final List<BerkasEntity> semua;
-  final PantauFilter filter;
   final String query;
   final String? error;
 
@@ -20,20 +19,16 @@ class PantauState extends Equatable {
   const PantauState({
     this.status = PantauStatus.loading,
     this.semua = const [],
-    this.filter = PantauFilter.semua,
     this.query = '',
     this.error,
     this.tglCache,
   });
-
-  List<BerkasEntity> get items => PantauLogic.filter(semua, filter, query);
 
   Map<PantauFilter, int> get jumlah => PantauLogic.hitung(semua);
 
   PantauState copyWith({
     PantauStatus? status,
     List<BerkasEntity>? semua,
-    PantauFilter? filter,
     String? query,
     String? error,
     DateTime? tglCache,
@@ -42,7 +37,6 @@ class PantauState extends Equatable {
     return PantauState(
       status: status ?? this.status,
       semua: semua ?? this.semua,
-      filter: filter ?? this.filter,
       query: query ?? this.query,
       // Error di-reset tiap kali tidak diisi eksplisit.
       error: error,
@@ -51,5 +45,5 @@ class PantauState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, semua, filter, query, error, tglCache];
+  List<Object?> get props => [status, semua, query, error, tglCache];
 }

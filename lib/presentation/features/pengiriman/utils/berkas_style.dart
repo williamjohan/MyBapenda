@@ -57,7 +57,6 @@ extension TabTugasStyle on TabTugas {
   IconData get icon => switch (this) {
     TabTugas.ambil => Icons.inventory_2_outlined,
     TabTugas.diantar => Icons.two_wheeler_outlined,
-    TabTugas.selesai => Icons.task_alt_rounded,
     TabTugas.gagal => Icons.assignment_return_outlined,
   };
 }
@@ -67,6 +66,8 @@ extension PantauFilterStyle on PantauFilter {
     PantauFilter.semua => Icons.all_inbox_outlined,
     PantauFilter.menunggu => Icons.inventory_2_outlined,
     PantauFilter.diantar => Icons.two_wheeler_outlined,
+    PantauFilter.tiba => Icons.place_outlined,
+    PantauFilter.diterima => Icons.task_alt_rounded,
     PantauFilter.bermasalah => Icons.report_problem_outlined,
   };
 }

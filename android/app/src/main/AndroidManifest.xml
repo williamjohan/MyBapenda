@@ -25,6 +25,10 @@
         android:usesCleartextTraffic="true"
         android:allowBackup="false"
         android:fullBackupContent="false">
+        <!-- Peta lacak berkas (google_maps_flutter); nilai dari .env lewat build.gradle.kts -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googleMapsApiKey}" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

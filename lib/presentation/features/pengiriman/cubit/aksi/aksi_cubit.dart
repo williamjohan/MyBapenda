@@ -20,8 +20,10 @@ import 'aksi_state.dart';
 class AksiCubit extends Cubit<AksiState> {
   final PengirimanUseCase _useCase;
   final GeoLocationService _lokasiService;
+  final PengirimanFoto _foto;
 
-  AksiCubit(this._useCase, this._lokasiService) : super(const AksiState());
+  AksiCubit(this._useCase, this._lokasiService, this._foto)
+    : super(const AksiState());
 
   Future<void> init({bool butuhMaster = false}) async {
     await Future.wait([cariLokasi(), if (butuhMaster) muatMaster()]);
@@ -87,7 +89,7 @@ class AksiCubit extends Cubit<AksiState> {
     if (state.fotoDiproses != null) return;
     emit(state.copyWith(fotoDiproses: slot));
     try {
-      final path = await PengirimanFoto.ambil(
+      final path = await _foto.ambil(
         judul: slot.label,
         noResi: noResi,
         lokasi: state.lokasi,

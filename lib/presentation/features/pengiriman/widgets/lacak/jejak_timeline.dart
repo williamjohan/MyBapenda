@@ -139,7 +139,7 @@ class _JejakItem extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(bottom: terakhir ? 0 : 20),
+              padding: EdgeInsets.only(bottom: terakhir ? 0 : 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -312,8 +312,8 @@ class _FotoStrip extends StatelessWidget {
           GestureDetector(
             onTap: () => JejakFotoViewer.open(context, foto, awal: i),
             child: Container(
-              width: 64,
-              height: 64,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: palette.border),
@@ -321,8 +321,8 @@ class _FotoStrip extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: BapendaImage(
                 path: pengirimanFotoUrl(foto[i].key),
-                width: 64,
-                height: 64,
+                width: 56,
+                height: 56,
                 cacheWidth: 200,
               ),
             ),
@@ -354,12 +354,14 @@ class _Tautan extends StatelessWidget {
           children: [
             Icon(icon, size: 14, color: warna),
             const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: warna,
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: warna,
+                ),
               ),
             ),
           ],

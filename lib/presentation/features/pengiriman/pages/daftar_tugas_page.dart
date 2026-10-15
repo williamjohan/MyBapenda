@@ -32,23 +32,13 @@ class _DaftarTugasPageState extends State<DaftarTugasPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: TabTugas.values.length, vsync: this)
-      ..addListener(_onTabChanged);
+    _tabController = TabController(length: TabTugas.values.length, vsync: this);
   }
 
   @override
   void dispose() {
-    _tabController
-      ..removeListener(_onTabChanged)
-      ..dispose();
+    _tabController.dispose();
     super.dispose();
-  }
-
-  void _onTabChanged() {
-    if (_tabController.indexIsChanging) return;
-    context.read<DaftarTugasCubit>().changeTab(
-      TabTugas.values[_tabController.index],
-    );
   }
 
   void _onBack() {
@@ -117,7 +107,7 @@ class _DaftarTugasPageState extends State<DaftarTugasPage>
                         label: t.label,
                         icon: t.icon,
                         jumlah: state.jumlah?[t],
-                        sorot: t.perluTindakan,
+                        sorot: true,
                       ),
                   ],
                 ),
@@ -139,18 +129,28 @@ class _DaftarTugasPageState extends State<DaftarTugasPage>
                     ..showSnackBar(
                       SnackBar(content: Text(state.error ?? 'Gagal memuat.')),
                     ),
-                  builder: (context, state) => RefreshIndicator(
-                    onRefresh: cubit.load,
-                    color: palette.accent,
-                    backgroundColor: palette.surface,
-                    child: CustomScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        ..._buildList(context, state),
-                        // Ruang untuk tombol Scan Ambil.
-                        const SliverToBoxAdapter(child: SizedBox(height: 96)),
-                      ],
-                    ),
+                  // Geser kiri/kanan untuk pindah tab; tiap halaman
+                  // menghitung isinya sendiri dari daftar yang sama.
+                  builder: (context, state) => TabBarView(
+                    controller: _tabController,
+                    children: [
+                      for (final tab in TabTugas.values)
+                        RefreshIndicator(
+                          onRefresh: cubit.load,
+                          color: palette.accent,
+                          backgroundColor: palette.surface,
+                          child: CustomScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            slivers: [
+                              ..._buildList(context, state, tab),
+                              // Ruang untuk tombol Scan Ambil.
+                              const SliverToBoxAdapter(
+                                child: SizedBox(height: 96),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -161,8 +161,13 @@ class _DaftarTugasPageState extends State<DaftarTugasPage>
     );
   }
 
-  List<Widget> _buildList(BuildContext context, DaftarTugasState state) {
+  List<Widget> _buildList(
+    BuildContext context,
+    DaftarTugasState state,
+    TabTugas tab,
+  ) {
     final now = DateTime.now();
+    final items = TugasTabLogic.filter(state.semua, tab, state.query);
 
     switch (state.status) {
       case DaftarTugasStatus.initial:
@@ -181,7 +186,7 @@ class _DaftarTugasPageState extends State<DaftarTugasPage>
         ];
       case DaftarTugasStatus.failure:
       case DaftarTugasStatus.loaded:
-        if (state.items.isEmpty) {
+        if (items.isEmpty) {
           return [
             SliverToBoxAdapter(
               child: PengirimanMessage(
@@ -195,7 +200,7 @@ class _DaftarTugasPageState extends State<DaftarTugasPage>
             ),
           ];
         }
-        return [_cardList(state.items, now)];
+        return [_cardList(items, now)];
     }
   }
 
