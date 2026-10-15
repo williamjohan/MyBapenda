@@ -42,6 +42,7 @@ import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
 import '../presentation/features/camera/cubit/camera_cubit.dart';
 import '../presentation/features/camera/pages/camera_page.dart';
+import '../presentation/features/va_qris/cubit/va_qris_cubit.dart';
 import '../presentation/features/va_qris/pages/payment_success_page.dart';
 import '../presentation/features/va_qris/pages/qris_payment_page.dart';
 import '../presentation/features/va_qris/pages/va_payment_page.dart';
@@ -62,6 +63,11 @@ class AppRouter {
     AppRoutes.onboarding,
     AppRoutes.login,
   ];
+
+  static Widget _vaQrisNopPage() => BlocProvider(
+    create: (_) => getIt<VaQrisCubit>()..init(),
+    child: const VaQrisNopPage(),
+  );
 
   static final GoRouter router = GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -335,14 +341,14 @@ class AppRouter {
 
       // ======================================================
       // VA & QRIS
+      // Tiap route membuat VaQrisCubit sendiri dan mengisinya dari `extra`.
       // TODO(tech-debt): `extra` hilang saat deep link / restore state.
-      // Setelah VaQrisCubit ada, kirim NOP/id saja lalu muat dari state.
       // Jika extra tidak sesuai, kembali ke layar input NOP.
       // ======================================================
       GoRoute(
         path: AppRoutes.nop,
         name: AppRoutes.nop,
-        builder: (context, state) => const VaQrisNopPage(),
+        builder: (context, state) => _vaQrisNopPage(),
       ),
 
       GoRoute(
@@ -351,8 +357,11 @@ class AppRouter {
         builder: (context, state) {
           final billing = state.extra;
           return billing is TaxBillingEntity
-              ? VaQrisBillingPage(billing: billing)
-              : const VaQrisNopPage();
+              ? BlocProvider(
+                  create: (_) => getIt<VaQrisCubit>()..loadBilling(billing),
+                  child: const VaQrisBillingPage(),
+                )
+              : _vaQrisNopPage();
         },
       ),
 
@@ -362,8 +371,11 @@ class AppRouter {
         builder: (context, state) {
           final session = state.extra;
           return session is PaymentSessionEntity
-              ? QrisPaymentPage(session: session)
-              : const VaQrisNopPage();
+              ? BlocProvider(
+                  create: (_) => getIt<VaQrisCubit>()..startSession(session),
+                  child: QrisPaymentPage(session: session),
+                )
+              : _vaQrisNopPage();
         },
       ),
 
@@ -373,8 +385,11 @@ class AppRouter {
         builder: (context, state) {
           final session = state.extra;
           return session is PaymentSessionEntity
-              ? VaPaymentPage(session: session)
-              : const VaQrisNopPage();
+              ? BlocProvider(
+                  create: (_) => getIt<VaQrisCubit>()..startSession(session),
+                  child: VaPaymentPage(session: session),
+                )
+              : _vaQrisNopPage();
         },
       ),
 
@@ -385,7 +400,7 @@ class AppRouter {
           final session = state.extra;
           return session is PaymentSessionEntity
               ? PaymentSuccessPage(session: session)
-              : const VaQrisNopPage();
+              : _vaQrisNopPage();
         },
       ),
 

@@ -3,7 +3,6 @@ import 'package:bapendacore/core/utils/date_format_id.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
-import '../../../../../core/utils/tax_period_label.dart';
 
 class PaidPeriodTile extends StatelessWidget {
   const PaidPeriodTile({super.key, required this.period});
