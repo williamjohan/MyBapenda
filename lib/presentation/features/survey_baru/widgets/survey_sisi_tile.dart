@@ -28,7 +28,7 @@ class SurveySisiTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final sub = const TextStyle(
       fontSize: 12,
-      color: const Color(0xFF7B8794),
+      color: Color(0xFF7B8794),
     );
 
     return Material(
@@ -71,7 +71,7 @@ class SurveySisiTile extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1F2933),
+                            color: Color(0xFF1F2933),
                           ),
                         ),
                         const SizedBox(width: 8),

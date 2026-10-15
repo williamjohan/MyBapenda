@@ -184,7 +184,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
                       'Hari ini',
                       style: const TextStyle(
                         fontSize: 11,
-                        color: const Color(0xFF7B8794),
+                        color: Color(0xFF7B8794),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -193,7 +193,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1F2933),
+                        color: Color(0xFF1F2933),
                       ),
                     ),
                   ],
@@ -234,7 +234,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1F2933),
+                  color: Color(0xFF1F2933),
                 ),
               ),
             ),
@@ -278,7 +278,7 @@ class _BalaiRwPageState extends State<BalaiRwPage> {
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 13,
-              color: const Color(0xFF7B8794),
+              color: Color(0xFF7B8794),
             ),
           ),
           const SizedBox(height: 16),

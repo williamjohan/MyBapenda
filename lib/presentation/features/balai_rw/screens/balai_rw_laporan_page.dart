@@ -135,7 +135,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1F2933),
+                    color: Color(0xFF1F2933),
                   ),
                 ),
               ),
@@ -199,7 +199,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
-                color: const Color(0xFF7B8794),
+                color: Color(0xFF7B8794),
               ),
             ),
             const SizedBox(height: 16),
@@ -270,7 +270,7 @@ class _BalaiRwLaporanPageState extends State<BalaiRwLaporanPage> {
                               'Mode lihat saja',
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: const Color(0xFF52606D),
+                                color: Color(0xFF52606D),
                               ),
                             ),
                           ],

@@ -10,7 +10,7 @@ InputDecoration _dec(
   suffixText: suffixText,
   hintStyle: const TextStyle(
     fontSize: 13,
-    color: const Color(0xFF9AA5B1),
+    color: Color(0xFF9AA5B1),
   ),
   isDense: true,
   filled: true,
