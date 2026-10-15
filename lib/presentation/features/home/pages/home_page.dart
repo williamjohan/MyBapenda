@@ -115,16 +115,6 @@ class HomePage extends StatelessWidget {
         enabled: true,
       ),
       HomeFeatureMenuItem(
-        //  Menggunakan ikon grafik statistik untuk memantau aktivitas
-        icon: Icons.analytics_outlined,
-        title: 'My Task & Activity',
-        subtitle: 'Segera hadir',
-        onTap: () {
-          context.push(AppRoutes.myTask);
-        },
-        enabled: true,
-      ),
-      HomeFeatureMenuItem(
         //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
         icon: Icons.qr_code_scanner_outlined,
         title: 'Create VA & Qris',
@@ -135,32 +125,12 @@ class HomePage extends StatelessWidget {
         enabled: true,
       ),
       HomeFeatureMenuItem(
-        //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
-        icon: Icons.groups_rounded,
-        title: 'Balai RW',
-        subtitle: 'Laporan Pelayanan Balai RW',
-        onTap: () {
-          context.push(AppRoutes.balaiRw);
-        },
-        enabled: false,
-      ),
-      HomeFeatureMenuItem(
         //  Menggunakan ikon grafik statistik untuk memantau aktivitas
         icon: Icons.analytics_outlined, 
         title: 'My Task & Activity',
         subtitle: 'Segera hadir',
         onTap: () {
           context.push(AppRoutes.myTask);
-        },
-        enabled: true,
-      ),
-      HomeFeatureMenuItem(
-        //  Menggunakan ikon QR Code yang sangat identik dengan QRIS
-        icon: Icons.qr_code_scanner_outlined, 
-        title: 'Create VA & Qris',
-        subtitle: 'Tagih via QRIS / VA',
-        onTap: () {
-          context.push(AppRoutes.nop);
         },
         enabled: true,
       ),
