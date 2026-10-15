@@ -84,4 +84,4 @@ CLAUDE.md
 
 # Jika Anda nantinya menggunakan package seperti auto_route atau injectables:
 *.gr.dart
-*.config.dart
+*.config.dartandroid/build/
