@@ -31,10 +31,23 @@ void main() {
   test('pembagian tab per status, perluDikembalikan selalu ke Gagal', () {
     expect(TugasTabLogic.hitung(semua), {
       TabTugas.ambil: 1,
+      // SKB5 sudah diterima di server: bukan tugas lagi (hanya di Pantau).
       TabTugas.diantar: 1,
-      TabTugas.selesai: 1,
       TabTugas.gagal: 3,
     });
+  });
+
+  test('final di server disembunyikan; yang masih di antrean HP tampil', () {
+    final diterima = _b('A', StatusBerkas.diterima);
+    final kembali = _b('B', StatusBerkas.dikembalikan);
+    expect(TabTugas.dari(diterima), isNull);
+    expect(TabTugas.dari(kembali), isNull);
+    expect(
+      TabTugas.dari(diterima.copyWith(antreanTertunda: 1)),
+      TabTugas.diantar,
+    );
+    expect(TabTugas.dari(kembali.copyWith(antreanTertunda: 1)), TabTugas.gagal);
+    expect(TugasTabLogic.filter([diterima], TabTugas.diantar, ''), isEmpty);
   });
 
   test('cari no resi / nama WP tanpa peka huruf, tetap dalam tab', () {

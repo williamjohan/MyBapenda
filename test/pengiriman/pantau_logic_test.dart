@@ -31,9 +31,27 @@ void main() {
     expect(PantauLogic.hitung(semua), {
       PantauFilter.semua: 4,
       PantauFilter.menunggu: 1,
-      PantauFilter.diantar: 2,
+      PantauFilter.diantar: 1,
+      PantauFilter.tiba: 1,
+      PantauFilter.diterima: 0,
       PantauFilter.bermasalah: 2,
     });
+  });
+
+  test('Tiba di Tujuan & Diterima terpisah; Semua memuat Diterima', () {
+    final data = [
+      _b('T1', StatusBerkas.tiba),
+      _b('T2', StatusBerkas.diterima),
+      _b('T3', StatusBerkas.dalamPerjalanan),
+    ];
+    List<String> isi(PantauFilter f) =>
+        PantauLogic.filter(data, f, '').map((b) => b.noResi).toList();
+
+    expect(isi(PantauFilter.tiba), ['T1']);
+    expect(isi(PantauFilter.diterima), ['T2']);
+    expect(isi(PantauFilter.diantar), ['T3']);
+    expect(isi(PantauFilter.semua), ['T1', 'T2', 'T3']);
+    expect(PantauLogic.hitung(data)[PantauFilter.diterima], 1);
   });
 
   test('filter + cari', () {

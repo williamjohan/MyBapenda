@@ -30,6 +30,33 @@ AntreanPengirimanEntity _antre(JenisAksiAntrean j, {String resi = 'HMB1'}) =>
     );
 
 void main() {
+  test('tombol aksi per status (cermin aturan server)', () {
+    List<AksiBerkas> aksi(StatusBerkas s, {bool kembali = false}) =>
+        PengirimanAntreanOverlay.aksiUntuk(s, kembali);
+
+    expect(aksi(StatusBerkas.ditugaskan), [AksiBerkas.ambil]);
+    expect(aksi(StatusBerkas.diambil), [
+      AksiBerkas.perjalanan,
+      AksiBerkas.tiba,
+      AksiBerkas.gagal,
+    ]);
+    expect(aksi(StatusBerkas.dalamPerjalanan), aksi(StatusBerkas.diambil));
+    expect(aksi(StatusBerkas.tiba), [AksiBerkas.serah, AksiBerkas.gagal]);
+    expect(aksi(StatusBerkas.gagalAntar), [AksiBerkas.kembalikan]);
+    expect(aksi(StatusBerkas.dibatalkan, kembali: true), [
+      AksiBerkas.kembalikan,
+    ]);
+    // Setelah serah terima / dikembalikan: tombol bawah hilang.
+    for (final s in [
+      StatusBerkas.diterima,
+      StatusBerkas.dikembalikan,
+      StatusBerkas.dibatalkan,
+      StatusBerkas.dikirimViaPos,
+    ]) {
+      expect(aksi(s), isEmpty, reason: s.name);
+    }
+  });
+
   group('overlay antrean', () {
     test('tiba tertunda: status Tiba, tombol Serah/Gagal, ditandai', () {
       final b = PengirimanAntreanOverlay.berkas(_berkas, [
