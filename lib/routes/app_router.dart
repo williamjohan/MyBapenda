@@ -1,18 +1,26 @@
 import 'dart:async';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
+import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart';
 import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_absen_page.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_laporan_page.dart';
 import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_page.dart';
 import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_review_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_page.dart';
+import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
+import 'package:bapendacore/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -246,7 +254,12 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.surveyPermohonanBaru,
         name: AppRoutes.surveyPermohonanBaru,
-        builder: (context, state) => const SurveyPermohonanBaruPage(),
+        builder: (context, state) => BlocProvider(
+          create: (_) =>
+              SurveyListCubit(useCase: getIt<SurveyPermohonanUseCase>())
+                ..load(),
+          child: const SurveyPermohonanBaruPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.surveyInfo,
@@ -254,10 +267,26 @@ class AppRouter {
         builder: (context, state) {
           final args =
               state.extra
-                  as ({String nomor, List<Map<String, dynamic>> sisiList});
-          return SurveyInfoPage(
-            nomorPelayanan: args.nomor,
-            sisiList: args.sisiList,
+                  as ({String nomor, String key, List<Map<String, dynamic>> sisiList});
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<MasterDataCubit>.value(
+                value: getIt<MasterDataCubit>(),
+              ),
+              BlocProvider<SurveyInfoCubit>(
+                create: (_) => SurveyInfoCubit(
+                  nomorPelayanan: args.nomor,
+                  masterUseCase: getIt<MasterDataUseCase>(),
+                  authUseCase: getIt<AuthUseCase>(),
+                ),
+              ),
+            ],
+            child: SurveyInfoPage(
+              nomorPelayanan: args.nomor,
+              surveyKey: args.key,
+              sisiList: args.sisiList,
+            ),
           );
         },
       ),
@@ -291,11 +320,16 @@ class AppRouter {
                     Map<int, SurveyResult> results,
                     Map<String, dynamic> info,
                   });
-          return SurveyReviewPage(
-            nomorPelayanan: args.nomor,
-            sisiList: args.sisiList,
-            results: args.results,
-            info: args.info,
+
+          return BlocProvider<SurveySubmitCubit>(
+            create: (_) =>
+                SurveySubmitCubit(useCase: getIt<SurveyPermohonanUseCase>()),
+            child: SurveyReviewPage(
+              nomorPelayanan: args.nomor,
+              sisiList: args.sisiList,
+              results: args.results,
+              info: args.info,
+            ),
           );
         },
       ),
@@ -319,7 +353,19 @@ class AppRouter {
                     Map<String, dynamic> sisi,
                     Map<String, dynamic>? initial,
                   });
-          return SurveyDataPage(sisi: args.sisi, initial: args.initial);
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<MasterDataCubit>.value(
+                value: getIt<MasterDataCubit>(),
+              ),
+              BlocProvider<SurveyDataCubit>(
+                create: (_) =>
+                    SurveyDataCubit(sisi: args.sisi, initial: args.initial),
+              ),
+            ],
+            child: SurveyDataPage(sisi: args.sisi, initial: args.initial),
+          );
         },
       ),
 

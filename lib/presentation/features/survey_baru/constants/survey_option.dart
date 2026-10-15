@@ -68,10 +68,14 @@ class SurveyOptions {
     },
   };
 
-  static const Map<int, String> timSurvey = {
-    1: 'Tim A',
-    2: 'Tim B',
-    3: 'Tim C',
+  /// Daftar petugas survey (dummy, nanti diganti hasil fetch dari API).
+  /// Dipakai untuk "Nama Petugas" dan "Petugas Pembantu".
+  static const Map<int, String> petugas = {
+    1: 'Budi Santoso',
+    2: 'Siti Rahayu',
+    3: 'Agus Prasetyo',
+    4: 'Dewi Lestari',
+    5: 'Eko Wahyudi',
   };
 
   static String kelurahanName(dynamic kecId, dynamic kelId) =>
