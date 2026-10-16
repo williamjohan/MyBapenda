@@ -3,7 +3,6 @@ import 'package:bapendacore/domain/entities/va_qris/payment_status_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
-import 'package:bapendacore/presentation/features/va_qris/logic/period_selection_logic.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // Entity dibuat lewat fungsi (bukan const) agar instance berbeda dan
@@ -59,6 +58,22 @@ void main() {
       expect(_jenis(mask: '##.##'), isNot(_jenis()));
     });
 
+    test('TaxTypeEntity.cleanReference: NOP tanpa titik, teks bebas tetap', () {
+      expect(
+        _jenis().cleanReference(' 35.78.010.001.902.00001 '),
+        '357801000190200001',
+      );
+      expect(_jenis(mask: '##.##').cleanReference('35.78'), '3578');
+      const skpd = TaxTypeEntity(
+        id: 7,
+        name: 'Pajak Reklame',
+        referenceLabel: 'No SKPD',
+        hint: 'Contoh',
+        digitsOnly: false,
+      );
+      expect(skpd.cleanReference(' SKPD-0001 '), 'SKPD-0001');
+    });
+
     test('PaymentStatusEntity', () {
       expect(
         PaymentStatusEntity(isPaid: true, paidAt: DateTime(2026, 10, 15)),
@@ -80,18 +95,6 @@ void main() {
 
       expect(check(true), check(true));
       expect(check(true), isNot(check(false)));
-    });
-  });
-
-  group('PeriodSelectionLogic', () {
-    test('isSelected: masa ke-index sudah tercentang', () {
-      expect(PeriodSelectionLogic.isSelected(0, 2), isTrue);
-      expect(PeriodSelectionLogic.isSelected(2, 2), isFalse);
-    });
-
-    test('isEnabled: hanya masa terpilih + satu berikutnya bisa disentuh', () {
-      expect(PeriodSelectionLogic.isEnabled(2, 2), isTrue);
-      expect(PeriodSelectionLogic.isEnabled(3, 2), isFalse);
     });
   });
 }

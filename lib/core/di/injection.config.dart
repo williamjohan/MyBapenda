@@ -28,6 +28,7 @@ import '../../data/datasources/cek_reklame/survey_remote_datasource.dart'
 import '../../data/datasources/pengiriman/pengiriman_remote_datasource.dart'
     as _i294;
 import '../../data/datasources/pengiriman/rute_remote_datasource.dart' as _i569;
+import '../../data/datasources/va_qris/va_qris_local_datasource.dart' as _i537;
 import '../../data/datasources/va_qris/va_qris_remote_datasource.dart' as _i705;
 import '../../data/repositories/absensi/absensi_repository_impl.dart' as _i242;
 import '../../data/repositories/auth/auth_repository_impl.dart' as _i24;
@@ -100,6 +101,8 @@ import '../../presentation/features/pengiriman/utils/pengiriman_foto.dart'
 import '../../presentation/features/profile/cubit/profile_cubit.dart' as _i239;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
+import '../../presentation/features/va_qris/cubit/tax_object_search_cubit.dart'
+    as _i410;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
 import '../../presentation/shared/master_data/data/datasources/master_local_datasource.dart'
     as _i30;
@@ -179,6 +182,11 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i218.DeviceIdentityServiceImpl(gh<_i233.AppSecureStorage>()));
     gh.lazySingleton<_i904.GeocodingRepository>(
         () => _i793.GeocodingRepositoryImpl());
+    gh.lazySingleton<_i537.IVaQrisLocalDataSource>(
+        () => _i537.VaQrisLocalDataSourceImpl(
+              gh<_i460.SharedPreferences>(),
+              gh<_i233.AppSecureStorage>(),
+            ));
     gh.lazySingleton<_i11.NetworkCubit>(
         () => _i11.NetworkCubit(gh<_i895.Connectivity>()));
     gh.lazySingleton<_i370.HmacKantorInterceptor>(
@@ -226,13 +234,15 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i899.IBalaiRwRepository>(() =>
         _i518.BalaiRwRepositoryImpl(gh<_i348.IBalaiRwRemoteDataSource>()));
+    gh.lazySingleton<_i956.IVaQrisRepository>(() => _i562.VaQrisRepositoryImpl(
+          gh<_i705.IVaQrisRemoteDataSource>(),
+          gh<_i537.IVaQrisLocalDataSource>(),
+        ));
     gh.lazySingleton<_i127.CekReklameRepository>(() =>
         _i470.CekReklameRepositoryImpl(
             gh<_i766.ICekReklameRemoteDataSource>()));
     gh.lazySingleton<_i169.HistoryRepository>(
         () => _i535.HistoryRepositoryImpl(gh<_i451.HistoryRemoteDataSource>()));
-    gh.lazySingleton<_i956.IVaQrisRepository>(
-        () => _i562.VaQrisRepositoryImpl(gh<_i705.IVaQrisRemoteDataSource>()));
     gh.lazySingleton<_i660.AuthRepository>(() => _i24.AuthRepositoryImpl(
           gh<_i60.AuthRemoteDataSource>(),
           gh<_i233.AppSecureStorage>(),
@@ -272,6 +282,8 @@ extension GetItInjectableX on _i174.GetIt {
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
         ));
+    gh.factory<_i410.TaxObjectSearchCubit>(
+        () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i197.VaQrisCubit>(
         () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i662.AbsensiCubit>(

@@ -1,14 +1,18 @@
 import 'package:bapendacore/core/errors/exception.dart';
 import 'package:bapendacore/core/errors/failure.dart';
+import 'package:bapendacore/data/datasources/va_qris/va_qris_local_datasource.dart';
 import 'package:bapendacore/data/datasources/va_qris/va_qris_remote_datasource.dart';
 import 'package:bapendacore/data/models/va_qris/payment_nominal_check_model.dart';
 import 'package:bapendacore/data/models/va_qris/payment_session_model.dart';
 import 'package:bapendacore/data/models/va_qris/payment_status_model.dart';
+import 'package:bapendacore/data/models/va_qris/recent_reference_model.dart';
 import 'package:bapendacore/data/models/va_qris/tax_billing_model.dart';
+import 'package:bapendacore/data/models/va_qris/tax_object_model.dart';
 import 'package:bapendacore/data/models/va_qris/tax_type_model.dart';
 import 'package:bapendacore/data/repositories/va_qris/va_qris_repository_impl.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:bapendacore/domain/entities/va_qris/recent_reference_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
@@ -70,6 +74,47 @@ class _FakeDataSource implements IVaQrisRemoteDataSource {
     calls.add('$method|$paymentCode');
     _throwIfError();
     return status!;
+  }
+
+  TaxObjectSearchModel? objects;
+
+  @override
+  Future<TaxObjectSearchModel> searchObjects({
+    required String keyword,
+    required int page,
+    required int pageSize,
+  }) async {
+    calls.add('$keyword|$page|$pageSize');
+    _throwIfError();
+    return objects!;
+  }
+}
+
+class _FakeLocalDataSource implements IVaQrisLocalDataSource {
+  /// Dilempar oleh semua method bila diisi.
+  Object? error;
+  List<RecentReferenceModel> items = [];
+  bool cleared = false;
+
+  @override
+  Future<List<RecentReferenceModel>> getRecent() async {
+    if (error != null) throw error!;
+    return items;
+  }
+
+  @override
+  Future<List<RecentReferenceModel>> saveRecent(
+    RecentReferenceModel item,
+  ) async {
+    if (error != null) throw error!;
+    items = [item, ...items];
+    return items;
+  }
+
+  @override
+  Future<void> clearRecent() async {
+    if (error != null) throw error!;
+    cleared = true;
   }
 }
 
@@ -147,11 +192,13 @@ const _masaTanpaKey = TaxPeriodEntity(
 
 void main() {
   late _FakeDataSource dataSource;
+  late _FakeLocalDataSource localDataSource;
   late VaQrisRepositoryImpl repository;
 
   setUp(() {
     dataSource = _FakeDataSource();
-    repository = VaQrisRepositoryImpl(dataSource);
+    localDataSource = _FakeLocalDataSource();
+    repository = VaQrisRepositoryImpl(dataSource, localDataSource);
   });
 
   group('getTaxTypes', () {
@@ -305,6 +352,7 @@ void main() {
       expect(session.total, 100000);
       expect(session.vaNumber, '8812345678');
       expect(session.qrisPayload, isNull);
+      expect(session.nmid, isNull);
       expect(session.principalTotal, 200000);
       expect(session.penaltyTotal, 0);
       expect(session.otherTotal, 0);
@@ -315,6 +363,7 @@ void main() {
       dataSource.session = PaymentSessionModel.fromJson({
         'kodeBayar': 'QR1',
         'qrValue': '000201...',
+        'nmid': 'ID2021112825553',
       });
 
       final result = await repository.createPayment(
@@ -330,13 +379,14 @@ void main() {
       expect(request.tipePembayaran, 'qris');
       final session = result.getOrElse(() => throw 'harus Right');
       expect(session.qrisPayload, '000201...');
+      expect(session.nmid, 'ID2021112825553');
       expect(session.validFor, Duration.zero);
     });
 
-    test('tagihan tidak berurutan ditolak server → ServerFailure', () async {
+    test('tagihan sudah lunas ditolak server → ServerFailure', () async {
       dataSource.error = const ServerException(
         400,
-        'Masa pajak harus dibayar berurutan',
+        'Tagihan yang dipilih tidak ditemukan atau sudah lunas',
       );
 
       final result = await repository.createPayment(
@@ -351,7 +401,9 @@ void main() {
       expect(
         result,
         const Left<Failure, dynamic>(
-          ServerFailure('Masa pajak harus dibayar berurutan'),
+          ServerFailure(
+            'Tagihan yang dipilih tidak ditemukan atau sudah lunas',
+          ),
         ),
       );
     });
@@ -442,5 +494,108 @@ void main() {
         );
       });
     }
+  });
+
+  group('searchObjects', () {
+    test('kirim keyword & halaman, memetakan hasil ke entity', () async {
+      dataSource.objects = TaxObjectSearchModel.fromJson({
+        'currentPage': 1,
+        'pageSize': 30,
+        'totalData': 31,
+        'totalPage': 2,
+        'items': [
+          {
+            'jenisPajak': 6,
+            'jenisPajakNama': 'Pajak Air Tanah',
+            'nop': '35.78.051.002.908.01977',
+            'nama': 'CENTRAL LAUNDRY SURABAYA',
+            'alamat': 'MULYOREJO No.24',
+          },
+        ],
+        'perJenisPajak': [
+          {
+            'jenisPajak': 4,
+            'jenisPajakNama': 'Pajak Jasa Parkir',
+            'jumlah': 40,
+          },
+          {'jenisPajak': 6, 'jenisPajakNama': 'Pajak Air Tanah', 'jumlah': 31},
+        ],
+      });
+
+      final result = await repository.searchObjects(
+        keyword: 'laundry',
+        page: 1,
+        pageSize: 30,
+      );
+
+      expect(dataSource.calls.single, 'laundry|1|30');
+      final search = result.getOrElse(() => throw 'harus Right');
+      expect(search.typeCounts.map((c) => (c.taxTypeId, c.count)), [
+        (4, 40),
+        (6, 31),
+      ]);
+      expect(search.typeCounts.first.taxTypeName, 'Pajak Jasa Parkir');
+      final page = search.page;
+      expect(page.totalData, 31);
+      expect(page.hasMore, isTrue);
+      final item = page.items.single;
+      expect(item.taxTypeId, 6);
+      expect(item.taxTypeName, 'Pajak Air Tanah');
+      expect(item.nop, '35.78.051.002.908.01977');
+      expect(item.name, 'CENTRAL LAUNDRY SURABAYA');
+      expect(item.address, 'MULYOREJO No.24');
+    });
+
+    test('ServerException → ServerFailure', () async {
+      dataSource.error = const ServerException(400, 'Ketik minimal 3 huruf');
+
+      final result = await repository.searchObjects(
+        keyword: 'ab',
+        page: 1,
+        pageSize: 30,
+      );
+
+      expect(
+        result,
+        const Left<Failure, dynamic>(ServerFailure('Ketik minimal 3 huruf')),
+      );
+    });
+  });
+
+  group('riwayat terakhir dicari', () {
+    final waktu = DateTime(2026, 10, 15, 9);
+    final entity = RecentReferenceEntity(
+      taxTypeId: 6,
+      taxTypeName: 'Pajak Air Tanah',
+      referenceNumber: '35.78.051.002.908.01977',
+      name: 'CENTRAL LAUNDRY SURABAYA',
+      savedAt: waktu,
+    );
+
+    test('saveRecent menyimpan model lalu mengembalikan entity', () async {
+      final result = await repository.saveRecent(entity);
+
+      expect(localDataSource.items.single.noReferensi, entity.referenceNumber);
+      expect(localDataSource.items.single.jenisPajak, 6);
+      expect(result, [entity]);
+      expect(await repository.getRecent(), [entity]);
+    });
+
+    test('clearRecent meneruskan ke datasource', () async {
+      await repository.clearRecent();
+
+      expect(localDataSource.cleared, isTrue);
+    });
+
+    test(
+      'penyimpanan error: tidak melempar, riwayat dianggap kosong',
+      () async {
+        localDataSource.error = Exception('disk penuh');
+
+        expect(await repository.getRecent(), isEmpty);
+        expect(await repository.saveRecent(entity), isEmpty);
+        await expectLater(repository.clearRecent(), completes);
+      },
+    );
   });
 }
