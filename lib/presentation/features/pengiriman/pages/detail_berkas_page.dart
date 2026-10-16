@@ -54,6 +54,7 @@ class DetailBerkasPage extends StatelessWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 const BapendaSliverHeader(
+                  compact: true,
                   title: 'Detail Berkas',
                   showBackButton: true,
                   trailing: Row(

@@ -1,4 +1,5 @@
 import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:bapendacore/core/services/notifikasi/notifikasi_service.dart';
 import 'package:bapendacore/core/utils/app_system_bar_scope.dart';
 import 'package:bapendacore/core/utils/file_cache_utils.dart';
 import 'package:bapendacore/presentation/features/auth/cubit/auth_cubit.dart';
@@ -19,7 +20,21 @@ void main() async {
   await configureDependencies();
   await FileCacheHelper.clearCache();
 
-  final authCubit = getIt<AuthCubit>()..checkSession();
+  // Notifikasi petugas (SignalR di foreground service, tanpa Firebase).
+  // Ikuti status login SEBELUM checkSession: listener di MyApp terpasang
+  // setelah build pertama dan bisa melewatkan AuthAuthenticated awal.
+  final notifikasi = getIt<NotifikasiService>();
+  await notifikasi.siapkan();
+  final authCubit = getIt<AuthCubit>();
+  authCubit.stream.listen((state) {
+    if (state is AuthAuthenticated) {
+      notifikasi.mulai();
+    } else if (state is AuthUnauthenticated ||
+        state is AuthNeedsPasswordReset) {
+      notifikasi.berhenti();
+    }
+  });
+  authCubit.checkSession();
 
   final themeCubit = getIt<ThemeModeCubit>();
   await themeCubit.syncWithCurrentUser();

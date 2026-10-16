@@ -1,5 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_info_row.dart
 import 'package:flutter/material.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 
 class InfoRow extends StatelessWidget {
   final String label;
@@ -24,9 +25,9 @@ class InfoRow extends StatelessWidget {
             width: labelWidth,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Color(0xFF7B8794),
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -34,10 +35,10 @@ class InfoRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2933),
+                color: context.palette.textPrimary,
               ),
             ),
           ),

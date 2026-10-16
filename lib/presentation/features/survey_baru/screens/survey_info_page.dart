@@ -1,5 +1,6 @@
 import 'package:bapendacore/core/di/injection.dart';
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_info/survey_info_state.dart';
 import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
@@ -15,6 +16,7 @@ import 'package:bapendacore/presentation/shared/widgets/checkin_card.dart';
 import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/paged_select_field.dart';
 import 'package:flutter/material.dart';
+import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -211,11 +213,13 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                   kecId != null && master.kelurahanErrorFor == kecId;
 
               return Scaffold(
-                backgroundColor: const Color(0xFFF5F6F8),
+                backgroundColor: context.palette.background,
                 body: CustomScrollView(
                   physics: const BouncingScrollPhysics(),
                   slivers: [
                     BapendaSliverHeader(
+                      compact: true,
+                      trailing: const ThemeToggleButton(),
                       title: 'Survey Permohonan Baru',
                       showBackButton: true,
                       subtitle: Text(
@@ -244,7 +248,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.palette.surface,
                               borderRadius: BorderRadius.circular(18),
                             ),
                             child: Column(
@@ -252,18 +256,18 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.location_on_outlined,
                                       size: 18,
-                                      color: Color(0xFFB8680F),
+                                      color: context.palette.accent,
                                     ),
                                     const SizedBox(width: 8),
-                                    const Text(
+                                    Text(
                                       'Informasi Survey',
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF1F2933),
+                                        color: context.palette.textPrimary,
                                       ),
                                     ),
                                   ],
@@ -440,7 +444,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                 ),
                 bottomNavigationBar: SafeArea(
                   child: Container(
-                    color: Colors.white,
+                    color: context.palette.surface,
                     padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
                     child: Button(
                       label: 'Lanjutkan',
@@ -472,7 +476,7 @@ class _InlineRetry extends StatelessWidget {
         Expanded(
           child: Text(
             message,
-            style: const TextStyle(fontSize: 13, color: Color(0xFFD81A48)),
+            style: TextStyle(fontSize: 13, color: context.palette.danger),
           ),
         ),
         TextButton.icon(

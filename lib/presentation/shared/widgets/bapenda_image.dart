@@ -1,5 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_image.dart
 import 'dart:io';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +22,15 @@ class BapendaImage extends StatelessWidget {
     this.height,
   });
 
-  Widget _error() => Container(
+  Widget _error(BuildContext context) => Container(
     width: width,
     height: height,
-    color: const Color(0xFFEEF0F3),
+    color: context.palette.border,
     alignment: Alignment.center,
-    child: const Icon(Icons.broken_image_outlined, color: Color(0xFF9AA5B1)),
+    child: Icon(
+      Icons.broken_image_outlined,
+      color: context.palette.textTertiary,
+    ),
   );
 
   @override
@@ -38,7 +42,7 @@ class BapendaImage extends StatelessWidget {
         cacheWidth: cacheWidth,
         width: width,
         height: height,
-        error: _error,
+        error: () => _error(context),
       );
     }
     return Image.file(
@@ -47,7 +51,7 @@ class BapendaImage extends StatelessWidget {
       width: width,
       height: height,
       cacheWidth: cacheWidth,
-      errorBuilder: (_, __, ___) => _error(),
+      errorBuilder: (_, __, ___) => _error(context),
     );
   }
 }

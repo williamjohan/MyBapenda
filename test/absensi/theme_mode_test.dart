@@ -1,7 +1,10 @@
 import 'package:bapendacore/core/storage/app_preference.dart';
 import 'package:bapendacore/core/storage/app_secure_storage.dart';
 import 'package:bapendacore/core/theme/theme_kit.dart';
+import 'package:bapendacore/domain/repositories/notifikasi/i_notifikasi_repository.dart';
+import 'package:bapendacore/domain/usecases/notifikasi/notifikasi_usecase.dart';
 import 'package:bapendacore/presentation/features/home/widgets/home_bapenda_core_header.dart';
+import 'package:bapendacore/presentation/features/notifikasi/cubit/notifikasi_badge_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -92,8 +95,14 @@ void main() {
     final (cubit, _) = await _cubit(prefs: {'theme_mode': 'light'});
 
     await tester.pumpWidget(
-      BlocProvider.value(
-        value: cubit,
+      MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: cubit),
+          BlocProvider(
+            create: (_) =>
+                NotifikasiBadgeCubit(NotifikasiUseCase(_RepoNotifKosong())),
+          ),
+        ],
         child: const MaterialApp(
           home: AdaptiveThemeScope(
             child: Scaffold(
@@ -118,4 +127,19 @@ void main() {
     expect(cubit.state, ThemeMode.light);
     expect(tester.takeException(), isNull);
   });
+}
+
+/// Header Home memuat lonceng notifikasi; tes ini tidak memakai datanya.
+class _RepoNotifKosong implements INotifikasiRepository {
+  @override
+  Stream<void> get perubahan => const Stream.empty();
+
+  @override
+  Stream<int> get jumlahBelumDibaca => const Stream.empty();
+
+  @override
+  int? get jumlahTerakhir => null;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

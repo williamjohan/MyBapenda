@@ -1,5 +1,6 @@
 // lib/presentation/features/survey_baru/widgets/survey_card.dart
 import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +10,6 @@ class SurveyCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const SurveyCard({super.key, required this.data, required this.onTap});
-
-  static const _ink = Color(0xFF1F2933);
-  static const _muted = Color(0xFF7B8794);
-  static const _accent = Color(0xFFB8680F);
-  static const _line = Color(0xFFEEF0F3);
 
   BapendaStatusTone _toneFor(String status) {
     switch (status.toLowerCase()) {
@@ -58,7 +54,7 @@ class SurveyCard extends StatelessWidget {
     return DateTime(y, m, d);
   }
 
-  ({String text, Color fg, Color bg})? _tenggat() {
+  ({String text, Color fg, Color bg})? _tenggat(BuildContext context) {
     final exp = _parseTanggal(data.expTask);
     if (exp == null) return null;
 
@@ -69,28 +65,28 @@ class SurveyCard extends StatelessWidget {
     if (sisa < 0) {
       return (
         text: 'Terlambat ${-sisa} hari',
-        fg: const Color(0xFFD81A48),
-        bg: const Color(0xFFFDECEF),
+        fg: context.palette.danger,
+        bg: context.palette.dangerSoft,
       );
     }
     if (sisa == 0) {
       return (
         text: 'Batas hari ini',
-        fg: const Color(0xFFD81A48),
-        bg: const Color(0xFFFDECEF),
+        fg: context.palette.danger,
+        bg: context.palette.dangerSoft,
       );
     }
     if (sisa <= 3) {
       return (
         text: 'Sisa $sisa hari',
-        fg: _accent,
-        bg: const Color(0xFFFFF4E5),
+        fg: context.palette.accent,
+        bg: context.palette.accentSoft,
       );
     }
     return (
       text: 'Sisa $sisa hari',
-      fg: const Color(0xFF1B7F4B),
-      bg: const Color(0xFFE8F5EE),
+      fg: context.palette.success,
+      bg: context.palette.successSoft,
     );
   }
 
@@ -98,10 +94,10 @@ class SurveyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tenggat = _tenggat();
+    final tenggat = _tenggat(context);
 
     return Material(
-      color: Colors.white,
+      color: context.palette.surface,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -119,13 +115,13 @@ class SurveyCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF4E5),
+                      color: context.palette.accentSoft,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.assignment_outlined,
                       size: 20,
-                      color: _accent,
+                      color: context.palette.accent,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -133,23 +129,29 @@ class SurveyCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Nomor Pelayanan',
-                          style: TextStyle(fontSize: 11, color: _muted),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: context.palette.textSecondary,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           data.noPelayanan,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: _ink,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'NPWPD ${data.npwpd}',
-                          style: const TextStyle(fontSize: 12, color: _muted),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.palette.textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -185,7 +187,7 @@ class SurveyCard extends StatelessWidget {
               ),
 
               const SizedBox(height: 14),
-              const Divider(height: 1, color: _line),
+              Divider(height: 1, color: context.palette.border),
               const SizedBox(height: 14),
 
               // 3. Lokasi + masa tayang
@@ -210,7 +212,7 @@ class SurveyCard extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: tenggat?.bg ?? const Color(0xFFF5F6F8),
+                  color: tenggat?.bg ?? context.palette.background,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -221,7 +223,7 @@ class SurveyCard extends StatelessWidget {
                         Icon(
                           Icons.flag_outlined,
                           size: 16,
-                          color: tenggat?.fg ?? _muted,
+                          color: tenggat?.fg ?? context.palette.textSecondary,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -230,7 +232,7 @@ class SurveyCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
-                              color: tenggat?.fg ?? _ink,
+                              color: tenggat?.fg ?? context.palette.textPrimary,
                             ),
                           ),
                         ),
@@ -254,10 +256,10 @@ class SurveyCard extends StatelessWidget {
                             value: data.startTask,
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_right_alt_rounded,
                           size: 22,
-                          color: _muted,
+                          color: context.palette.textSecondary,
                         ),
                         Expanded(
                           child: _DateCell(
@@ -301,20 +303,20 @@ class _Tag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F6F8),
+        color: context.palette.background,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF52606D)),
+          Icon(icon, size: 14, color: context.palette.textSecondary),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF3E4C59),
+              color: context.palette.textPrimary,
             ),
           ),
         ],
@@ -343,7 +345,7 @@ class _IconLine extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF9AA5B1)),
+        Icon(icon, size: 18, color: context.palette.textTertiary),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -351,17 +353,20 @@ class _IconLine extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF7B8794)),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: context.palette.textSecondary,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
                 maxLines: maxLines,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1F2933),
+                  color: context.palette.textPrimary,
                 ),
               ),
             ],
@@ -371,7 +376,10 @@ class _IconLine extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             trailing!,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF7B8794)),
+            style: TextStyle(
+              fontSize: 12,
+              color: context.palette.textSecondary,
+            ),
           ),
         ],
       ],
@@ -399,15 +407,15 @@ class _DateCell extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF7B8794)),
+          style: TextStyle(fontSize: 11, color: context.palette.textSecondary),
         ),
         const SizedBox(height: 2),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2933),
+            color: context.palette.textPrimary,
           ),
         ),
       ],
