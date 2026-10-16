@@ -57,6 +57,9 @@ class PaymentSessionModel {
   @JsonKey(name: 'qrValue')
   final String? qrValue;
 
+  @JsonKey(name: 'nmid')
+  final String? nmid;
+
   const PaymentSessionModel({
     required this.tipePembayaran,
     required this.noReferensi,
@@ -66,6 +69,7 @@ class PaymentSessionModel {
     required this.sisaDetik,
     this.kodeVa,
     this.qrValue,
+    this.nmid,
   });
 
   factory PaymentSessionModel.fromJson(Map<String, dynamic> json) =>
@@ -95,5 +99,6 @@ extension PaymentSessionModelX on PaymentSessionModel {
     total: nominalTotal.round(),
     vaNumber: kodeVa,
     qrisPayload: qrValue,
+    nmid: nmid,
   );
 }

@@ -54,6 +54,7 @@ class ApiEndpoints {
   // ==========================================
   static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
   static const String pembayaranTagihan = '/api/pembayaran/tagihan';
+  static const String pembayaranCariObjek = '/api/pembayaran/cari-objek';
   static const String pembayaranCheckNominal = '/api/pembayaran/check-nominal';
   static const String pembayaranBayar = '/api/pembayaran/bayar';
   static const String pembayaranStatus = '/api/pembayaran/status';

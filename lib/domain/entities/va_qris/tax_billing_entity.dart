@@ -3,8 +3,9 @@ import 'tax_period_entity.dart';
 
 /// Tagihan pajak milik satu nomor referensi (No SKPD / NOP).
 ///
-/// Urutan daftar ditentukan API: [unpaidPeriods] dari masa pajak TERLAMA
-/// (dasar aturan "bayar berurutan"), [paidPeriods] dari yang terbaru.
+/// Urutan daftar ditentukan API: [unpaidPeriods] dari masa pajak TERLAMA,
+/// [paidPeriods] dari yang terbaru. Masa yang dibayar boleh dipilih yang mana
+/// saja (tidak harus berurutan).
 class TaxBillingEntity extends Equatable {
   const TaxBillingEntity({
     required this.taxTypeId,

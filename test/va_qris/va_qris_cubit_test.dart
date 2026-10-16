@@ -5,7 +5,9 @@ import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_nominal_check_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_status_entity.dart';
+import 'package:bapendacore/domain/entities/va_qris/recent_reference_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:bapendacore/domain/entities/va_qris/tax_object_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
 import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
 import 'package:bapendacore/domain/repositories/va_qris/i_va_qris_repository.dart';
@@ -93,6 +95,36 @@ class _FakeRepository implements IVaQrisRepository {
     await _wait();
     return statusResult;
   }
+
+  // Riwayat "Terakhir dicari" (di memori)
+  List<RecentReferenceEntity> recent = [];
+  final List<RecentReferenceEntity> saved = [];
+  bool cleared = false;
+
+  @override
+  Future<List<RecentReferenceEntity>> getRecent() async => recent;
+
+  @override
+  Future<List<RecentReferenceEntity>> saveRecent(
+    RecentReferenceEntity item,
+  ) async {
+    saved.add(item);
+    recent = [item, ...recent];
+    return recent;
+  }
+
+  @override
+  Future<void> clearRecent() async {
+    cleared = true;
+    recent = [];
+  }
+
+  @override
+  Future<Either<Failure, TaxObjectSearchResultEntity>> searchObjects({
+    required String keyword,
+    required int page,
+    required int pageSize,
+  }) => throw UnimplementedError();
 }
 
 const _airTanah = TaxTypeEntity(
@@ -156,6 +188,20 @@ const _billing = TaxBillingEntity(
   objectName: 'Sumur Bor',
   address: 'Jl. Pemuda 1',
   unpaidPeriods: [_masa1, _masa2, _masa3],
+  paidPeriods: [],
+);
+
+const _billingTanpaObjek = TaxBillingEntity(
+  taxTypeId: 6,
+  taxType: 'Pajak Air Tanah',
+  referenceLabel: 'NOP',
+  referenceNumber: '35.78.010.001.902.00001',
+  npwpd: 'P100',
+  taxpayerName: 'PT Sumber Air',
+  taxpayerAddress: 'Jl. Pemuda 1',
+  objectName: ' ',
+  address: 'Jl. Pemuda 1',
+  unpaidPeriods: [_masa1],
   paidPeriods: [],
 );
 
@@ -385,25 +431,60 @@ void main() {
       expect(cubit.state.selectedPeriods, isEmpty);
     });
 
-    test('centang masa berikutnya ikut memilih semua yang lebih lama', () {
+    test('centang masa mana saja, tidak harus berurutan', () {
       cubit.loadBilling(_billing);
 
-      cubit.togglePeriod(1);
-      expect(cubit.state.selectedPeriods, [_masa1, _masa2]);
+      // Batal masa terlama, lalu centang hanya masa ke-3
+      cubit.togglePeriod(_masa1);
+      cubit.togglePeriod(_masa3);
+      expect(cubit.state.selectedPeriods, [_masa3]);
+      expect(cubit.state.selectedCount, 1);
 
-      cubit.togglePeriod(2);
-      expect(cubit.state.selectedPeriods, [_masa1, _masa2, _masa3]);
+      // Tambah masa ke-1: hasil tetap urut terlama (urutan dari API)
+      cubit.togglePeriod(_masa1);
+      expect(cubit.state.selectedPeriods, [_masa1, _masa3]);
     });
 
-    test('batal centang masa ikut membatalkan semua yang lebih baru', () {
+    test('batal centang satu masa tidak mengubah masa lain', () {
       cubit.loadBilling(_billing);
-      cubit.togglePeriod(2);
+      cubit.togglePeriod(_masa2);
+      cubit.togglePeriod(_masa3);
 
-      cubit.togglePeriod(1);
-      expect(cubit.state.selectedPeriods, [_masa1]);
+      cubit.togglePeriod(_masa2);
+      expect(cubit.state.selectedPeriods, [_masa1, _masa3]);
 
-      cubit.togglePeriod(0);
+      cubit.togglePeriod(_masa1);
+      cubit.togglePeriod(_masa3);
       expect(cubit.state.selectedPeriods, isEmpty);
+    });
+
+    test('toggleAllPeriods: pilih semua lalu batal semua', () {
+      cubit.loadBilling(_billing);
+      expect(cubit.state.allPeriodsSelected, isFalse);
+
+      cubit.toggleAllPeriods();
+      expect(cubit.state.selectedPeriods, [_masa1, _masa2, _masa3]);
+      expect(cubit.state.allPeriodsSelected, isTrue);
+
+      cubit.toggleAllPeriods();
+      expect(cubit.state.selectedPeriods, isEmpty);
+      expect(cubit.state.allPeriodsSelected, isFalse);
+    });
+
+    test('toggleAllPeriods tanpa tagihan: tidak memilih apa pun', () {
+      cubit.toggleAllPeriods();
+
+      expect(cubit.state.selectedKeys, isEmpty);
+      expect(cubit.state.allPeriodsSelected, isFalse);
+    });
+
+    test('loadBilling tagihan baru mengganti pilihan lama', () {
+      cubit.loadBilling(_billing);
+      cubit.toggleAllPeriods();
+
+      cubit.loadBilling(_billing.copyWithUnpaid(const [_masa2, _masa3]));
+
+      expect(cubit.state.selectedPeriods, [_masa2]);
     });
   });
 
@@ -412,7 +493,7 @@ void main() {
       'menjumlahkan pokok, denda, lainnya, potongan & total masa terpilih',
       () {
         cubit.loadBilling(_billing);
-        cubit.togglePeriod(1);
+        cubit.togglePeriod(_masa2);
 
         final s = cubit.state;
         expect(s.selectedTotal, 206000);
@@ -449,7 +530,7 @@ void main() {
   group('checkNominal', () {
     test('total 0: tidak memanggil API dan mengembalikan null', () async {
       cubit.loadBilling(_billing);
-      cubit.togglePeriod(0);
+      cubit.togglePeriod(_masa1);
 
       expect(await cubit.checkNominal(), isNull);
       expect(repository.nominalCalls, isEmpty);
@@ -459,7 +540,7 @@ void main() {
       'sukses: kirim total masa terpilih dan kembalikan hasil cek',
       () async {
         cubit.loadBilling(_billing);
-        cubit.togglePeriod(1);
+        cubit.togglePeriod(_masa2);
         final confirming = expectLater(
           cubit.stream.map((s) => s.confirming),
           emitsInOrder([true, false]),
@@ -517,7 +598,7 @@ void main() {
 
     test('tanpa masa terpilih: tidak memanggil API', () async {
       cubit.loadBilling(_billing);
-      cubit.togglePeriod(0);
+      cubit.togglePeriod(_masa1);
 
       await cubit.confirmPayment(PaymentMethod.qris);
 
@@ -535,7 +616,7 @@ void main() {
 
     test('sukses: kirim masa terpilih & metode, simpan sesi bayar', () async {
       cubit.loadBilling(_billing);
-      cubit.togglePeriod(1);
+      cubit.togglePeriod(_masa3);
       repository.createResult = Right(_session);
 
       await cubit.confirmPayment(PaymentMethod.vaBankJatim);
@@ -543,7 +624,8 @@ void main() {
       final call = repository.createCalls.single;
       expect(call.taxTypeId, 6);
       expect(call.referenceNumber, '35.78.010.001.902.00001');
-      expect(call.periods, [_masa1, _masa2]);
+      // Tidak berurutan (masa ke-1 & ke-3) tetap dikirim apa adanya
+      expect(call.periods, [_masa1, _masa3]);
       expect(call.method, PaymentMethod.vaBankJatim);
       expect(cubit.state.session, _session);
       expect(cubit.state.confirming, isFalse);
@@ -553,14 +635,17 @@ void main() {
     test('gagal: tampilkan pesan dan sesi tetap kosong', () async {
       cubit.loadBilling(_billing);
       repository.createResult = const Left(
-        ServerFailure('Masa pajak harus dibayar berurutan'),
+        ServerFailure('Tagihan yang dipilih tidak ditemukan atau sudah lunas'),
       );
 
       await cubit.confirmPayment(PaymentMethod.qris);
 
       expect(cubit.state.session, isNull);
       expect(cubit.state.confirming, isFalse);
-      expect(cubit.state.errorMessage, 'Masa pajak harus dibayar berurutan');
+      expect(
+        cubit.state.errorMessage,
+        'Tagihan yang dipilih tidak ditemukan atau sudah lunas',
+      );
     });
 
     test('Cubit ditutup sebelum response datang: tidak emit', () async {
@@ -757,6 +842,133 @@ void main() {
       expect(cubit.state.session, _session);
       expect(cubit.state.isExpired, isTrue);
       expect(cubit.state.errorMessage, 'Gagal membuat VA');
+    });
+  });
+
+  group('riwayat terakhir dicari', () {
+    final lama = RecentReferenceEntity(
+      taxTypeId: 6,
+      taxTypeName: 'Pajak Air Tanah',
+      referenceNumber: '35.78.010.001.902.00009',
+      name: 'Sumur Lama',
+      savedAt: DateTime(2026, 10, 1),
+    );
+
+    test('init memuat riwayat', () async {
+      repository.recent = [lama];
+
+      await cubit.init();
+
+      expect(cubit.state.recent, [lama]);
+    });
+
+    test('tagihan ditemukan: disimpan ke riwayat (nama objek)', () async {
+      await cubit.init();
+      cubit.selectTaxType(_airTanah);
+
+      await cubit.searchBilling('35.78.010.001.902.00001');
+
+      final saved = repository.saved.single;
+      expect(saved.taxTypeId, 6);
+      expect(saved.taxTypeName, 'Pajak Air Tanah');
+      expect(saved.referenceNumber, _billing.referenceNumber);
+      expect(saved.name, 'Sumur Bor');
+      expect(cubit.state.recent.first, saved);
+    });
+
+    test('nama objek kosong: pakai nama WP', () async {
+      repository.billingResult = Right(_billingTanpaObjek);
+      cubit.selectTaxType(_airTanah);
+
+      await cubit.searchBilling('35.78.010.001.902.00001');
+
+      expect(repository.saved.single.name, 'PT Sumber Air');
+    });
+
+    test('Reklame (No SKPD) tidak disimpan ke riwayat', () async {
+      cubit.selectTaxType(_reklame);
+
+      await cubit.searchBilling('SKPD-0001');
+
+      expect(cubit.state.status, VaQrisStatus.loaded);
+      expect(repository.saved, isEmpty);
+    });
+
+    test('tagihan gagal dicari: tidak disimpan', () async {
+      repository.billingResult = const Left(ServerFailure('NOP tidak ada'));
+      cubit.selectTaxType(_airTanah);
+
+      await cubit.searchBilling('35.78.010.001.902.00009');
+
+      expect(repository.saved, isEmpty);
+    });
+
+    test('clearRecent mengosongkan riwayat', () async {
+      repository.recent = [lama];
+      await cubit.init();
+
+      await cubit.clearRecent();
+
+      expect(cubit.state.recent, isEmpty);
+      expect(repository.cleared, isTrue);
+    });
+  });
+
+  group('pickReference (Cari objek pajak / riwayat)', () {
+    test(
+      'memilih jenis pajak objek lalu langsung cari tagihan, NOP tanpa titik',
+      () async {
+        await cubit.init();
+        cubit.selectTaxType(_reklame);
+
+        await cubit.pickReference(
+          taxTypeId: 6,
+          referenceNumber: '35.78.010.001.902.00001',
+        );
+
+        expect(cubit.state.selectedTaxType, _airTanah);
+        expect(repository.billingCalls.single, '6|357801000190200001');
+        expect(cubit.state.status, VaQrisStatus.loaded);
+      },
+    );
+
+    test('No SKPD (bukan angka) dikirim apa adanya', () async {
+      await cubit.init();
+
+      await cubit.pickReference(taxTypeId: 7, referenceNumber: ' SKPD-0001 ');
+
+      expect(cubit.state.selectedTaxType, _reklame);
+      expect(repository.billingCalls.single, '7|SKPD-0001');
+    });
+
+    test(
+      'jenis pajak tidak ada di daftar: gagal tanpa memanggil API',
+      () async {
+        await cubit.init();
+
+        await cubit.pickReference(taxTypeId: 99, referenceNumber: '123');
+
+        expect(cubit.state.status, VaQrisStatus.failure);
+        expect(
+          cubit.state.errorMessage,
+          'Jenis pajak objek ini tidak tersedia untuk pembayaran.',
+        );
+        expect(cubit.state.selectedTaxType, _airTanah);
+        expect(repository.billingCalls, isEmpty);
+      },
+    );
+
+    test('sedang mencari: pilihan diabaikan', () async {
+      await cubit.init();
+      repository.gate = Completer<void>();
+      final first = cubit.searchBilling('35.78.010.001.902.00001');
+
+      await cubit.pickReference(taxTypeId: 7, referenceNumber: 'SKPD-0001');
+      repository.gate!.complete();
+      await first;
+
+      expect(repository.billingCalls, hasLength(1));
+      expect(cubit.state.selectedTaxType, _airTanah);
     });
   });
 }

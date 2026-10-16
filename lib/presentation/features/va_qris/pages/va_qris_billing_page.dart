@@ -15,7 +15,8 @@ import '../widgets/billing/unpaid_period_list.dart';
 import '../widgets/common/va_qris_app_bar.dart';
 import '../widgets/common/va_qris_hero_header.dart';
 
-/// Langkah 2-4: tagihan, pilih masa pajak (berurutan), konfirmasi.
+/// Langkah 2-4: tagihan, pilih masa pajak (bebas, ada "Pilih semua"),
+/// konfirmasi.
 /// Billing diisi route lewat [VaQrisCubit.loadBilling].
 class VaQrisBillingPage extends StatefulWidget {
   const VaQrisBillingPage({super.key});
@@ -113,8 +114,11 @@ class _VaQrisBillingPageState extends State<VaQrisBillingPage>
                     children: [
                       UnpaidPeriodList(
                         periods: unpaid,
-                        selectedCount: state.selectedCount,
+                        selectedKeys: state.selectedKeys,
                         onToggle: context.read<VaQrisCubit>().togglePeriod,
+                        onToggleAll: context
+                            .read<VaQrisCubit>()
+                            .toggleAllPeriods,
                       ),
                       PaidPeriodList(periods: billing.paidPeriods),
                     ],

@@ -30,6 +30,16 @@ class TaxTypeEntity extends Equatable {
   /// "##.##.###.###.###.#####". null = input bebas (No SKPD).
   final String? mask;
 
+  /// Nomor referensi dari luar kolom input (hasil "Cari objek pajak" /
+  /// riwayat) dirapikan seperti ketikan petugas: jenis angka (NOP) diambil
+  /// digitnya saja, tanpa titik.
+  String cleanReference(String value) {
+    final text = value.trim();
+    return digitsOnly || mask != null
+        ? text.replaceAll(RegExp(r'\D'), '')
+        : text;
+  }
+
   @override
   List<Object?> get props => [
     id,
