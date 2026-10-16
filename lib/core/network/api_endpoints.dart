@@ -58,6 +58,7 @@ class ApiEndpoints {
   // ==========================================
   static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
   static const String pembayaranTagihan = '/api/pembayaran/tagihan';
+  static const String pembayaranCariObjek = '/api/pembayaran/cari-objek';
   static const String pembayaranCheckNominal = '/api/pembayaran/check-nominal';
   static const String pembayaranBayar = '/api/pembayaran/bayar';
   static const String pembayaranStatus = '/api/pembayaran/status';
@@ -99,6 +100,18 @@ class ApiEndpoints {
 
   /// `?key=`; tanpa header Authorization, key berlaku hari itu saja.
   static const String pengirimanFoto = '/api/pengiriman/foto';
+
+  // ==========================================
+  // NOTIFIKASI PETUGAS (CekReklameApi, Bearer NIP)
+  // ==========================================
+  static const String notifikasiJumlahBelumDibaca =
+      '/api/notifikasi/jumlah-belum-dibaca';
+  static const String notifikasiInbox = '/api/notifikasi/inbox';
+  static const String notifikasiBaca = '/api/notifikasi/baca';
+  static const String notifikasiBacaSemua = '/api/notifikasi/baca-semua';
+
+  /// Hub SignalR; token lewat query `access_token` (accessTokenFactory).
+  static const String notifikasiHub = '/hubs/notifikasi';
 
   /// Google Routes API (rute motor di peta lacak). URL penuh: host Google.
   static const String googleRoutes =

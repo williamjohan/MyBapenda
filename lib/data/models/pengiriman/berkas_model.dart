@@ -131,6 +131,10 @@ class BerkasModel {
   final String? tglDitugaskan;
   @JsonKey(name: 'tglBatasSla')
   final String? tglBatasSla;
+
+  /// Hanya berkas Diterima: tgl terima (atau update terakhir bila ditempel).
+  @JsonKey(name: 'tglSelesai')
+  final String? tglSelesai;
   @JsonKey(name: 'terlambat', fromJson: jsonAsBool)
   final bool terlambat;
   @JsonKey(name: 'perluDikembalikan', fromJson: jsonAsBool)
@@ -161,6 +165,7 @@ class BerkasModel {
     this.penanggungJawab = false,
     this.tglDitugaskan,
     this.tglBatasSla,
+    this.tglSelesai,
     this.terlambat = false,
     this.perluDikembalikan = false,
     this.wajibFotoObjek = false,
@@ -267,6 +272,7 @@ extension BerkasModelX on BerkasModel {
       penanggungJawab: penanggungJawab,
       tglDitugaskan: parseTgl(tglDitugaskan),
       tglBatasSla: parseTgl(tglBatasSla),
+      tglSelesai: parseTgl(tglSelesai),
       terlambat: terlambat,
       perluDikembalikan: perluDikembalikan,
       wajibFotoObjek: wajibFotoObjek,

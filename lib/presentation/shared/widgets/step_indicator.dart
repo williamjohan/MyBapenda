@@ -1,17 +1,16 @@
 // lib/presentation/shared/widgets/step_indicator.dart
 import 'package:flutter/material.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 
 class StepIndicator extends StatelessWidget {
   final List<String> labels;
-  final int currentIndex; 
+  final int currentIndex;
 
   const StepIndicator({
     super.key,
     required this.labels,
     required this.currentIndex,
   });
-
-  static const Color _brand = Color(0xFFB8680F);
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,9 @@ class StepIndicator extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 13),
                 child: Container(
                   height: 2,
-                  color: i < currentIndex ? _brand : const Color(0xFFE4E7EB),
+                  color: i < currentIndex
+                      ? context.palette.accent
+                      : context.palette.border,
                 ),
               ),
             ),
@@ -56,7 +57,7 @@ class _StepNode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brand = Color(0xFFB8680F);
+    final brand = context.palette.accent;
     final filled = done || active;
 
     return SizedBox(
@@ -69,9 +70,9 @@ class _StepNode extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: filled ? brand : Colors.white,
+              color: filled ? brand : context.palette.surface,
               border: Border.all(
-                color: filled ? brand : const Color(0xFFCBD2D9),
+                color: filled ? brand : context.palette.borderStrong,
                 width: 1.5,
               ),
             ),
@@ -82,7 +83,9 @@ class _StepNode extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: active ? Colors.white : const Color(0xFF9AA5B1),
+                      color: active
+                          ? Colors.white
+                          : context.palette.textTertiary,
                     ),
                   ),
           ),
@@ -92,7 +95,9 @@ class _StepNode extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-              color: active ? const Color(0xFF1F2933) : const Color(0xFF9AA5B1),
+              color: active
+                  ? context.palette.textPrimary
+                  : context.palette.textTertiary,
             ),
           ),
         ],

@@ -81,6 +81,9 @@ import '../presentation/features/va_qris/pages/qris_payment_page.dart';
 import '../presentation/features/va_qris/pages/va_payment_page.dart';
 import '../presentation/features/va_qris/pages/va_qris_billing_page.dart';
 import '../presentation/features/va_qris/pages/va_qris_nop_page.dart';
+import '../presentation/features/notifikasi/cubit/notifikasi_badge_cubit.dart';
+import '../presentation/features/notifikasi/cubit/notifikasi_cubit.dart';
+import '../presentation/features/notifikasi/pages/notifikasi_page.dart';
 
 import 'app_routes.dart';
 
@@ -209,8 +212,15 @@ class AppRouter {
         pageBuilder: (context, state) {
           return CustomTransitionPage(
             key: state.pageKey,
-            child: BlocProvider<HomeCubit>(
-              create: (_) => getIt<HomeCubit>()..onPageOpened(),
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider<HomeCubit>(
+                  create: (_) => getIt<HomeCubit>()..onPageOpened(),
+                ),
+                BlocProvider<NotifikasiBadgeCubit>(
+                  create: (_) => getIt<NotifikasiBadgeCubit>(),
+                ),
+              ],
               child: const AdaptiveThemeScope(child: HomePage()),
             ),
             transitionsBuilder:
@@ -385,7 +395,7 @@ class AppRouter {
           create: (_) =>
               SurveyListCubit(useCase: getIt<SurveyPermohonanUseCase>())
                 ..load(),
-          child: const SurveyPermohonanBaruPage(),
+          child: const AdaptiveThemeScope(child: SurveyPermohonanBaruPage()),
         ),
       ),
       GoRoute(
@@ -413,10 +423,12 @@ class AppRouter {
                 ),
               ),
             ],
-            child: SurveyInfoPage(
-              nomorPelayanan: args.nomor,
-              surveyKey: args.key,
-              sisiList: args.sisiList,
+            child: AdaptiveThemeScope(
+              child: SurveyInfoPage(
+                nomorPelayanan: args.nomor,
+                surveyKey: args.key,
+                sisiList: args.sisiList,
+              ),
             ),
           );
         },
@@ -432,10 +444,12 @@ class AppRouter {
                     List<Map<String, dynamic>> sisiList,
                     Map<String, dynamic> info,
                   });
-          return SurveySisiPage(
-            nomorPelayanan: args.nomor,
-            sisiList: args.sisiList,
-            info: args.info,
+          return AdaptiveThemeScope(
+            child: SurveySisiPage(
+              nomorPelayanan: args.nomor,
+              sisiList: args.sisiList,
+              info: args.info,
+            ),
           );
         },
       ),
@@ -455,11 +469,13 @@ class AppRouter {
           return BlocProvider<SurveySubmitCubit>(
             create: (_) =>
                 SurveySubmitCubit(useCase: getIt<SurveyPermohonanUseCase>()),
-            child: SurveyReviewPage(
-              nomorPelayanan: args.nomor,
-              sisiList: args.sisiList,
-              results: args.results,
-              info: args.info,
+            child: AdaptiveThemeScope(
+              child: SurveyReviewPage(
+                nomorPelayanan: args.nomor,
+                sisiList: args.sisiList,
+                results: args.results,
+                info: args.info,
+              ),
             ),
           );
         },
@@ -471,7 +487,9 @@ class AppRouter {
           final args =
               state.extra
                   as ({Map<String, dynamic> sisi, SurveyResult? result});
-          return SurveyFotoPage(sisi: args.sisi, initialResult: args.result);
+          return AdaptiveThemeScope(
+            child: SurveyFotoPage(sisi: args.sisi, initialResult: args.result),
+          );
         },
       ),
       GoRoute(
@@ -495,7 +513,9 @@ class AppRouter {
                     SurveyDataCubit(sisi: args.sisi, initial: args.initial),
               ),
             ],
-            child: SurveyDataPage(sisi: args.sisi, initial: args.initial),
+            child: AdaptiveThemeScope(
+              child: SurveyDataPage(sisi: args.sisi, initial: args.initial),
+            ),
           );
         },
       ),
@@ -580,6 +600,14 @@ class AppRouter {
         builder: (context, state) => BlocProvider(
           create: (_) => getIt<DaftarTugasCubit>()..load(),
           child: const AdaptiveThemeScope(child: DaftarTugasPage()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.notifikasi,
+        name: AppRoutes.notifikasi,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<NotifikasiCubit>()..load(),
+          child: const AdaptiveThemeScope(child: NotifikasiPage()),
         ),
       ),
       GoRoute(

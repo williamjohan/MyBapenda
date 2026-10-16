@@ -1,9 +1,11 @@
 // lib/presentation/features/survey_baru/screens/survey_permohonan_page.dart
 import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_state.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_card.dart';
 import 'package:flutter/material.dart';
+import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
@@ -44,7 +46,7 @@ class SurveyPermohonanBaruPage extends StatelessWidget {
     final cubit = context.read<SurveyListCubit>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F8),
+      backgroundColor: context.palette.background,
       body: Stack(
         children: [
           RefreshIndicator(
@@ -55,6 +57,8 @@ class SurveyPermohonanBaruPage extends StatelessWidget {
               ),
               slivers: [
                 BapendaSliverHeader(
+                  compact: true,
+                  trailing: const ThemeToggleButton(),
                   title: 'Survey Permohonan Baru',
                   showBackButton: true,
                   subtitle: Text(
@@ -73,16 +77,16 @@ class SurveyPermohonanBaruPage extends StatelessWidget {
                       style: const TextStyle(fontSize: 13.5),
                       decoration: InputDecoration(
                         hintText: 'Cari nomor pelayanan / wajib pajak',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF9AA5B1),
+                          color: context.palette.textTertiary,
                         ),
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.search_rounded,
-                          color: Color(0xFF9AA5B1),
+                          color: context.palette.textTertiary,
                         ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: context.palette.surface,
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 14,
                         ),
@@ -119,9 +123,9 @@ class SurveyPermohonanBaruPage extends StatelessWidget {
                                 child: Text(
                                   state.error ?? 'Terjadi kesalahan',
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFF7B8794),
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                               ),
@@ -141,14 +145,14 @@ class SurveyPermohonanBaruPage extends StatelessWidget {
 
                     final items = state.filtered;
                     if (items.isEmpty) {
-                      return const SliverFillRemaining(
+                      return SliverFillRemaining(
                         hasScrollBody: false,
                         child: Center(
                           child: Text(
                             'Permohonan tidak ditemukan',
                             style: TextStyle(
                               fontSize: 13,
-                              color: Color(0xFF7B8794),
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ),

@@ -1,5 +1,5 @@
-import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 class SurveyHeaderCard extends StatelessWidget {
@@ -26,7 +26,7 @@ class SurveyHeaderCard extends StatelessWidget {
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Theme(
@@ -38,25 +38,28 @@ class SurveyHeaderCard extends StatelessWidget {
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           shape: const Border(),
           collapsedShape: const Border(),
-          leading: const Icon(
+          leading: Icon(
             Icons.assignment_outlined,
             size: 20,
-            color: AppThemeColors.primary,
+            color: context.palette.accent,
           ),
-          title: const Text(
+          title: Text(
             'Informasi Permohonan',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1F2933),
+              color: context.palette.textPrimary,
             ),
           ),
           subtitle: Text(
             v('noPelayanan'),
-            style: const TextStyle(fontSize: 12, color: Color(0xFF7B8794)),
+            style: TextStyle(
+              fontSize: 12,
+              color: context.palette.textSecondary,
+            ),
           ),
           children: [
-            const Divider(height: 1, color: Color(0xFFEEF0F3)),
+            Divider(height: 1, color: context.palette.border),
             const SizedBox(height: 10),
             InfoRow(label: 'No. Pelayanan', value: v('noPelayanan')),
             InfoRow(label: 'NPWPD', value: v('npwpd')),

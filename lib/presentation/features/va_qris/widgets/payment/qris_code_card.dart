@@ -2,6 +2,7 @@ import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart'
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../../core/theme/theme_kit.dart';
+import '../../utils/va_qris_ui_helper.dart';
 import 'payment_expired_overlay.dart';
 
 class QrisCodeCard extends StatelessWidget {
@@ -21,6 +22,7 @@ class QrisCodeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final nmid = VaQrisUiHelper.nmid(session.nmid);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
@@ -67,7 +69,6 @@ class QrisCodeCard extends StatelessWidget {
                     border: Border.all(color: palette.brand, width: 2),
                   ),
                   child: QrImageView(
-                    // TODO(tech-debt): isi dengan payload QRIS asli dari backend.
                     data: session.qrisPayload ?? 'INVALID',
                     version: QrVersions.auto,
                     size: _qrSize,
@@ -91,12 +92,13 @@ class QrisCodeCard extends StatelessWidget {
               color: palette.textPrimary,
             ),
           ),
-          const SizedBox(height: 2),
-          // TODO(tech-debt): nama merchant & NMID dari backend.
-          Text(
-            'NMID: dummy',
-            style: TextStyle(fontSize: 12, color: palette.textTertiary),
-          ),
+          if (nmid != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              'NMID: $nmid',
+              style: TextStyle(fontSize: 12, color: palette.textTertiary),
+            ),
+          ],
         ],
       ),
     );

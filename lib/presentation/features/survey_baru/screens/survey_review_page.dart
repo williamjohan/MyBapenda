@@ -1,5 +1,6 @@
 // lib/presentation/features/survey_baru/screens/survey_review_page.dart
 import 'package:bapendacore/core/di/injection.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
@@ -11,6 +12,7 @@ import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:bapendacore/presentation/shared/widgets/photo_preview.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
@@ -79,11 +81,13 @@ class SurveyReviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F8),
+      backgroundColor: context.palette.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           BapendaSliverHeader(
+            compact: true,
+            trailing: const ThemeToggleButton(),
             title: 'Survey Permohonan Baru',
             showBackButton: true,
             subtitle: Text(
@@ -96,7 +100,7 @@ class SurveyReviewPage extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: context.palette.surface,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
               child: const StepIndicator(
                 labels: ['Foto', 'Data', 'Review'],
@@ -114,7 +118,7 @@ class SurveyReviewPage extends StatelessWidget {
                 ),
               ),
             ),
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(18, 20, 18, 4),
               child: Text(
@@ -122,7 +126,7 @@ class SurveyReviewPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2933),
+                  color: context.palette.textPrimary,
                 ),
               ),
             ),
@@ -156,7 +160,7 @@ class SurveyReviewPage extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          color: Colors.white,
+          color: context.palette.surface,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: BlocBuilder<SurveySubmitCubit, bool>(
             builder: (context, sending) => Button(
@@ -215,7 +219,7 @@ class SisiReviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -223,19 +227,19 @@ class SisiReviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.campaign_rounded,
                 size: 18,
-                color: Color(0xFFB8680F),
+                color: context.palette.accent,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Sisi $seq',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2933),
+                    color: context.palette.textPrimary,
                   ),
                 ),
               ),
@@ -251,7 +255,7 @@ class SisiReviewCard extends StatelessWidget {
                     ),
                   ),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFFB8680F),
+                    foregroundColor: context.palette.accent,
                     visualDensity: VisualDensity.compact,
                   ),
                 ),
@@ -266,28 +270,28 @@ class SisiReviewCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.notes_rounded,
                     size: 15,
-                    color: Color(0xFF9AA5B1),
+                    color: context.palette.textTertiary,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       f.keterangan,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.5,
                         height: 1.4,
-                        color: Color(0xFF52606D),
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: Color(0xFFEEF0F3)),
+            child: Divider(height: 1, color: context.palette.border),
           ),
 
           InfoRow(label: 'NOR', value: nor),
@@ -385,18 +389,18 @@ class _InfoReviewCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
                 Icons.location_on_outlined,
                 size: 18,
-                color: Color(0xFFB8680F),
+                color: context.palette.accent,
               ),
               SizedBox(width: 8),
               Text(
@@ -404,7 +408,7 @@ class _InfoReviewCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2933),
+                  color: context.palette.textPrimary,
                 ),
               ),
             ],
@@ -423,17 +427,20 @@ class _InfoReviewCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Foto selfie petugas',
-                    style: TextStyle(fontSize: 12.5, color: Color(0xFF52606D)),
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: context.palette.textSecondary,
+                    ),
                   ),
                 ),
               ],
             ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: Color(0xFFEEF0F3)),
+            child: Divider(height: 1, color: context.palette.border),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
           InfoRow(label: 'Kecamatan', value: kec),

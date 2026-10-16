@@ -197,6 +197,7 @@ void main() {
           'expiredDate': '2026-10-15T10:00:00',
           'sisaDetik': 900,
           'qrValue': '000201...',
+          'nmid': 'ID2021112825553',
         }),
       );
 
@@ -213,14 +214,25 @@ void main() {
       expect(session.kodeBayar, 'QR1');
       expect(session.sisaDetik, 900);
       expect(session.qrValue, '000201...');
+      expect(session.nmid, 'ID2021112825553');
     });
 
     test('ditolak server → ServerException', () async {
       await expectLater(
         _dataSource(
-          _FakeAdapter(_gagal(400, 'Masa pajak harus dibayar berurutan')),
+          _FakeAdapter(
+            _gagal(
+              400,
+              'Tagihan yang dipilih tidak ditemukan atau sudah lunas',
+            ),
+          ),
         ).createPayment(request),
-        throwsA(_serverException(400, 'Masa pajak harus dibayar berurutan')),
+        throwsA(
+          _serverException(
+            400,
+            'Tagihan yang dipilih tidak ditemukan atau sudah lunas',
+          ),
+        ),
       );
     });
   });
@@ -255,6 +267,90 @@ void main() {
           _FakeAdapter(_gagal(404, 'Kode bayar tidak ditemukan')),
         ).getPaymentStatus(method: 'qris', paymentCode: 'X'),
         throwsA(_serverException(404, 'Kode bayar tidak ditemukan')),
+      );
+    });
+  });
+
+  group('searchObjects', () {
+    test(
+      'GET cari-objek: keyword & halaman, hasil + jumlah per jenis',
+      () async {
+        final adapter = _FakeAdapter(
+          _sukses({
+            'currentPage': 2,
+            'pageSize': 30,
+            'totalData': 45,
+            'totalPage': 2,
+            'items': [
+              {
+                'jenisPajak': 1,
+                'jenisPajakNama': 'Pajak Makanan & Minuman',
+                'nop': '35.78.051.002.902.00282',
+                'nama': 'ALMAZ FRIED CHICKEN MULYOREJO',
+                'alamat': 'DR. IR. SOEKARNO NO.65',
+              },
+            ],
+            'perJenisPajak': [
+              {
+                'jenisPajak': 1,
+                'jenisPajakNama': 'Pajak Makanan & Minuman',
+                'jumlah': 45,
+              },
+            ],
+          }),
+        );
+
+        final result = await _dataSource(
+          adapter,
+        ).searchObjects(keyword: 'mulyorejo', page: 2, pageSize: 30);
+
+        expect(adapter.last!.method, 'GET');
+        expect(adapter.last!.path, ApiEndpoints.pembayaranCariObjek);
+        // Filter jenis pajak dilakukan di HP: jenisPajak tidak dikirim
+        expect(adapter.last!.queryParameters, {
+          'keyword': 'mulyorejo',
+          'page': 2,
+          'pageSize': 30,
+        });
+        expect(result.page.currentPage, 2);
+        expect(result.page.totalData, 45);
+        expect(result.page.items.single.jenisPajak, 1);
+        expect(result.page.items.single.nop, '35.78.051.002.902.00282');
+        expect(result.perJenisPajak.single.jumlah, 45);
+      },
+    );
+
+    test('perJenisPajak tidak ada di response: dianggap kosong', () async {
+      final adapter = _FakeAdapter(
+        _sukses({
+          'currentPage': 1,
+          'pageSize': 30,
+          'totalData': 0,
+          'totalPage': 0,
+          'items': [],
+        }),
+      );
+
+      final result = await _dataSource(
+        adapter,
+      ).searchObjects(keyword: 'mulyorejo', page: 1, pageSize: 30);
+
+      expect(result.perJenisPajak, isEmpty);
+    });
+
+    test('keyword terlalu pendek ditolak server → ServerException', () async {
+      await expectLater(
+        _dataSource(
+          _FakeAdapter(
+            _gagal(400, 'Ketik minimal 3 huruf untuk mencari objek pajak.'),
+          ),
+        ).searchObjects(keyword: 'ab', page: 1, pageSize: 30),
+        throwsA(
+          _serverException(
+            400,
+            'Ketik minimal 3 huruf untuk mencari objek pajak.',
+          ),
+        ),
       );
     });
   });

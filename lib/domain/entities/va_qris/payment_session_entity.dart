@@ -20,6 +20,7 @@ class PaymentSessionEntity extends Equatable {
     required this.total,
     this.vaNumber,
     this.qrisPayload,
+    this.nmid,
   });
 
   /// Kode bayar (= kode VA / kode QRIS), dipakai untuk cek status.
@@ -43,6 +44,12 @@ class PaymentSessionEntity extends Equatable {
   final String? vaNumber;
   final String? qrisPayload;
 
+  /// National Merchant ID QRIS dari API (kosong untuk VA).
+  final String? nmid;
+
+  /// Batas waktu kode bayar menurut jam HP (dari sisa waktu server).
+  DateTime get expiresAt => createdAt.add(validFor);
+
   int get principalTotal => periods.fold(0, (sum, p) => sum + p.principal);
   int get penaltyTotal => periods.fold(0, (sum, p) => sum + p.penalty);
   int get otherTotal => periods.fold(0, (sum, p) => sum + p.other);
@@ -62,5 +69,6 @@ class PaymentSessionEntity extends Equatable {
     total,
     vaNumber,
     qrisPayload,
+    nmid,
   ];
 }

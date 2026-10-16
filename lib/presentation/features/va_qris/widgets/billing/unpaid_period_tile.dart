@@ -12,47 +12,37 @@ class UnpaidPeriodTile extends StatelessWidget {
     super.key,
     required this.period,
     required this.isSelected,
-    required this.isEnabled,
     required this.onTap,
   });
 
   final TaxPeriodEntity period;
   final bool isSelected;
-  final bool isEnabled;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
 
-    return Opacity(
-      opacity: isEnabled ? 1 : 0.6,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? palette.brand : palette.borderStrong,
-            width: isSelected ? 1.6 : 1,
-          ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isSelected ? palette.brand : palette.borderStrong,
+          width: isSelected ? 1.6 : 1,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.5),
-          child: Material(
-            color: isSelected ? palette.accentSoft : palette.surface,
-            child: InkWell(
-              onTap: isEnabled ? onTap : null,
-              child: Column(
-                children: [
-                  _MainRow(
-                    period: period,
-                    isSelected: isSelected,
-                    isEnabled: isEnabled,
-                    onTap: onTap,
-                  ),
-                  if (period.hasPenalty) _PenaltySegment(period: period),
-                ],
-              ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.5),
+        child: Material(
+          color: isSelected ? palette.accentSoft : palette.surface,
+          child: InkWell(
+            onTap: onTap,
+            child: Column(
+              children: [
+                _MainRow(period: period, isSelected: isSelected, onTap: onTap),
+                if (period.hasPenalty) _PenaltySegment(period: period),
+              ],
             ),
           ),
         ),
@@ -65,13 +55,11 @@ class _MainRow extends StatelessWidget {
   const _MainRow({
     required this.period,
     required this.isSelected,
-    required this.isEnabled,
     required this.onTap,
   });
 
   final TaxPeriodEntity period;
   final bool isSelected;
-  final bool isEnabled;
   final VoidCallback onTap;
 
   @override
@@ -85,7 +73,7 @@ class _MainRow extends StatelessWidget {
         children: [
           Checkbox(
             value: isSelected,
-            onChanged: isEnabled ? (_) => onTap() : null,
+            onChanged: (_) => onTap(),
             activeColor: palette.brand,
             checkColor: Colors.white,
             side: BorderSide(color: palette.textTertiary, width: 1.5),
@@ -124,28 +112,6 @@ class _MainRow extends StatelessWidget {
                         fontSize: 12,
                         color: palette.textSecondary,
                       ),
-                    ),
-                  ],
-                  if (!isEnabled) ...[
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.lock_outline_rounded,
-                          size: 13,
-                          color: palette.textTertiary,
-                        ),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            'Lunasi masa pajak sebelumnya dulu',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: palette.textTertiary,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ],

@@ -171,7 +171,10 @@ class PantauBerkasCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        berkas.tglDitugaskan == null
+                        berkas.tglSelesai != null
+                            ? 'Diterima ${formatTanggalId(berkas.tglSelesai!)}'
+                                  ' · ${formatJamId(berkas.tglSelesai!)}'
+                            : berkas.tglDitugaskan == null
                             ? 'Belum ditugaskan'
                             : 'Ditugaskan ${formatTanggalId(berkas.tglDitugaskan!)}'
                                   ' · ${formatJamId(berkas.tglDitugaskan!)}',
