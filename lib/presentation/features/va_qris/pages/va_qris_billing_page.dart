@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors_new.dart';
+import '../../../../core/theme/theme_kit.dart';
 import '../../../../domain/entities/va_qris/payment_method.dart';
 import '../../../../routes/app_routes.dart';
 import '../cubit/va_qris_cubit.dart';
@@ -97,7 +97,7 @@ class _VaQrisBillingPageState extends State<VaQrisBillingPage>
           final showTotalBar = _tabController.index == 0 && unpaid.isNotEmpty;
 
           return Scaffold(
-            backgroundColor: AppThemeColors.defaultBackground,
+            backgroundColor: context.palette.surfaceMuted,
             appBar: const VaQrisAppBar(title: 'Tagihan pajak'),
             body: Column(
               children: [

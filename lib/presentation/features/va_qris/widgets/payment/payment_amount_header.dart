@@ -2,6 +2,7 @@ import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/va_qris_ui_helper.dart';
 import '../common/va_qris_hero_header.dart';
 
 class PaymentAmountHeader extends StatelessWidget {
@@ -42,7 +43,7 @@ class PaymentAmountHeader extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            session.taxpayerName,
+            VaQrisUiHelper.teks(session.taxpayerName),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

@@ -1,7 +1,10 @@
 import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
+import '../../utils/va_qris_ui_helper.dart';
 
+/// Ringkasan wajib pajak di header tagihan: nama + nomor referensi menonjol,
+/// objek & alamat di kotak inset. Nama kosong dari API tampil "-".
 class TaxpayerSummaryCard extends StatelessWidget {
   const TaxpayerSummaryCard({super.key, required this.billing});
 
@@ -9,43 +12,23 @@ class TaxpayerSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      billing.taxpayerName,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppThemeColors.titleText,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${billing.referenceLabel} ${billing.referenceNumber}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        letterSpacing: 0.4,
-                        fontWeight: FontWeight.w600,
-                        color: AppThemeColors.gold,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Wajib pajak',
+                  style: TextStyle(fontSize: 12, color: palette.textTertiary),
                 ),
               ),
               const SizedBox(width: 8),
@@ -55,30 +38,64 @@ class TaxpayerSummaryCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppThemeColors.primarySoft,
+                  color: palette.accentSoft,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   billing.taxType,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w600,
-                    color: AppThemeColors.brown,
+                    color: palette.brandStrong,
                   ),
                 ),
               ),
             ],
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: AppThemeColors.subtleBorder),
+          const SizedBox(height: 4),
+          Text(
+            VaQrisUiHelper.teks(billing.taxpayerName),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: palette.textPrimary,
+            ),
           ),
-          _DetailLine(
-            icon: Icons.storefront_outlined,
-            text: billing.objectName,
+          const SizedBox(height: 2),
+          Text(
+            VaQrisUiHelper.nomorReferensi(
+              billing.referenceLabel,
+              billing.referenceNumber,
+            ),
+            style: TextStyle(
+              fontSize: 13,
+              letterSpacing: 0.4,
+              fontWeight: FontWeight.w600,
+              color: palette.accent,
+            ),
           ),
-          const SizedBox(height: 6),
-          _DetailLine(icon: Icons.place_outlined, text: billing.address),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: palette.surfaceMuted,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: palette.border),
+            ),
+            child: Column(
+              children: [
+                _DetailLine(
+                  icon: Icons.storefront_outlined,
+                  text: billing.objectName,
+                ),
+                const SizedBox(height: 8),
+                _DetailLine(icon: Icons.place_outlined, text: billing.address),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -93,18 +110,21 @@ class _DetailLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: AppThemeColors.tertiaryText),
+        Icon(icon, size: 16, color: palette.accent),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            text,
-            style: const TextStyle(
+            VaQrisUiHelper.teks(text),
+            style: TextStyle(
               fontSize: 12.5,
               height: 1.35,
-              color: AppThemeColors.secondaryText,
+              fontWeight: FontWeight.w500,
+              color: palette.textSecondary,
             ),
           ),
         ),

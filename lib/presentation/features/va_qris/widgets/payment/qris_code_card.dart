@@ -1,7 +1,7 @@
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import 'payment_expired_overlay.dart';
 
 class QrisCodeCard extends StatelessWidget {
@@ -20,12 +20,14 @@ class QrisCodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppThemeColors.subtleBorder),
+        border: Border.all(color: palette.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -36,19 +38,19 @@ class QrisCodeCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'Scan untuk membayar',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
-              color: AppThemeColors.titleText,
+              color: palette.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Gunakan m-banking atau e-wallet yang mendukung QRIS',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12.5, color: AppThemeColors.secondaryText),
+            style: TextStyle(fontSize: 12.5, color: palette.textSecondary),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -56,15 +58,13 @@ class QrisCodeCard extends StatelessWidget {
             height: _qrSize + 28,
             child: Stack(
               children: [
+                // Latar QR tetap putih di mode gelap agar mudah di-scan.
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: AppThemeColors.primary,
-                      width: 2,
-                    ),
+                    border: Border.all(color: palette.brand, width: 2),
                   ),
                   child: QrImageView(
                     // TODO(tech-debt): isi dengan payload QRIS asli dari backend.
@@ -83,19 +83,19 @@ class QrisCodeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Bapenda Kota Surabaya',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: AppThemeColors.primaryText,
+              color: palette.textPrimary,
             ),
           ),
           const SizedBox(height: 2),
           // TODO(tech-debt): nama merchant & NMID dari backend.
-          const Text(
+          Text(
             'NMID: dummy',
-            style: TextStyle(fontSize: 12, color: AppThemeColors.tertiaryText),
+            style: TextStyle(fontSize: 12, color: palette.textTertiary),
           ),
         ],
       ),

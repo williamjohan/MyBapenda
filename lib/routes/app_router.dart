@@ -109,7 +109,7 @@ class AppRouter {
 
   static Widget _vaQrisNopPage() => BlocProvider(
     create: (_) => getIt<VaQrisCubit>()..init(),
-    child: const VaQrisNopPage(),
+    child: const AdaptiveThemeScope(child: VaQrisNopPage()),
   );
 
   static final GoRouter router = GoRouter(
@@ -524,7 +524,7 @@ class AppRouter {
           return billing is TaxBillingEntity
               ? BlocProvider(
                   create: (_) => getIt<VaQrisCubit>()..loadBilling(billing),
-                  child: const VaQrisBillingPage(),
+                  child: const AdaptiveThemeScope(child: VaQrisBillingPage()),
                 )
               : _vaQrisNopPage();
         },
@@ -538,7 +538,9 @@ class AppRouter {
           return session is PaymentSessionEntity
               ? BlocProvider(
                   create: (_) => getIt<VaQrisCubit>()..startSession(session),
-                  child: QrisPaymentPage(session: session),
+                  child: AdaptiveThemeScope(
+                    child: QrisPaymentPage(session: session),
+                  ),
                 )
               : _vaQrisNopPage();
         },
@@ -552,7 +554,9 @@ class AppRouter {
           return session is PaymentSessionEntity
               ? BlocProvider(
                   create: (_) => getIt<VaQrisCubit>()..startSession(session),
-                  child: VaPaymentPage(session: session),
+                  child: AdaptiveThemeScope(
+                    child: VaPaymentPage(session: session),
+                  ),
                 )
               : _vaQrisNopPage();
         },
@@ -564,7 +568,7 @@ class AppRouter {
         builder: (context, state) {
           final session = state.extra;
           return session is PaymentSessionEntity
-              ? PaymentSuccessPage(session: session)
+              ? AdaptiveThemeScope(child: PaymentSuccessPage(session: session))
               : _vaQrisNopPage();
         },
       ),
