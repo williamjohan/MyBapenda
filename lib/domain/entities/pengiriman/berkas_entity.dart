@@ -144,6 +144,9 @@ class BerkasEntity extends Equatable {
   final bool penanggungJawab;
   final DateTime? tglDitugaskan;
   final DateTime? tglBatasSla;
+
+  /// Hanya berkas Diterima (`GET daftar`): kapan selesai.
+  final DateTime? tglSelesai;
   final bool terlambat;
   final bool perluDikembalikan;
   final bool wajibFotoObjek;
@@ -173,6 +176,7 @@ class BerkasEntity extends Equatable {
     this.penanggungJawab = false,
     this.tglDitugaskan,
     this.tglBatasSla,
+    this.tglSelesai,
     this.terlambat = false,
     this.perluDikembalikan = false,
     this.wajibFotoObjek = false,
@@ -192,8 +196,9 @@ class BerkasEntity extends Equatable {
   );
 
   /// Butuh perhatian: terlambat, gagal/dibatalkan, atau surat harus kembali.
+  /// Berkas Diterima sudah selesai, walau dulu terlambat.
   bool get perluPerhatian =>
-      terlambat ||
+      (terlambat && status != StatusBerkas.diterima) ||
       perluDikembalikan ||
       status == StatusBerkas.gagalAntar ||
       status == StatusBerkas.dibatalkan;
@@ -231,6 +236,7 @@ class BerkasEntity extends Equatable {
     penanggungJawab: penanggungJawab,
     tglDitugaskan: tglDitugaskan,
     tglBatasSla: tglBatasSla,
+    tglSelesai: tglSelesai,
     terlambat: terlambat,
     perluDikembalikan: perluDikembalikan ?? this.perluDikembalikan,
     wajibFotoObjek: wajibFotoObjek,
@@ -260,6 +266,7 @@ class BerkasEntity extends Equatable {
     penanggungJawab,
     tglDitugaskan,
     tglBatasSla,
+    tglSelesai,
     terlambat,
     perluDikembalikan,
     wajibFotoObjek,

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class PhotoPreview extends StatelessWidget {
   final String path;
-  final double ratio; 
-  final Rect? box; 
+  final double ratio;
+  final Rect? box;
   final double radius;
   final double maxHeight;
 
@@ -47,7 +47,9 @@ class _BoxPainter extends CustomPainter {
   final Rect box;
   _BoxPainter(this.box);
 
-  static const _brand = Color(0xFFE09A2B);
+  static const _brand = Color(
+    0xFFE09A2B,
+  ); // penanda di atas foto, tidak ikut tema
 
   @override
   void paint(Canvas canvas, Size size) {

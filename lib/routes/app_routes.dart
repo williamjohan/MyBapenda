@@ -52,6 +52,8 @@ class AppRoutes {
   static const String lacakDeepLink = '/lacak/:kode';
 
   // MY TASK
+  static const String notifikasi = '/notifikasi';
+
   static const String myTask = '/my-task';
   static const String myTaskDetail = '/my-task/detail';
   static const String myTaskWork = '/my-task/kerjakan';

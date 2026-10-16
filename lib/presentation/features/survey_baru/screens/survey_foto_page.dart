@@ -1,5 +1,6 @@
 // lib/presentation/features/survey_baru/screens/survey_foto_page.dart
 import 'dart:async';
+import 'package:bapendacore/core/theme/theme_kit.dart';
 import 'dart:io';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_review_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
@@ -10,6 +11,7 @@ import 'package:bapendacore/presentation/shared/widgets/marker_box.dart';
 import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../routes/app_routes.dart';
@@ -65,7 +67,7 @@ class SurveyFotoPage extends StatefulWidget {
 }
 
 class _SurveyFotoPageState extends State<SurveyFotoPage> {
-  static const _brand = Color(0xFFB8680F);
+  Color get _brand => context.palette.accent;
   static const _defaultBox = Rect.fromLTWH(0.28, 0.2, 0.44, 0.4);
 
   final _picker = ImagePicker();
@@ -264,9 +266,11 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
       // 2) Review sisi ini
       final ok = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
-          builder: (_) => SurveySisiReviewPage(
-            sisi: widget.sisi,
-            result: (foto: marked, data: saved),
+          builder: (_) => AdaptiveThemeScope(
+            child: SurveySisiReviewPage(
+              sisi: widget.sisi,
+              result: (foto: marked, data: saved),
+            ),
           ),
         ),
       );
@@ -320,7 +324,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -328,15 +332,15 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.person_pin_rounded, size: 18, color: _brand),
+              Icon(Icons.person_pin_rounded, size: 18, color: _brand),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Foto dari Wajib Pajak',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2933),
+                    color: context.palette.textPrimary,
                   ),
                 ),
               ),
@@ -348,9 +352,12 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           ),
           const SizedBox(height: 12),
           if (url == null)
-            const Text(
+            Text(
               'Wajib pajak belum melampirkan foto.',
-              style: TextStyle(fontSize: 12.5, color: Color(0xFF7B8794)),
+              style: TextStyle(
+                fontSize: 12.5,
+                color: context.palette.textSecondary,
+              ),
             )
           else
             GestureDetector(
@@ -411,13 +418,15 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
     final foto = _foto;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F8),
+      backgroundColor: context.palette.background,
       body: CustomScrollView(
         physics: _dragging
             ? const NeverScrollableScrollPhysics()
             : const BouncingScrollPhysics(),
         slivers: [
           BapendaSliverHeader(
+            compact: true,
+            trailing: const ThemeToggleButton(),
             title: 'Survey Permohonan Baru',
             showBackButton: true,
             subtitle: Text(
@@ -430,7 +439,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: context.palette.surface,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
               child: const StepIndicator(
                 labels: ['Foto', 'Data', 'Review'],
@@ -448,12 +457,12 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
                   const SizedBox(height: 14),
                   _buildFotoWp(),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     'Foto Survey Petugas',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1F2933),
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -471,7 +480,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          color: Colors.white,
+          color: context.palette.surface,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: Button(
             label: 'Lanjutkan',
@@ -491,10 +500,10 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 64),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
-      child: const Column(
+      child: Column(
         children: [
           SizedBox(
             width: 28,
@@ -504,7 +513,10 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           SizedBox(height: 14),
           Text(
             'Memuat foto dari server...',
-            style: TextStyle(fontSize: 12.5, color: Color(0xFF7B8794)),
+            style: TextStyle(
+              fontSize: 12.5,
+              color: context.palette.textSecondary,
+            ),
           ),
         ],
       ),
@@ -515,7 +527,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -523,33 +535,29 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           Container(
             width: 64,
             height: 64,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFF3DC),
+            decoration: BoxDecoration(
+              color: context.palette.accentSoft,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.photo_camera_rounded,
-              size: 30,
-              color: _brand,
-            ),
+            child: Icon(Icons.photo_camera_rounded, size: 30, color: _brand),
           ),
           const SizedBox(height: 16),
           Text(
             'Belum ada foto survey Sisi $_seq',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1F2933),
+              color: context.palette.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Ambil foto langsung di lokasi. Foto wajib pajak di atas hanya sebagai pembanding dan tidak akan tertimpa.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12.5,
               height: 1.5,
-              color: Color(0xFF7B8794),
+              color: context.palette.textSecondary,
             ),
           ),
           const SizedBox(height: 22),
@@ -656,7 +664,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(18),
           ),
           child: BapendaTextField(

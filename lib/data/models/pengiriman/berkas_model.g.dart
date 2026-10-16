@@ -92,6 +92,7 @@ BerkasModel _$BerkasModelFromJson(Map<String, dynamic> json) => BerkasModel(
           : jsonAsBool(json['penanggungJawab']),
       tglDitugaskan: json['tglDitugaskan'] as String?,
       tglBatasSla: json['tglBatasSla'] as String?,
+      tglSelesai: json['tglSelesai'] as String?,
       terlambat:
           json['terlambat'] == null ? false : jsonAsBool(json['terlambat']),
       perluDikembalikan: json['perluDikembalikan'] == null
@@ -127,6 +128,7 @@ Map<String, dynamic> _$BerkasModelToJson(BerkasModel instance) =>
       'penanggungJawab': instance.penanggungJawab,
       'tglDitugaskan': instance.tglDitugaskan,
       'tglBatasSla': instance.tglBatasSla,
+      'tglSelesai': instance.tglSelesai,
       'terlambat': instance.terlambat,
       'perluDikembalikan': instance.perluDikembalikan,
       'wajibFotoObjek': instance.wajibFotoObjek,
