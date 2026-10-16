@@ -26,7 +26,7 @@ class BapendaImage extends StatelessWidget {
     this.errorWidget,
   });
 
-  Widget _error() =>
+  Widget _error(BuildContext context) =>
       errorWidget ??
       Container(
         width: width,

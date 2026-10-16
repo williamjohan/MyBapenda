@@ -33,34 +33,32 @@ Map<String, dynamic> _$NotifikasiModelToJson(NotifikasiModel instance) =>
     };
 
 HalamanNotifikasiModel _$HalamanNotifikasiModelFromJson(
-  Map<String, dynamic> json,
-) => HalamanNotifikasiModel(
-  items:
-      (json['items'] as List<dynamic>?)
-          ?.map((e) => NotifikasiModel.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      [],
-  page: (json['page'] as num?)?.toInt() ?? 1,
-  totalPage: (json['totalPage'] as num?)?.toInt() ?? 1,
-  totalData: (json['totalData'] as num?)?.toInt() ?? 0,
-);
+        Map<String, dynamic> json) =>
+    HalamanNotifikasiModel(
+      items: (json['items'] as List<dynamic>?)
+              ?.map((e) => NotifikasiModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      page: (json['page'] as num?)?.toInt() ?? 1,
+      totalPage: (json['totalPage'] as num?)?.toInt() ?? 1,
+      totalData: (json['totalData'] as num?)?.toInt() ?? 0,
+    );
 
 Map<String, dynamic> _$HalamanNotifikasiModelToJson(
-  HalamanNotifikasiModel instance,
-) => <String, dynamic>{
-  'items': instance.items,
-  'page': instance.page,
-  'totalPage': instance.totalPage,
-  'totalData': instance.totalData,
-};
+        HalamanNotifikasiModel instance) =>
+    <String, dynamic>{
+      'items': instance.items,
+      'page': instance.page,
+      'totalPage': instance.totalPage,
+      'totalData': instance.totalData,
+    };
 
 NotifEventModel _$NotifEventModelFromJson(Map<String, dynamic> json) =>
     NotifEventModel(
       snapshot: json['snapshot'] == null ? false : jsonAsBool(json['snapshot']),
       jumlahBaru: (json['jumlahBaru'] as num?)?.toInt() ?? 0,
       jumlahBelumDibaca: (json['jumlahBelumDibaca'] as num?)?.toInt() ?? 0,
-      items:
-          (json['items'] as List<dynamic>?)
+      items: (json['items'] as List<dynamic>?)
               ?.map((e) => NotifikasiModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
