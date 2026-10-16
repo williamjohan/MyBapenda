@@ -20,10 +20,12 @@ import '../../../domain/entities/pengiriman/master_pengiriman_entity.dart';
 import '../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import '../../../domain/repositories/pengiriman/i_pengiriman_repository.dart';
 import '../../datasources/pengiriman/pengiriman_remote_datasource.dart';
+import '../../datasources/pengiriman/rute_remote_datasource.dart';
 import '../../models/pengiriman/berkas_model.dart';
 import '../../models/pengiriman/lacak_model.dart';
 import '../../models/pengiriman/master_pengiriman_model.dart';
 import '../../models/pengiriman/pengiriman_payload_model.dart';
+import '../../models/pengiriman/rute_model.dart';
 import 'pengiriman_antrean_overlay.dart';
 
 @LazySingleton(as: IPengirimanRepository)
@@ -32,12 +34,14 @@ class PengirimanRepositoryImpl implements IPengirimanRepository {
   final PengirimanQueueStorage _queue;
   final PengirimanCacheStorage _cache;
   final AppSecureStorage _secureStorage;
+  final IRuteRemoteDataSource _ruteDataSource;
 
   PengirimanRepositoryImpl(
     this._remoteDataSource,
     this._queue,
     this._cache,
     this._secureStorage,
+    this._ruteDataSource,
   );
 
   final _perubahan = StreamController<RingkasanAntreanEntity>.broadcast();
@@ -133,6 +137,14 @@ class PengirimanRepositoryImpl implements IPengirimanRepository {
   Future<Either<Failure, LacakResultEntity>> getLacak(String kode) {
     return executeSafeApiCall<LacakResultEntity>(() async {
       final model = await _remoteDataSource.getLacak(kode);
+      return model.toEntity();
+    });
+  }
+
+  @override
+  Future<Either<Failure, List<TitikRute>>> getRute(List<TitikRute> titik) {
+    return executeSafeApiCall<List<TitikRute>>(() async {
+      final model = await _ruteDataSource.hitungRute(titik);
       return model.toEntity();
     });
   }

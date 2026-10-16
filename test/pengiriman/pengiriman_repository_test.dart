@@ -9,6 +9,9 @@ import 'package:bapendacore/core/storage/app_secure_storage.dart';
 import 'package:bapendacore/core/storage/pengiriman_cache_storage.dart';
 import 'package:bapendacore/core/storage/pengiriman_queue_storage.dart';
 import 'package:bapendacore/data/datasources/pengiriman/pengiriman_remote_datasource.dart';
+import 'package:bapendacore/data/datasources/pengiriman/rute_remote_datasource.dart';
+import 'package:bapendacore/data/models/pengiriman/rute_model.dart';
+import 'package:bapendacore/domain/entities/pengiriman/lacak_entity.dart';
 import 'package:bapendacore/data/models/pengiriman/berkas_model.dart';
 import 'package:bapendacore/data/models/pengiriman/lacak_model.dart';
 import 'package:bapendacore/data/models/pengiriman/master_pengiriman_model.dart';
@@ -127,9 +130,26 @@ _siapkan({List<AntreanRecord> antrean = const []}) async {
     queue,
     PengirimanCacheStorage(prefs),
     _FakeSecureStorage(),
+    _rute,
   );
   return (repo: repo, ds: ds, queue: queue);
 }
+
+/// Routes API palsu: [hasil] = RuteModel atau Exception.
+class _FakeRuteDataSource implements IRuteRemoteDataSource {
+  Object hasil = const RuteModel(encodedPolyline: '_p~iF~ps|U_ulLnnqC');
+  List<TitikRute>? diminta;
+
+  @override
+  Future<RuteModel> hitungRute(List<TitikRute> titik) async {
+    diminta = titik;
+    final h = hasil;
+    if (h is Exception) throw h;
+    return h as RuteModel;
+  }
+}
+
+final _rute = _FakeRuteDataSource();
 
 BerkasModel _model(String noResi, {int statusId = 4, List<String>? aksi}) =>
     BerkasModel.fromJson(
@@ -485,6 +505,32 @@ void main() {
       await Future.wait([s.repo.sinkronkan(), s.repo.sinkronkan()]);
 
       expect(s.ds.terkirim, hasLength(1));
+    });
+  });
+
+  group('rute peta (Routes API)', () {
+    const titik = [TitikRute(-7.25, 112.73), TitikRute(-7.29, 112.75)];
+
+    test('polyline jalan didekode jadi titik', () async {
+      final s = await _siapkan();
+      _rute.hasil = const RuteModel(encodedPolyline: '_p~iF~ps|U_ulLnnqC');
+
+      final r = await s.repo.getRute(titik);
+
+      expect(_rute.diminta, titik);
+      expect(r.getOrElse(() => throw 'x'), const [
+        TitikRute(38.5, -120.2),
+        TitikRute(40.7, -120.95),
+      ]);
+    });
+
+    test('Routes API menolak → Failure (peta cukup titik)', () async {
+      final s = await _siapkan();
+      _rute.hasil = const ServerException(403, 'API diblokir');
+
+      final r = await s.repo.getRute(titik);
+
+      expect(r.fold((f) => f.message, (_) => null), 'API diblokir');
     });
   });
 }

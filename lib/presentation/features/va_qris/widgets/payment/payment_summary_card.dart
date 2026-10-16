@@ -1,7 +1,7 @@
 import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 /// Rincian masa pajak yang sedang dibayar (bisa dibuka/ditutup).
 class PaymentSummaryCard extends StatelessWidget {
@@ -11,11 +11,13 @@ class PaymentSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppThemeColors.subtleBorder),
+        border: Border.all(color: palette.border),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -24,22 +26,22 @@ class PaymentSummaryCard extends StatelessWidget {
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
           shape: const Border(),
           collapsedShape: const Border(),
-          iconColor: AppThemeColors.gold,
-          collapsedIconColor: AppThemeColors.tertiaryText,
+          iconColor: palette.accent,
+          collapsedIconColor: palette.textTertiary,
           title: Text(
             'Rincian tagihan (${session.periods.length} masa pajak)',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: AppThemeColors.titleText,
+              color: palette.textPrimary,
             ),
           ),
           children: [
             for (final p in session.periods)
               _Line(label: p.label, value: CurrencyFormatter.toIdr(p.total)),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Divider(height: 1, color: AppThemeColors.subtleBorder),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Divider(height: 1, color: palette.border),
             ),
             _Line(
               label: 'Pokok pajak',
@@ -50,7 +52,7 @@ class PaymentSummaryCard extends StatelessWidget {
               _Line(
                 label: 'Denda keterlambatan',
                 value: CurrencyFormatter.toIdr(session.penaltyTotal),
-                color: AppThemeColors.danger,
+                color: palette.danger,
               ),
             if (session.otherTotal > 0)
               _Line(
@@ -62,7 +64,7 @@ class PaymentSummaryCard extends StatelessWidget {
               _Line(
                 label: 'Potongan',
                 value: CurrencyFormatter.toIdr(-session.discountTotal),
-                color: AppThemeColors.success,
+                color: palette.success,
               ),
             _Line(
               label: 'Total bayar',
@@ -93,9 +95,9 @@ class _Line extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final resolved =
-        color ??
-        (muted ? AppThemeColors.secondaryText : AppThemeColors.primaryText);
+        color ?? (muted ? palette.textSecondary : palette.textPrimary);
     final weight = bold ? FontWeight.w800 : FontWeight.w500;
 
     return Padding(

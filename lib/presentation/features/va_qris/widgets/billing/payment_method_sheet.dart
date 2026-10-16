@@ -2,7 +2,7 @@ import 'package:bapendacore/core/utils/currency_formatter.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
 import 'package:bapendacore/domain/entities/va_qris/payment_nominal_check_entity.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import 'payment_method_option_tile.dart';
 
 /// Bottom sheet pilihan metode. Mengembalikan [PaymentMethod] yang dipilih,
@@ -30,7 +30,7 @@ class PaymentMethodSheet extends StatelessWidget {
   }) {
     return showModalBottomSheet<PaymentMethod>(
       context: context,
-      backgroundColor: AppThemeColors.defaultBackground,
+      backgroundColor: context.palette.surfaceMuted,
       showDragHandle: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -48,6 +48,8 @@ class PaymentMethodSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -55,21 +57,18 @@ class PaymentMethodSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Pilih metode pembayaran',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: AppThemeColors.titleText,
+                color: palette.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               '$periodCount masa pajak, total ${CurrencyFormatter.toIdr(total)}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppThemeColors.secondaryText,
-              ),
+              style: TextStyle(fontSize: 13, color: palette.textSecondary),
             ),
             const SizedBox(height: 16),
             PaymentMethodOptionTile(

@@ -2,9 +2,10 @@ import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import 'reference_mask_formatter.dart';
 import 'tax_type_field.dart';
+import 'upper_case_text_formatter.dart';
 
 /// Form pilih jenis pajak + input nomor referensi (No SKPD / NOP).
 /// Label, hint, keyboard, panjang dan mask input mengikuti [selectedTaxType]
@@ -37,23 +38,24 @@ class NopInputCard extends StatelessWidget {
     final digitsOnly = type?.digitsOnly ?? false;
     final mask = type?.mask;
     final label = type?.referenceLabel ?? 'Nomor referensi';
+    final palette = context.palette;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
+        color: palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppThemeColors.subtleBorder),
+        border: Border.all(color: palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Jenis pajak',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: AppThemeColors.titleText,
+              color: palette.textPrimary,
             ),
           ),
           const SizedBox(height: 10),
@@ -81,20 +83,26 @@ class NopInputCard extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppThemeColors.titleText,
+                      color: palette.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
+                    // Dibuat ulang tiap ganti jenis pajak: keyboard Android
+                    // (mis. Samsung) tidak selalu ikut berganti angka ↔ teks
+                    // bila field yang sama hanya diubah keyboardType-nya.
+                    key: ValueKey(type?.id),
                     controller: controller,
                     enabled: enabled && type != null,
-                    keyboardType: digitsOnly
+                    keyboardType: digitsOnly || mask != null
                         ? TextInputType.number
                         : TextInputType.text,
                     textCapitalization: TextCapitalization.characters,
+                    autocorrect: false,
+                    enableSuggestions: false,
                     textInputAction: TextInputAction.search,
                     onSubmitted: (_) {
                       if (isComplete) onSubmitted();
@@ -104,55 +112,51 @@ class NopInputCard extends StatelessWidget {
                         ReferenceMaskFormatter(mask)
                       else ...[
                         if (digitsOnly) FilteringTextInputFormatter.digitsOnly,
-                        if (!digitsOnly)
+                        if (!digitsOnly) ...[
                           FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                          UpperCaseTextFormatter(),
+                        ],
                         if (maxLength != null)
                           LengthLimitingTextInputFormatter(maxLength),
                       ],
                     ],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
-                      color: AppThemeColors.primaryText,
+                      color: palette.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: type?.hint,
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                         fontSize: 14,
                         letterSpacing: 0,
                         fontWeight: FontWeight.w400,
-                        color: AppThemeColors.tertiaryText,
+                        color: palette.textTertiary,
                       ),
                       errorText: errorText,
                       errorMaxLines: 3,
                       filled: true,
-                      fillColor: AppThemeColors.defaultBackground,
+                      fillColor: palette.surfaceMuted,
                       prefixIcon: Icon(
                         digitsOnly
                             ? Icons.pin_outlined
                             : Icons.receipt_long_outlined,
-                        color: AppThemeColors.gold,
+                        color: palette.accent,
                       ),
                       suffixIcon: length > 0 && enabled
                           ? IconButton(
                               icon: const Icon(Icons.close_rounded, size: 20),
-                              color: AppThemeColors.tertiaryText,
+                              color: palette.textTertiary,
                               onPressed: controller.clear,
                             )
                           : null,
-                      border: _border(AppThemeColors.defaultBorder),
-                      enabledBorder: _border(AppThemeColors.defaultBorder),
-                      disabledBorder: _border(AppThemeColors.defaultBorder),
-                      focusedBorder: _border(
-                        AppThemeColors.primary,
-                        width: 1.6,
-                      ),
-                      errorBorder: _border(AppThemeColors.danger),
-                      focusedErrorBorder: _border(
-                        AppThemeColors.danger,
-                        width: 1.6,
-                      ),
+                      border: _border(palette.borderStrong),
+                      enabledBorder: _border(palette.borderStrong),
+                      disabledBorder: _border(palette.borderStrong),
+                      focusedBorder: _border(palette.brand, width: 1.6),
+                      errorBorder: _border(palette.danger),
+                      focusedErrorBorder: _border(palette.danger, width: 1.6),
                     ),
                   ),
                   if (maxLength != null) ...[
@@ -160,10 +164,10 @@ class NopInputCard extends StatelessWidget {
                     Row(
                       children: [
                         if (isComplete) ...[
-                          const Icon(
+                          Icon(
                             Icons.check_circle_rounded,
                             size: 16,
-                            color: AppThemeColors.success,
+                            color: palette.success,
                           ),
                           const SizedBox(width: 6),
                         ],
@@ -177,8 +181,8 @@ class NopInputCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12.5,
                               color: isComplete
-                                  ? AppThemeColors.success
-                                  : AppThemeColors.secondaryText,
+                                  ? palette.success
+                                  : palette.textSecondary,
                               fontWeight: isComplete
                                   ? FontWeight.w600
                                   : FontWeight.w400,
@@ -187,9 +191,9 @@ class NopInputCard extends StatelessWidget {
                         ),
                         Text(
                           '$counted/$maxLength digit',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12.5,
-                            color: AppThemeColors.tertiaryText,
+                            color: palette.textTertiary,
                           ),
                         ),
                       ],

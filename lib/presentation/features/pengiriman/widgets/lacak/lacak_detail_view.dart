@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../domain/entities/pengiriman/lacak_entity.dart';
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../shared/widgets/section_label.dart';
 import '../../utils/lacak_ui_helper.dart';
@@ -15,10 +16,14 @@ class LacakDetailView extends StatelessWidget {
   /// Peta & timeline jejak; Detail Berkas mematikannya (riwayat ada di Lacak).
   final bool tampilkanRiwayat;
 
+  /// Jalur jalan untuk peta (Lacak); null = peta hanya menampilkan titik.
+  final List<TitikRute>? rute;
+
   const LacakDetailView({
     super.key,
     required this.data,
     this.tampilkanRiwayat = true,
+    this.rute,
   });
 
   @override
@@ -26,7 +31,7 @@ class LacakDetailView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        LacakStatusCard(data: data, denganPeta: tampilkanRiwayat),
+        LacakStatusCard(data: data, denganPeta: tampilkanRiwayat, rute: rute),
         if (tampilkanRiwayat) ...[
           const SizedBox(height: 16),
           const SectionLabel(

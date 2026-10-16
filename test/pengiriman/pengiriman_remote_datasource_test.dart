@@ -1,6 +1,9 @@
 import 'package:bapendacore/core/errors/exception.dart';
 import 'package:bapendacore/core/network/api_endpoints.dart';
 import 'package:bapendacore/data/datasources/pengiriman/pengiriman_remote_datasource.dart';
+import 'package:bapendacore/data/datasources/pengiriman/rute_remote_datasource.dart';
+import 'package:bapendacore/data/models/pengiriman/rute_model.dart';
+import 'package:bapendacore/domain/entities/pengiriman/lacak_entity.dart';
 import 'package:bapendacore/data/models/pengiriman/berkas_model.dart';
 import 'package:bapendacore/data/models/pengiriman/lacak_model.dart';
 import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
@@ -111,6 +114,60 @@ void main() {
           ),
         ),
       );
+    });
+  });
+
+  group('Routes API (rute peta)', () {
+    const titik = [
+      TitikRute(-7.25, 112.73),
+      TitikRute(-7.27, 112.74),
+      TitikRute(-7.29, 112.75),
+    ];
+
+    RuteRemoteDataSourceImpl rute(FakeAdapter a) =>
+        RuteRemoteDataSourceImpl.uji(Dio()..httpClientAdapter = a, 'KUNCI');
+
+    test('motor, singgah di titik tengah, key di header', () async {
+      final adapter = FakeAdapter({
+        'routes': [
+          {
+            'polyline': {'encodedPolyline': '_p~iF~ps|U'},
+          },
+        ],
+      });
+
+      final m = await rute(adapter).hitungRute(titik);
+
+      final req = adapter.terakhir!;
+      expect(req.uri.toString(), ApiEndpoints.googleRoutes);
+      expect(req.headers['X-Goog-Api-Key'], 'KUNCI');
+      expect(
+        req.headers['X-Goog-FieldMask'],
+        'routes.polyline.encodedPolyline',
+      );
+      // Token login tidak ikut ke Google.
+      expect(req.headers.containsKey('Authorization'), isFalse);
+      final body = req.data as Map<String, dynamic>;
+      expect(body['travelMode'], 'TWO_WHEELER');
+      expect(body['origin']['location']['latLng']['latitude'], -7.25);
+      expect(body['destination']['location']['latLng']['longitude'], 112.75);
+      expect((body['intermediates'] as List), hasLength(1));
+      expect(m.toEntity(), const [TitikRute(38.5, -120.2)]);
+    });
+
+    test('dua titik: tanpa singgah', () {
+      expect(
+        RuteModel.permintaan(titik.sublist(1)).containsKey('intermediates'),
+        isFalse,
+      );
+    });
+
+    test('tanpa rute → ServerException', () {
+      expect(
+        rute(FakeAdapter(const {'routes': []})).hitungRute(titik),
+        throwsA(isA<ServerException>()),
+      );
+      expect(RuteModel.fromJson(const {}).toEntity(), isEmpty);
     });
   });
 }

@@ -75,7 +75,7 @@ class _CheckinCardState extends State<CheckinCard> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1F2933),
+                  color: Color(0xFF1F2933),
                 ),
               ),
               const SizedBox(width: 4),
@@ -106,7 +106,7 @@ class _CheckinCardState extends State<CheckinCard> {
               style: const TextStyle(
                 fontSize: 12.5,
                 height: 1.5,
-                color: const Color(0xFF7B8794),
+                color: Color(0xFF7B8794),
               ),
             ),
           ] else

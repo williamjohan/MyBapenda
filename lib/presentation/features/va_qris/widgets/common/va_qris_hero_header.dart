@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 /// Blok gradient di bawah app bar. Konten utama tiap layar (intro NOP,
 /// ringkasan wajib pajak, total bayar) diletakkan di sini.
@@ -18,9 +19,17 @@ class VaQrisHeroHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: padding,
-      decoration: const BoxDecoration(
-        gradient: AppThemeColors.headerGradient,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      decoration: BoxDecoration(
+        // Mode gelap: warna gradient header palette (seperti Home/Absensi),
+        // arah tetap atas-bawah agar menyatu dengan VaQrisAppBar.
+        gradient: context.isDarkMode
+            ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: context.palette.headerGradient,
+              )
+            : AppThemeColors.headerGradient,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: child,
     );

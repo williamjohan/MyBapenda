@@ -8,17 +8,22 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../../core/utils/date_format_id.dart';
+import '../../../../../domain/entities/pengiriman/lacak_entity.dart';
 import '../../utils/peta_lacak_ui_helper.dart';
 
 /// Peta Google interaktif riwayat perjalanan: pin per check-in (motor saat
 /// transit, bendera saat tiba/diterima, silang saat gagal), pin alamat
-/// tujuan, dan garis rute urut waktu. Ketuk pin untuk status & jam.
+/// tujuan, dan jalur jalan antar titik ([rute]). Ketuk pin untuk status &
+/// jam; tombol Maps membuka rute yang sama di aplikasi Google Maps.
 class PetaLacak extends StatefulWidget {
   /// Urut kronologis (lihat [PetaLacakUiHelper.pin]); tidak boleh kosong.
   final List<PinPeta> pin;
+
+  /// Jalur jalan dari Routes API; null = hanya titik (tanpa garis lurus).
+  final List<TitikRute>? rute;
   final double tinggi;
 
-  const PetaLacak({super.key, required this.pin, this.tinggi = 200});
+  const PetaLacak({super.key, required this.pin, this.rute, this.tinggi = 200});
 
   @override
   State<PetaLacak> createState() => _PetaLacakState();
@@ -114,11 +119,7 @@ class _PetaLacakState extends State<PetaLacak> {
   }
 
   Future<void> _bukaMaps() async {
-    final pin = widget.pin;
-    final p = pin.lastWhere((p) => p.terbaru, orElse: () => pin.first);
-    final uri = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}',
-    );
+    final uri = PetaLacakUiHelper.urlMaps(widget.pin);
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -131,9 +132,9 @@ class _PetaLacakState extends State<PetaLacak> {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final rute = [
-      for (final p in widget.pin)
-        if (p.jenis != JenisPin.tujuan) LatLng(p.lat, p.lng),
+      for (final t in widget.rute ?? const <TitikRute>[]) LatLng(t.lat, t.lng),
     ];
+    final banyakTitik = PetaLacakUiHelper.titikUrut(widget.pin).length > 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,8 +163,10 @@ class _PetaLacakState extends State<PetaLacak> {
                           polylineId: const PolylineId('rute'),
                           points: rute,
                           color: palette.statusProses,
-                          width: 4,
-                          patterns: [PatternItem.dash(18), PatternItem.gap(10)],
+                          width: 5,
+                          jointType: JointType.round,
+                          startCap: Cap.roundCap,
+                          endCap: Cap.roundCap,
                         ),
                     },
                     // Geser/zoom peta tanpa ikut menggulir halaman.
@@ -186,8 +189,10 @@ class _PetaLacakState extends State<PetaLacak> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         _TombolPeta(
-                          icon: Icons.open_in_new_rounded,
-                          label: 'Buka Maps',
+                          icon: banyakTitik
+                              ? Icons.directions_rounded
+                              : Icons.open_in_new_rounded,
+                          label: banyakTitik ? 'Buka Rute' : 'Buka Maps',
                           onTap: _bukaMaps,
                         ),
                         const SizedBox(height: 6),

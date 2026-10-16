@@ -125,6 +125,19 @@ class FakePengirimanRepository implements IPengirimanRepository {
     return c.future;
   }
 
+  /// Jawaban getRute (null = gagal / Routes API belum aktif).
+  List<TitikRute>? rute;
+  final ruteDiminta = <List<TitikRute>>[];
+
+  @override
+  Future<Either<Failure, List<TitikRute>>> getRute(
+    List<TitikRute> titik,
+  ) async {
+    ruteDiminta.add(titik);
+    final r = rute;
+    return r == null ? const Left(ServerFailure('diblokir')) : Right(r);
+  }
+
   @override
   Future<HasilLacak> getLacak(String kode) {
     final c = Completer<HasilLacak>();

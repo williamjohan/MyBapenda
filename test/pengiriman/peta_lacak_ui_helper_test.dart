@@ -92,4 +92,42 @@ void main() {
       expect(PetaLacakUiHelper.viewport(const [], ukuran), isNull);
     });
   });
+
+  group('URL Google Maps', () {
+    PinPeta p(double lat, JenisPin j) =>
+        PinPeta(lat: lat, lng: 112.7, jenis: j, label: '');
+
+    test('banyak titik: arah dari check-in pertama, singgah, ke tujuan', () {
+      final u = PetaLacakUiHelper.urlMaps([
+        p(-7.30, JenisPin.tujuan),
+        p(-7.25, JenisPin.transit),
+        p(-7.27, JenisPin.transit),
+        p(-7.29, JenisPin.tiba),
+      ]);
+
+      expect(u.path, '/maps/dir/');
+      expect(u.queryParameters['origin'], '-7.25,112.7');
+      expect(u.queryParameters['waypoints'], '-7.27,112.7|-7.29,112.7');
+      expect(u.queryParameters['destination'], '-7.3,112.7');
+      expect(u.queryParameters['travelmode'], 'two-wheeler');
+    });
+
+    test('titik singgah dibatasi, yang terbaru dipakai', () {
+      final pin = [
+        for (var i = 0; i < 12; i++) p(-7.0 - i / 100, JenisPin.transit),
+      ];
+      final singgah = PetaLacakUiHelper.urlMaps(
+        pin,
+      ).queryParameters['waypoints']!.split('|');
+
+      expect(singgah, hasLength(PetaLacakUiHelper.maksSinggah));
+      expect(singgah.last, '-7.1,112.7');
+    });
+
+    test('satu titik: cari lokasi', () {
+      final u = PetaLacakUiHelper.urlMaps([p(-7.25, JenisPin.transit)]);
+      expect(u.path, '/maps/search/');
+      expect(u.queryParameters['query'], '-7.25,112.7');
+    });
+  });
 }

@@ -1,0 +1,8 @@
+{
+  "enabledPlugins": {
+    "ponytail@ponytail": true,
+    "dart-flutter@dart-flutter": true,
+    "caveman@caveman": true,
+    "woz@wozcode-marketplace": true
+  }
+}

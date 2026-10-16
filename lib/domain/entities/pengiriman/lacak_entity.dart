@@ -123,6 +123,18 @@ class LacakResultEntity extends Equatable {
     this.tugas,
   });
 
+  /// Titik perjalanan berkas urut waktu: check-in berkoordinat (lama → baru),
+  /// diakhiri alamat tujuan bila koordinatnya ada. Dasar rute di peta.
+  List<TitikRute> get titikRute {
+    final jejak = monitoring?.jejak ?? tugas?.jejak ?? const [];
+    final b = tugas?.berkas;
+    return [
+      for (final j in jejak.reversed)
+        if (j.punyaKoordinat) TitikRute(j.latitude!, j.longitude!),
+      if (b != null && b.punyaKoordinat) TitikRute(b.latTujuan!, b.longTujuan!),
+    ];
+  }
+
   @override
   List<Object?> get props => [
     noResi,
@@ -131,4 +143,15 @@ class LacakResultEntity extends Equatable {
     monitoring,
     tugas,
   ];
+}
+
+/// Satu titik koordinat pada rute.
+class TitikRute extends Equatable {
+  final double lat;
+  final double lng;
+
+  const TitikRute(this.lat, this.lng);
+
+  @override
+  List<Object?> get props => [lat, lng];
 }
