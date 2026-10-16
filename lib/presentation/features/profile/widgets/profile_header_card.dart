@@ -1,8 +1,8 @@
-// lib/presentation/features/profile/widgets/profile_header_card.dart
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../../domain/entities/users/user_entity.dart';
+import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/section_label.dart';
 import '../../../shared/widgets/status_chip.dart';
 
@@ -10,14 +10,16 @@ import '../../../shared/widgets/status_chip.dart';
 class ProfileHeaderCard extends StatelessWidget {
   final UserEntity user;
 
-  /// URL foto profil. TODO: isi saat API foto profil tersedia.
-  final String? photoUrl;
+  /// Naik tiap ganti foto supaya gambar dimuat ulang walau URL sama.
+  final int fotoVersi;
+  final bool uploadingFoto;
   final VoidCallback? onEditPhoto;
 
   const ProfileHeaderCard({
     super.key,
     required this.user,
-    this.photoUrl,
+    this.fotoVersi = 0,
+    this.uploadingFoto = false,
     this.onEditPhoto,
   });
 
@@ -33,7 +35,9 @@ class ProfileHeaderCard extends StatelessWidget {
         children: [
           ProfileAvatar(
             nama: user.nama,
-            photoUrl: photoUrl,
+            photoUrl: user.foto?.fotoUrl,
+            fotoVersi: fotoVersi,
+            uploading: uploadingFoto,
             onEdit: onEditPhoto,
           ),
           const SizedBox(height: 14),
@@ -70,10 +74,12 @@ class ProfileHeaderCard extends StatelessWidget {
   }
 }
 
-/// Foto profil bulat. Belum ada foto -> inisial nama.
+/// Foto profil bulat. Belum ada foto / gagal muat -> inisial nama.
 class ProfileAvatar extends StatelessWidget {
   final String nama;
   final String? photoUrl;
+  final int fotoVersi;
+  final bool uploading;
   final VoidCallback? onEdit;
   final double radius;
 
@@ -81,6 +87,8 @@ class ProfileAvatar extends StatelessWidget {
     super.key,
     required this.nama,
     this.photoUrl,
+    this.fotoVersi = 0,
+    this.uploading = false,
     this.onEdit,
     this.radius = 44,
   });
@@ -103,6 +111,22 @@ class ProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final hasPhoto = photoUrl != null && photoUrl!.isNotEmpty;
+    final size = radius * 2;
+
+    final initials = Container(
+      width: size,
+      height: size,
+      color: palette.accentSoft,
+      alignment: Alignment.center,
+      child: Text(
+        _initials(nama),
+        style: TextStyle(
+          fontSize: radius * 0.6,
+          fontWeight: FontWeight.w800,
+          color: palette.accent,
+        ),
+      ),
+    );
 
     return Stack(
       clipBehavior: Clip.none,
@@ -113,20 +137,42 @@ class ProfileAvatar extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: palette.accent, width: 2),
           ),
-          child: CircleAvatar(
-            radius: radius,
-            backgroundColor: palette.accentSoft,
-            backgroundImage: hasPhoto ? NetworkImage(photoUrl!) : null,
-            child: hasPhoto
-                ? null
-                : Text(
-                    _initials(nama),
-                    style: TextStyle(
-                      fontSize: radius * 0.6,
-                      fontWeight: FontWeight.w800,
-                      color: palette.accent,
+          child: ClipOval(
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (hasPhoto)
+                    BapendaImage(
+                      // Key berubah -> state baru -> gambar diunduh ulang.
+                      key: ValueKey('$photoUrl#$fotoVersi'),
+                      path: photoUrl!,
+                      width: size,
+                      height: size,
+                      cacheWidth: (size * 3).round(),
+                      errorWidget: initials,
+                    )
+                  else
+                    initials,
+                  if (uploading)
+                    const ColoredBox(
+                      color: Colors.black45,
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                ],
+              ),
+            ),
           ),
         ),
         if (onEdit != null)
@@ -140,7 +186,7 @@ class ProfileAvatar extends StatelessWidget {
               ),
               child: InkWell(
                 customBorder: const CircleBorder(),
-                onTap: onEdit,
+                onTap: uploading ? null : onEdit,
                 child: const Padding(
                   padding: EdgeInsets.all(7),
                   child: Icon(

@@ -1,4 +1,3 @@
-// lib/presentation/features/profile/widgets/profile_info_section.dart
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/design_system/tokens/app_palette.dart';
@@ -13,16 +12,24 @@ class ProfileInfoSection extends StatelessWidget {
   final IconData icon;
   final List<ProfileInfoItem> items;
 
+  /// Baris khusus (mis. kontak dengan tombol ubah) di atas `items`.
+  final List<Widget> leading;
+
   const ProfileInfoSection({
     super.key,
     required this.title,
     required this.icon,
-    required this.items,
+    this.items = const [],
+    this.leading = const [],
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final rows = [
+      ...leading,
+      for (final item in items) ProfileInfoTile(item: item),
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,9 +40,9 @@ class ProfileInfoSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Column(
             children: [
-              for (var i = 0; i < items.length; i++) ...[
+              for (var i = 0; i < rows.length; i++) ...[
                 if (i > 0) Divider(height: 1, color: palette.border),
-                _ProfileInfoTile(item: items[i]),
+                rows[i],
               ],
             ],
           ),
@@ -45,10 +52,21 @@ class ProfileInfoSection extends StatelessWidget {
   }
 }
 
-class _ProfileInfoTile extends StatelessWidget {
+class ProfileInfoTile extends StatelessWidget {
   final ProfileInfoItem item;
 
-  const _ProfileInfoTile({required this.item});
+  /// Tampil di bawah nilai (mis. badge terverifikasi).
+  final Widget? badge;
+
+  /// Tampil di kanan (mis. tombol ubah).
+  final Widget? trailing;
+
+  const ProfileInfoTile({
+    super.key,
+    required this.item,
+    this.badge,
+    this.trailing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +98,11 @@ class _ProfileInfoTile extends StatelessWidget {
                     height: 1.35,
                   ),
                 ),
+                if (badge != null) ...[const SizedBox(height: 6), badge!],
               ],
             ),
           ),
+          if (trailing != null) ...[const SizedBox(width: 8), trailing!],
         ],
       ),
     );

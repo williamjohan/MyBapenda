@@ -28,6 +28,7 @@ import '../../data/datasources/cek_reklame/survey_remote_datasource.dart'
 import '../../data/datasources/pengiriman/pengiriman_remote_datasource.dart'
     as _i294;
 import '../../data/datasources/pengiriman/rute_remote_datasource.dart' as _i569;
+import '../../data/datasources/profile/profile_remote_datasource.dart' as _i49;
 import '../../data/datasources/va_qris/va_qris_remote_datasource.dart' as _i705;
 import '../../data/repositories/absensi/absensi_repository_impl.dart' as _i242;
 import '../../data/repositories/auth/auth_repository_impl.dart' as _i24;
@@ -43,6 +44,7 @@ import '../../data/repositories/geocoding/geocoding_repository_impl.dart'
     as _i793;
 import '../../data/repositories/pengiriman/pengiriman_repository_impl.dart'
     as _i673;
+import '../../data/repositories/profile/profile_repository_impl.dart' as _i770;
 import '../../data/repositories/va_qris/va_qris_repository_impl.dart' as _i562;
 import '../../domain/repositories/absensi/absensi_repository.dart' as _i173;
 import '../../domain/repositories/auth/auth_repository.dart' as _i660;
@@ -53,6 +55,7 @@ import '../../domain/repositories/geocoding/geocoding_repository.dart' as _i904;
 import '../../domain/repositories/history/history_repository.dart' as _i169;
 import '../../domain/repositories/pengiriman/i_pengiriman_repository.dart'
     as _i969;
+import '../../domain/repositories/profile/i_profile_repository.dart' as _i640;
 import '../../domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart'
     as _i114;
 import '../../domain/repositories/va_qris/i_va_qris_repository.dart' as _i956;
@@ -61,6 +64,7 @@ import '../../domain/usecases/auth/auth_usecase.dart' as _i826;
 import '../../domain/usecases/balai_rw/balai_rw_usecase.dart' as _i266;
 import '../../domain/usecases/history/history_usecase.dart' as _i1023;
 import '../../domain/usecases/pengiriman/pengiriman_usecase.dart' as _i578;
+import '../../domain/usecases/profile/profile_usecase.dart' as _i839;
 import '../../domain/usecases/survey_permohonan/survey_permohonan_usecase.dart'
     as _i11;
 import '../../domain/usecases/va_qris/va_qris_usecase.dart' as _i930;
@@ -98,6 +102,8 @@ import '../../presentation/features/pengiriman/cubit/pantau/pantau_cubit.dart'
 import '../../presentation/features/pengiriman/utils/pengiriman_foto.dart'
     as _i798;
 import '../../presentation/features/profile/cubit/profile_cubit.dart' as _i239;
+import '../../presentation/features/profile/cubit/ubah_kontak_cubit.dart'
+    as _i406;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
@@ -201,6 +207,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i615.IMasterRemoteDataSource>(),
           gh<_i30.IMasterLocalDataSource>(),
         ));
+    gh.lazySingleton<_i49.IProfileRemoteDataSource>(
+        () => _i49.ProfileRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i451.HistoryRemoteDataSource>(
         () => _i451.HistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i60.AuthRemoteDataSource>(
@@ -229,6 +237,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i127.CekReklameRepository>(() =>
         _i470.CekReklameRepositoryImpl(
             gh<_i766.ICekReklameRemoteDataSource>()));
+    gh.lazySingleton<_i640.IProfileRepository>(
+        () => _i770.ProfileRepositoryImpl(gh<_i49.IProfileRemoteDataSource>()));
     gh.lazySingleton<_i169.HistoryRepository>(
         () => _i535.HistoryRepositoryImpl(gh<_i451.HistoryRemoteDataSource>()));
     gh.lazySingleton<_i956.IVaQrisRepository>(
@@ -237,6 +247,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i60.AuthRemoteDataSource>(),
           gh<_i233.AppSecureStorage>(),
         ));
+    gh.lazySingleton<_i839.ProfileUseCase>(
+        () => _i839.ProfileUseCase(gh<_i640.IProfileRepository>()));
     gh.lazySingleton<_i215.ISurveyPermohonanRemoteDataSource>(
         () => _i215.SurveyPermohonanRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i801.MasterDataCubit>(
@@ -258,8 +270,14 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i233.AppSecureStorage>(),
               gh<_i569.IRuteRemoteDataSource>(),
             ));
+    gh.factory<_i239.ProfileCubit>(() => _i239.ProfileCubit(
+          gh<_i826.AuthUseCase>(),
+          gh<_i839.ProfileUseCase>(),
+        ));
     gh.lazySingleton<_i248.AbsensiUseCase>(
         () => _i248.AbsensiUseCase(gh<_i173.AbsensiRepository>()));
+    gh.factory<_i406.UbahKontakCubit>(
+        () => _i406.UbahKontakCubit(gh<_i839.ProfileUseCase>()));
     gh.lazySingleton<_i266.BalaiRwUseCase>(
         () => _i266.BalaiRwUseCase(gh<_i899.IBalaiRwRepository>()));
     gh.lazySingleton<_i114.ISurveyPermohonanRepository>(() =>
@@ -292,8 +310,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i405.LupaPasswordCubit(gh<_i826.AuthUseCase>()));
     gh.factory<_i216.ResetPasswordCubit>(
         () => _i216.ResetPasswordCubit(gh<_i826.AuthUseCase>()));
-    gh.factory<_i239.ProfileCubit>(
-        () => _i239.ProfileCubit(gh<_i826.AuthUseCase>()));
     gh.factory<_i1039.AbsenCubit>(() => _i1039.AbsenCubit(
           gh<_i248.AbsensiUseCase>(),
           gh<_i869.GeoLocationService>(),

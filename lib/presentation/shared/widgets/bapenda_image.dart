@@ -12,6 +12,9 @@ class BapendaImage extends StatelessWidget {
   final double? width;
   final double? height;
 
+  /// Pengganti tampilan gagal muat (default: ikon gambar rusak).
+  final Widget? errorWidget;
+
   const BapendaImage({
     super.key,
     required this.path,
@@ -19,9 +22,10 @@ class BapendaImage extends StatelessWidget {
     this.cacheWidth,
     this.width,
     this.height,
+    this.errorWidget,
   });
 
-  Widget _error() => Container(
+  Widget _error() => errorWidget ?? Container(
     width: width,
     height: height,
     color: const Color(0xFFEEF0F3),

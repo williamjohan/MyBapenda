@@ -43,6 +43,9 @@ import '../presentation/features/home/pages/home_page.dart';
 import '../presentation/features/my_task/pages/my_task_dashboard_page.dart';
 import '../presentation/features/profile/cubit/profile_cubit.dart';
 import '../presentation/features/profile/pages/profile_page.dart';
+import '../presentation/features/profile/cubit/ubah_kontak_cubit.dart';
+import '../presentation/features/profile/pages/ubah_kontak_page.dart';
+import '../domain/entities/profile/jenis_kontak.dart';
 import '../presentation/features/my_task/pages/my_task_detail_page.dart';
 import '../presentation/features/my_task/pages/my_task_success_page.dart';
 import '../presentation/features/my_task/pages/my_task_work_page.dart';
@@ -265,6 +268,23 @@ class AppRouter {
           create: (_) => getIt<ProfileCubit>()..load(),
           child: const AdaptiveThemeScope(child: ProfilePage()),
         ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.profileKontak,
+        name: AppRoutes.profileKontak,
+        builder: (context, state) {
+          // extra hilang saat deep link / restore -> default email kosong.
+          final extra = state.extra;
+          final args = extra is ({JenisKontak kontak, String nilaiSekarang})
+              ? extra
+              : (kontak: JenisKontak.email, nilaiSekarang: '');
+          return BlocProvider(
+            create: (_) => getIt<UbahKontakCubit>()
+              ..mulai(kontak: args.kontak, nilaiSekarang: args.nilaiSekarang),
+            child: const AdaptiveThemeScope(child: UbahKontakPage()),
+          );
+        },
       ),
 
       GoRoute(
