@@ -13,6 +13,9 @@ class BapendaImage extends StatelessWidget {
   final double? width;
   final double? height;
 
+  /// Pengganti tampilan gagal muat (default: ikon gambar rusak).
+  final Widget? errorWidget;
+
   const BapendaImage({
     super.key,
     required this.path,
@@ -20,18 +23,21 @@ class BapendaImage extends StatelessWidget {
     this.cacheWidth,
     this.width,
     this.height,
+    this.errorWidget,
   });
 
-  Widget _error(BuildContext context) => Container(
-    width: width,
-    height: height,
-    color: context.palette.border,
-    alignment: Alignment.center,
-    child: Icon(
-      Icons.broken_image_outlined,
-      color: context.palette.textTertiary,
-    ),
-  );
+  Widget _error(BuildContext context) =>
+      errorWidget ??
+      Container(
+        width: width,
+        height: height,
+        color: context.palette.border,
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.broken_image_outlined,
+          color: context.palette.textTertiary,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {

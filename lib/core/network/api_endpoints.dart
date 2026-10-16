@@ -17,6 +17,10 @@ class ApiEndpoints {
   // PROFILE
   // ==========================================
   static const String profile = '/api/profile';
+  static const String profileGantiFoto = '/api/profile/ganti-foto';
+  static const String profileKirimOtpKontak = '/api/profile/kontak/kirim-otp';
+  static const String profileVerifikasiOtpKontak =
+      '/api/profile/kontak/verifikasi-otp';
 
   static const String historyList = '/api/cekreklame/lihat-history';
   static const String uploadReklame = '/api/cekreklame/upload-reklame';
