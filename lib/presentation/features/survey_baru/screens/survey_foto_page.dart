@@ -1,6 +1,7 @@
 // lib/presentation/features/survey_baru/screens/survey_foto_page.dart
 import 'dart:async';
 import 'dart:io';
+import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_review_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
 import 'package:bapendacore/presentation/shared/utils/marker_stamp_util.dart';
@@ -17,15 +18,10 @@ import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
 typedef SurveyFoto = ({
-  /// Foto final (sudah ada garis kotak). Dipakai review & upload.
   String path,
-
-  /// Foto asli tanpa garis. Dipakai editor supaya garis tidak dobel.
   String source,
   double ratio,
   Rect box,
-
-  /// Keterangan foto yang diisi petugas.
   String keterangan,
 });
 
@@ -65,7 +61,7 @@ class SurveyFotoPage extends StatefulWidget {
 }
 
 class _SurveyFotoPageState extends State<SurveyFotoPage> {
-  static const _brand = Color(0xFFB8680F);
+  static const _brand = AppThemeColors.primary;
   static const _defaultBox = Rect.fromLTWH(0.28, 0.2, 0.44, 0.4);
 
   final _picker = ImagePicker();
@@ -74,16 +70,12 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
   );
   late SurveyFoto? _foto = widget.initialResult?.foto;
   late SurveyData? _data = widget.initialResult?.data;
-
-  // true kalau belum ada foto lokal tapi API punya foto -> perlu di-load
   late bool _loadingRemote =
       _foto == null && apiFotosOf(widget.sisi).isNotEmpty;
   bool _fromServer = false;
-  bool _busy = false; // ambil foto
-  bool _saving = false; // menggambar garis kotak
+  bool _busy = false;
+  bool _saving = false;
   bool _dragging = false;
-
-  // File garis kotak yang dibuat halaman ini (dihapus kalau dibuat ulang).
   String? _createdMarked;
 
   int get _seq => widget.sisi['seq'] as int;
@@ -106,6 +98,15 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
   }
 
   double _d(dynamic v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+  SurveyData? _prefillOf(Map<String, dynamic> sisi) {
+    final sv = sisi['survey'];
+    if (sv is! Map) return null;
+    final hasData =
+        sv['lokasiTertentuId'] != null ||
+        sv['panjang'] != null ||
+        sv['idJenisReklame'] != null;
+    return hasData ? Map<String, dynamic>.from(sv) : null;
+  }
 
   Future<void> _deleteCreated() async {
     final p = _createdMarked;
@@ -247,7 +248,6 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
     if (current == null || _saving) return;
     FocusScope.of(context).unfocus();
 
-    // Garis kotak digambar ke foto sekali di sini, sebelum ke halaman Data.
     final marked = await _mark(current);
     if (marked == null || !mounted) return;
     _foto = marked;
@@ -256,7 +256,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
       // 1) Data
       final saved = await context.pushNamed<SurveyData>(
         AppRoutes.surveyData,
-        extra: (sisi: widget.sisi, initial: _data),
+        extra: (sisi: widget.sisi, initial: _data ?? _prefillOf(widget.sisi)),
       );
       if (saved == null || !mounted) return;
       _data = saved;

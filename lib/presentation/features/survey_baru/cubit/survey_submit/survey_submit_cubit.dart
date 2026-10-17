@@ -109,16 +109,23 @@ class SurveySubmitCubit extends Cubit<bool> {
     final lat = _reqNum(info, 'latitude').toStringAsFixed(6);
     final lng = _reqNum(info, 'longitude').toStringAsFixed(6);
     final tgl = DateTime.tryParse('${info['tanggalSurvey']}') ?? DateTime.now();
-    final pembantu = info['nipPetugasPembantu'] as String?;
+
+    // PERBAIKAN: Baca sebagai List<String>, bukan String?
+    // Pastikan key-nya sama persis dengan yang dikirim dari _payload di SurveyInfoPage
+    final pembantuList =
+        (info['nipPembantu'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        <String>[];
 
     final sisi = <SisiRequestEntity>[];
     for (final s in sisiList) {
       final r = results[s['seq']];
-      if (r != null) sisi.add(await _sisi(r, s)); // <-- await
+      if (r != null) sisi.add(await _sisi(r, s));
     }
     if (sisi.isEmpty) throw StateError('Belum ada sisi yang disurvey');
 
-    final selfie = await _compress(_req(info, 'selfiePath')); // <-- await
+    final selfie = await _compress(_req(info, 'selfiePath'));
 
     return SimpanSurveyRequestEntity(
       key: _req(info, 'key'),
@@ -132,11 +139,12 @@ class SurveySubmitCubit extends Cubit<bool> {
       longitude: lng,
       sisiList: sisi,
       checkin: CheckinRequestEntity(
-        fileDataFormFile: selfie, // File, bukan Future<File>
+        fileDataFormFile: selfie,
         latitude: lat,
         longitude: lng,
         alamat: '${info['alamat'] ?? '-'}',
-        nipPembantu: [if (pembantu != null && pembantu.isNotEmpty) pembantu],
+        // PERBAIKAN: Langsung masukkan list yang sudah diekstrak
+        nipPembantu: pembantuList,
       ),
     );
   }

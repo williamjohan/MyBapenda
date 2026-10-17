@@ -381,6 +381,11 @@ class _InfoReviewCard extends StatelessWidget {
     final kec = m.optionsOf(MasterOptionType.kecamatan)[kecId] ?? '-';
     final kel = m.kelurahanOf(kecId)[info['kelurahanId']] ?? '-';
 
+    // Petugas pembantu boleh lebih dari satu (list nama dari halaman info).
+    final pembantu = [
+      for (final n in (info['namaPembantu'] as List? ?? const [])) '$n',
+    ];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -436,6 +441,7 @@ class _InfoReviewCard extends StatelessWidget {
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
+          InfoRow(label: 'Alamat', value: '${info['alamat'] ?? '-'}'),
           InfoRow(label: 'Kecamatan', value: kec),
           InfoRow(label: 'Kelurahan', value: kel),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),
@@ -446,7 +452,7 @@ class _InfoReviewCard extends StatelessWidget {
           ),
           InfoRow(
             label: 'Petugas Pembantu',
-            value: '${info['namaPetugasPembantu'] ?? '-'}',
+            value: pembantu.isEmpty ? '-' : pembantu.join(', '),
           ),
           InfoRow(
             label: 'Tanggal Survey',

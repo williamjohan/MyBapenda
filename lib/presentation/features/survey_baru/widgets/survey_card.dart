@@ -1,5 +1,6 @@
 // lib/presentation/features/survey_baru/widgets/survey_card.dart
 import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,7 @@ class _SurveyCardState extends State<SurveyCard> {
         return BapendaStatusTone.success;
       case 'diproses':
         return BapendaStatusTone.warning;
+      case 'pengembalian':
       case 'ditolak':
         return BapendaStatusTone.danger;
       default:
@@ -275,6 +277,18 @@ class _SurveyCardState extends State<SurveyCard> {
 
           const SizedBox(height: 12),
 
+          if (d.showReturnBanner) ...[
+            _ReturnBanner(
+              title: (d.badge?.isVisible ?? false)
+                  ? d.badge!.text
+                  : 'Dikembalikan dari Penilaian',
+              reason: d.ketPengembalian,
+              date: d.tglPengembalian,
+              color: d.badge?.color ?? 'danger',
+            ),
+            const SizedBox(height: 12),
+          ],
+
           // 3. Strip tahap + tenggat (selalu tampil)
           Container(
             width: double.infinity,
@@ -438,9 +452,13 @@ class _SurveyCardState extends State<SurveyCard> {
               const SizedBox(width: 10),
               Expanded(
                 child: Button(
-                  label: 'Mulai Survey',
-                  icon: Icons.arrow_forward_rounded,
-                  iconAtEnd: true,
+                  label: d.dikembalikanPenilaian
+                      ? 'Survey Ulang'
+                      : 'Mulai Survey',
+                  icon: d.dikembalikanPenilaian
+                      ? Icons.replay_rounded
+                      : Icons.arrow_forward_rounded,
+                  iconAtEnd: !d.dikembalikanPenilaian,
                   height: 44,
                   onPressed: widget.onTap,
                 ),
@@ -570,6 +588,82 @@ class _DateCell extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ReturnBanner extends StatelessWidget {
+  final String title;
+  final String? reason;
+  final DateTime? date;
+  final String color;
+
+  const _ReturnBanner({
+    required this.title,
+    required this.reason,
+    required this.date,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final warn = color == 'warning';
+    final fg = warn ? const Color(0xFFB8680F) : const Color(0xFFD81A48);
+    final bg = warn ? const Color(0xFFFFF4E5) : const Color(0xFFFDECEF);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: fg.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.assignment_return_outlined, size: 18, color: fg),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: fg,
+                  ),
+                ),
+                if (reason != null) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    reason!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.4,
+                      color: Color(0xFF3E4C59),
+                    ),
+                  ),
+                ],
+                if (date != null) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    HistoryFmt.tanggalJam(date),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF7B8794),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

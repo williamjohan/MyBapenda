@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bapendacore/core/di/injection.dart';
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart';
@@ -42,13 +44,14 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
   final TextEditingController _tanggalCtrl = TextEditingController();
   final _latCtrl = TextEditingController();
   final _lngCtrl = TextEditingController();
+  final _alamatCtrl = TextEditingController();
   final _rtCtrl = TextEditingController();
   final _rwCtrl = TextEditingController();
   final _imbCtrl = TextEditingController();
   final _blokCtrl = TextEditingController();
   final _petugasCtrl = TextEditingController();
-
   late final PagedSearchCubit<PegawaiSurveyEntity> _pegawaiCubit;
+  final Map<String, String> _namaPembantu = {};
 
   @override
   void initState() {
@@ -64,6 +67,29 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     );
 
     context.read<SurveyInfoCubit>().loadPetugas();
+    final prefill = widget.sisiList.firstOrNull?['infoPrefill'];
+    if (prefill is Map) {
+      final kec = prefill['kecamatanId'] as String?;
+      final nipPembantu = [
+        for (final n in (prefill['nipPembantu'] as List? ?? const [])) '$n',
+      ];
+      context.read<SurveyInfoCubit>().applyPrefill(
+        kecamatanId: kec,
+        kelurahanId: prefill['kelurahanId'] as String?,
+        nipPembantu: nipPembantu,
+      );
+      if (kec != null) context.read<MasterDataCubit>().loadKelurahan(kec);
+      if (nipPembantu.isNotEmpty) unawaited(_resolveNamaPembantu(nipPembantu));
+
+      void put(TextEditingController c, String k) {
+        final v = prefill[k] as String?;
+        if (v != null && v.isNotEmpty) c.text = v;
+      }
+
+      put(_blokCtrl, 'blok');
+      put(_rtCtrl, 'rt');
+      put(_rwCtrl, 'rw');
+    }
     context.read<MasterDataCubit>().loadOption(MasterOptionType.kecamatan);
   }
 
@@ -73,6 +99,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     for (final c in [
       _latCtrl,
       _lngCtrl,
+      _alamatCtrl,
       _rtCtrl,
       _rwCtrl,
       _imbCtrl,
@@ -90,7 +117,34 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  /// NIP dari profil login dan dari daftar pegawai bisa beda format (spasi).
   String _normNip(String? s) => (s ?? '').replaceAll(RegExp(r'\s'), '');
+
+  /// Prefill hanya membawa NIP. Cari namanya (pencarian pegawai berdasarkan
+  /// NIP) supaya chip tidak menampilkan angka. Kalau tidak ketemu, chip tetap
+  /// menampilkan NIP.
+  Future<void> _resolveNamaPembantu(List<String> nips) async {
+    final useCase = getIt<MasterDataUseCase>();
+
+    for (final nip in nips) {
+      if (!mounted) return;
+      if (_namaPembantu.containsKey(nip)) continue;
+
+      final result = await useCase.searchPegawaiSurvey(
+        keyword: nip,
+        page: 1,
+        pageSize: 5,
+      );
+      if (!mounted) return;
+
+      result.fold((_) {}, (page) {
+        final match = page.items
+            .where((e) => _normNip(e.nip) == _normNip(nip))
+            .firstOrNull;
+        if (match != null) setState(() => _namaPembantu[nip] = match.nama);
+      });
+    }
+  }
 
   String? _validate(SurveyInfoState s) {
     if (s.selfiePath == null) return 'Foto selfie wajib diambil';
@@ -115,9 +169,11 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
 
   Map<String, dynamic> _payload(SurveyInfoState s) => {
     'key': widget.surveyKey,
-    'selfiePath': s.selfiePath,
+    'selfiePath': s.selfiePath, // sudah berstamp
     'latitude': s.latitude,
     'longitude': s.longitude,
+    // Alamat hasil reverse geocoding ('-' kalau tidak ditemukan).
+    'alamat': s.address,
     'kecamatanId': s.kecamatanId,
     'kelurahanId': s.kelurahanId,
     'rt': _rtCtrl.text.trim(),
@@ -125,8 +181,9 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
     'blok': _blokCtrl.text.trim(),
     'nipPetugas': s.nipPetugas,
     'namaPetugas': s.namaPetugas,
-    'nipPetugasPembantu': s.nipPetugasPembantu,
-    'namaPetugasPembantu': s.namaPetugasPembantu,
+    // Petugas pembantu (boleh lebih dari satu). Nama hanya untuk tampilan.
+    'nipPembantu': List<String>.of(s.nipPembantu),
+    'namaPembantu': [for (final n in s.nipPembantu) _namaPembantu[n] ?? n],
     'tanggalSurvey': SurveyOptions.isoDate(_tanggal),
   };
 
@@ -149,6 +206,67 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
 
   static const _gap = SizedBox(height: 14);
 
+  /// Petugas pembantu: pilih dari daftar (bisa berkali-kali), hasilnya
+  /// tampil sebagai chip yang bisa dihapus.
+  Widget _buildPembantu(SurveyInfoState info) {
+    final cubit = context.read<SurveyInfoCubit>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MasterPagedSelectField<String, PegawaiSurveyEntity>(
+          cubit: _pegawaiCubit,
+          toOption: (e) =>
+              PagedOption(value: e.nip, label: e.nama, subtitle: e.nip),
+          // Tidak boleh: petugas yang login, dan yang sudah dipilih.
+          excludeWhere: (e) =>
+              (info.nipPetugas != null &&
+                  _normNip(e.nip) == _normNip(info.nipPetugas)) ||
+              info.nipPembantu.any((n) => _normNip(n) == _normNip(e.nip)),
+          label: 'Petugas Pembantu',
+          hint: info.nipPembantu.isEmpty
+              ? 'Pilih petugas pembantu'
+              : 'Tambah petugas pembantu',
+          searchHint: 'Cari nama petugas',
+          mandatory: false,
+          // Selalu kosong: setiap pilihan langsung jadi chip di bawahnya.
+          value: null,
+          valueLabel: null,
+          onChanged: (nip, nama) {
+            setState(() => _namaPembantu[nip] = nama);
+            cubit.addPembantu(nip);
+          },
+        ),
+        if (info.nipPembantu.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final nip in info.nipPembantu)
+                InputChip(
+                  label: Text(
+                    _namaPembantu[nip] ?? nip,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: Color(0xFF1F2933),
+                    ),
+                  ),
+                  backgroundColor: const Color(0xFFFFF3DC),
+                  side: BorderSide.none,
+                  deleteIconColor: const Color(0xFFB8680F),
+                  onDeleted: () {
+                    setState(() => _namaPembantu.remove(nip));
+                    cubit.removePembantu(nip);
+                  },
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
@@ -166,6 +284,11 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
             _latCtrl.text = s.latitude?.toStringAsFixed(6) ?? '';
             _lngCtrl.text = s.longitude?.toStringAsFixed(6) ?? '';
           },
+        ),
+        // Alamat hasil reverse geocoding -> field alamat (read-only).
+        BlocListener<SurveyInfoCubit, SurveyInfoState>(
+          listenWhen: (p, c) => p.address != c.address,
+          listener: (context, s) => _alamatCtrl.text = s.address,
         ),
         BlocListener<SurveyInfoCubit, SurveyInfoState>(
           listenWhen: (p, c) =>
@@ -302,6 +425,14 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                                   ],
                                 ),
                                 _gap,
+                                BapendaTextField(
+                                  label: 'Alamat',
+                                  controller: _alamatCtrl,
+                                  readOnly: true,
+                                  maxLines: 2,
+                                  hint: '-',
+                                ),
+                                _gap,
                                 BtSelectField<String>(
                                   // Key ikut jumlah item & nilai supaya field
                                   // ter-refresh saat selesai dimuat / autofill.
@@ -398,32 +529,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                                   mandatory: true,
                                 ),
                                 _gap,
-                                MasterPagedSelectField<
-                                  String,
-                                  PegawaiSurveyEntity
-                                >(
-                                  cubit: _pegawaiCubit,
-                                  toOption: (e) => PagedOption(
-                                    value: e.nip,
-                                    label: e.nama,
-                                    subtitle: e.nip,
-                                  ),
-                                  // Petugas yang login tidak boleh jadi
-                                  // pembantunya sendiri.
-                                  excludeWhere: (e) =>
-                                      info.nipPetugas != null &&
-                                      _normNip(e.nip) ==
-                                          _normNip(info.nipPetugas),
-                                  label: 'Petugas Pembantu',
-                                  hint: 'Pilih petugas pembantu',
-                                  searchHint: 'Cari nama petugas',
-                                  mandatory: false,
-                                  value: info.nipPetugasPembantu,
-                                  valueLabel: info.namaPetugasPembantu,
-                                  onChanged: (nip, nama) => context
-                                      .read<SurveyInfoCubit>()
-                                      .setPetugasPembantu(nip, nama),
-                                ),
+                                _buildPembantu(info),
                                 _gap,
                                 BapendaTextField(
                                   label: 'Tanggal Survey',
