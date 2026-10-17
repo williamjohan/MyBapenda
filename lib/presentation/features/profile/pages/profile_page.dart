@@ -1,17 +1,26 @@
 // lib/presentation/features/profile/pages/profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/design_system/tokens/app_palette.dart';
+import '../../../../core/utils/app_file_picker_utils.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../domain/entities/profile/jenis_kontak.dart';
+import '../../../../domain/entities/profile/kontak_profil_entity.dart';
 import '../../../../domain/entities/users/user_entity.dart';
+import '../../../../routes/app_routes.dart';
 import '../../../shared/utils/date_util.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
+import '../../../shared/widgets/bt_image_compressor.dart';
 import '../../../shared/widgets/button.dart';
 import '../../../shared/widgets/theme_toggle_button.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
+import '../widgets/foto_sumber_sheet.dart';
 import '../widgets/profile_header_card.dart';
 import '../widgets/profile_info_section.dart';
+import '../widgets/profile_kontak_tile.dart';
 
 /// Profil pegawai dari `/api/profile`.
 class ProfilePage extends StatelessWidget {
@@ -31,17 +40,52 @@ class ProfilePage extends StatelessWidget {
       );
   }
 
+  /// Pilih kamera / galeri -> kompres JPEG (server menolak > 2 MB) -> unggah.
+  Future<void> _gantiFoto(BuildContext context) async {
+    final cubit = context.read<ProfileCubit>();
+    final kamera = await FotoSumberSheet.show(context);
+    if (kamera == null) return;
+
+    try {
+      final file = await AppFilePickerUtils.pickImage(fromCamera: kamera);
+      if (file == null) return;
+      final path = await BtImageCompressor.toJpeg(
+        file.path,
+        maxBytes: 1024 * 1024,
+      );
+      await cubit.gantiFoto(path);
+    } catch (e, st) {
+      AppLogger.error('Gagal menyiapkan foto profil', e, st);
+      if (!context.mounted) return;
+      _snack(context, e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  Future<void> _ubahKontak(
+    BuildContext context,
+    UserEntity user,
+    JenisKontak kontak,
+  ) async {
+    final cubit = context.read<ProfileCubit>();
+    final hasil = await context.push<KontakProfilEntity>(
+      AppRoutes.profileKontak,
+      extra: (kontak: kontak, nilaiSekarang: user.kontak(kontak)),
+    );
+    if (hasil != null) await cubit.kontakDiperbarui(hasil);
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
 
     return BlocConsumer<ProfileCubit, ProfileState>(
       listenWhen: (prev, curr) =>
-          curr.error != null &&
-          curr.error != prev.error &&
-          curr.status == ProfileStatus.ready,
+          (curr.error != null &&
+              curr.error != prev.error &&
+              curr.status == ProfileStatus.ready) ||
+          (curr.info != null && curr.info != prev.info),
       // Data cache tetap tampil, gagal refresh cukup diberi tahu.
-      listener: (context, state) => _snack(context, state.error!),
+      listener: (context, state) => _snack(context, state.error ?? state.info!),
       builder: (context, state) {
         return Scaffold(
           backgroundColor: palette.background,
@@ -93,18 +137,22 @@ class ProfilePage extends StatelessWidget {
     return [
       SliverPadding(
         padding: const EdgeInsets.all(16),
-        sliver: SliverList.list(children: _sections(context, user)),
+        sliver: SliverList.list(children: _sections(context, state, user)),
       ),
     ];
   }
 
-  List<Widget> _sections(BuildContext context, UserEntity user) {
+  List<Widget> _sections(
+    BuildContext context,
+    ProfileState state,
+    UserEntity user,
+  ) {
     return [
       ProfileHeaderCard(
         user: user,
-        // TODO: sambungkan ke API ubah foto profil saat sudah tersedia.
-        onEditPhoto: () =>
-            _snack(context, 'Fitur ubah foto profil segera hadir.'),
+        fotoVersi: state.fotoVersi,
+        uploadingFoto: state.uploadingFoto,
+        onEditPhoto: () => _gantiFoto(context),
       ),
       const SizedBox(height: 20),
       ProfileInfoSection(
@@ -138,9 +186,16 @@ class ProfilePage extends StatelessWidget {
       ProfileInfoSection(
         title: 'Kontak',
         icon: Icons.contact_phone_outlined,
+        leading: [
+          for (final kontak in JenisKontak.values)
+            ProfileKontakTile(
+              kontak: kontak,
+              value: user.kontak(kontak),
+              terverifikasi: user.kontakTerverifikasi(kontak),
+              onUbah: () => _ubahKontak(context, user, kontak),
+            ),
+        ],
         items: [
-          (icon: Icons.mail_outline_rounded, label: 'Email', value: user.email),
-          (icon: Icons.phone_outlined, label: 'No. HP', value: user.hp),
           (
             icon: Icons.location_on_outlined,
             label: 'Alamat',

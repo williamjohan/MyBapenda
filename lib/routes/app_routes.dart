@@ -4,6 +4,7 @@ class AppRoutes {
   static const String onboarding = '/onboarding';
   static const String home = '/home';
   static const String profile = '/profile';
+  static const String profileKontak = '/profile/kontak';
   static const String camera = '/camera';
   static const String map = '/map';
   static const String detail = '/detail';

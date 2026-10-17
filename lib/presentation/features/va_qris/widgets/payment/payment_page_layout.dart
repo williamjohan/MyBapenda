@@ -12,6 +12,7 @@ import 'payment_action_bar.dart';
 import 'payment_amount_header.dart';
 import 'payment_countdown_timer.dart';
 import 'payment_guide_section.dart';
+import 'payment_share.dart';
 import 'payment_summary_card.dart';
 
 typedef PaymentCardBuilder =
@@ -49,18 +50,6 @@ class PaymentPageLayout extends StatelessWidget {
   // TODO(tech-debt): naikkan kecerahan layar & tahan layar tetap menyala
   // selama QR/VA tampil (screen_brightness + wakelock_plus), lalu pulihkan
   // saat keluar.
-
-  void _handleShare(BuildContext context, PaymentSessionEntity session) {
-    // TODO(tech-debt): AppShareUtils saat ini hanya mendukung file. Tambah
-    // AppShareUtils.shareText() atau render kartu QR ke gambar, lalu panggil
-    // di sini.
-    AppLogger.info('Bagikan ${session.method.label} (placeholder)');
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(content: Text('Fitur bagikan belum tersedia')),
-      );
-  }
 
   Future<bool> _confirmExit(BuildContext context) async {
     final leave = await showDialog<bool>(
@@ -175,7 +164,7 @@ class PaymentPageLayout extends StatelessWidget {
               bottomNavigationBar: PaymentActionBar(
                 shareLabel: shareLabel,
                 isExpired: isExpired,
-                onShare: () => _handleShare(context, current),
+                onShare: () => PaymentShare.share(context, current),
               ),
             ),
           );
