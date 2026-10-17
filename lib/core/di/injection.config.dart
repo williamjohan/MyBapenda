@@ -111,6 +111,8 @@ import '../../presentation/features/pengiriman/utils/pengiriman_foto.dart'
 import '../../presentation/features/profile/cubit/profile_cubit.dart' as _i239;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
+import '../../presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart'
+    as _i5;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
 import '../../presentation/shared/master_data/data/datasources/master_local_datasource.dart'
     as _i30;
@@ -203,6 +205,10 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i817.DioAuthInterceptor>(
         () => _i817.DioAuthInterceptor(gh<_i233.AppSecureStorage>()));
+    gh.factory<_i5.SurveyLokasiCubit>(() => _i5.SurveyLokasiCubit(
+          gh<_i869.GeoLocationService>(),
+          gh<_i904.GeocodingRepository>(),
+        ));
     gh.lazySingleton<_i361.Dio>(() => registerModule.getDio(
           gh<_i817.DioAuthInterceptor>(),
           gh<_i370.HmacKantorInterceptor>(),
