@@ -7,10 +7,19 @@ import '../../models/va_qris/payment_nominal_check_model.dart';
 import '../../models/va_qris/payment_session_model.dart';
 import '../../models/va_qris/payment_status_model.dart';
 import '../../models/va_qris/tax_billing_model.dart';
+import '../../models/va_qris/tax_object_model.dart';
 import '../../models/va_qris/tax_type_model.dart';
 
 abstract class IVaQrisRemoteDataSource {
   Future<List<TaxTypeModel>> getTaxTypes();
+
+  /// "Cari objek pajak" berdasarkan nama / alamat / NOP (berhalaman), semua
+  /// jenis pajak beserta jumlah per jenisnya.
+  Future<TaxObjectSearchModel> searchObjects({
+    required String keyword,
+    required int page,
+    required int pageSize,
+  });
 
   Future<TaxBillingModel> getBilling({
     required int taxTypeId,
@@ -49,6 +58,29 @@ class VaQrisRemoteDataSourceImpl implements IVaQrisRemoteDataSource {
     }
 
     return baseResponse.data ?? [];
+  }
+
+  @override
+  Future<TaxObjectSearchModel> searchObjects({
+    required String keyword,
+    required int page,
+    required int pageSize,
+  }) async {
+    final response = await _dio.get(
+      ApiEndpoints.pembayaranCariObjek,
+      queryParameters: {'keyword': keyword, 'page': page, 'pageSize': pageSize},
+    );
+
+    final baseResponse = BaseApiResponseModel<TaxObjectSearchModel>.fromJson(
+      response.data,
+      (json) => TaxObjectSearchModel.fromJson(json as Map<String, dynamic>),
+    );
+
+    if (!baseResponse.isSuccess || baseResponse.data == null) {
+      throw ServerException(baseResponse.status, baseResponse.errorMessage);
+    }
+
+    return baseResponse.data!;
   }
 
   @override

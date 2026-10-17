@@ -43,6 +43,9 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Dipanggil setelah reset password berhasil; router lanjut ke home.
+  void passwordResetCompleted() => emit(const AuthAuthenticated());
+
   Future<void> logout() async {
     try {
       await authUseCase.logout();

@@ -1,6 +1,7 @@
 // lib/presentation/features/va_qris/cubit/va_qris_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../domain/entities/va_qris/payment_session_entity.dart';
+import '../../../../domain/entities/va_qris/recent_reference_entity.dart';
 import '../../../../domain/entities/va_qris/tax_billing_entity.dart';
 import '../../../../domain/entities/va_qris/tax_period_entity.dart';
 import '../../../../domain/entities/va_qris/tax_type_entity.dart';
@@ -21,18 +22,33 @@ class VaQrisState with _$VaQrisState {
     TaxTypeEntity? selectedTaxType,
     TaxBillingEntity? billing,
 
-    /// Jumlah masa terlama yang dipilih (lihat PeriodSelectionLogic).
-    @Default(0) int selectedCount,
+    /// `key` masa belum lunas yang dicentang; boleh yang mana saja (tidak
+    /// harus berurutan).
+    @Default(<String>{}) Set<String> selectedKeys,
     @Default(false) bool confirming,
     PaymentSessionEntity? session,
     @Default(PaymentSessionStatus.pending) PaymentSessionStatus sessionStatus,
     String? errorMessage,
+
+    /// Riwayat "Terakhir dicari" (NOP saja, tanpa Reklame), terbaru dulu.
+    @Default(<RecentReferenceEntity>[]) List<RecentReferenceEntity> recent,
   }) = _VaQrisState;
 
+  /// Masa terpilih, tetap urut dari yang terlama (urutan dari API).
   List<TaxPeriodEntity> get selectedPeriods =>
       (billing?.unpaidPeriods ?? const <TaxPeriodEntity>[])
-          .take(selectedCount)
+          .where((p) => selectedKeys.contains(p.key))
           .toList();
+
+  int get selectedCount => selectedPeriods.length;
+
+  /// Semua masa belum lunas sudah dicentang (untuk tombol "Pilih semua").
+  bool get allPeriodsSelected {
+    final payable = (billing?.unpaidPeriods ?? const <TaxPeriodEntity>[]).where(
+      (p) => p.key != null,
+    );
+    return payable.isNotEmpty && selectedCount == payable.length;
+  }
 
   // Rincian masa terpilih untuk bar total & cek nominal (nilai per masa dari API)
   int get selectedTotal => selectedPeriods.fold(0, (sum, p) => sum + p.total);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/design_system/tokens/app_palette.dart';
+import '../../../../routes/app_routes.dart';
 import '../../profile/widgets/logout_bottom_widget.dart';
 
 class HomeBapendaCoreDrawer extends StatelessWidget {
@@ -95,6 +97,21 @@ class HomeBapendaCoreDrawer extends StatelessWidget {
                 style: TextStyle(color: context.palette.textPrimary),
               ),
               onTap: () => Navigator.of(context).pop(),
+            ),
+
+            ListTile(
+              leading: Icon(
+                Icons.person_outline_rounded,
+                color: context.palette.textSecondary,
+              ),
+              title: Text(
+                'Profil',
+                style: TextStyle(color: context.palette.textPrimary),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.push(AppRoutes.profile);
+              },
             ),
 
             const Spacer(),

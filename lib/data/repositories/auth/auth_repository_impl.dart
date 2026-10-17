@@ -1,12 +1,15 @@
 import 'dart:convert';
 
+import 'package:bapendacore/core/errors/exception.dart';
+import 'package:bapendacore/core/errors/failure.dart';
+import 'package:bapendacore/core/network/safe_api_call.dart';
 import 'package:bapendacore/core/storage/app_secure_storage.dart';
 import 'package:bapendacore/data/datasources/auth/auth_remote_datasource.dart';
 import 'package:bapendacore/data/models/auth/auth_model.dart';
 import 'package:bapendacore/data/models/users/user_model.dart';
 import 'package:bapendacore/domain/entities/auth/auth_entity.dart';
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
 import 'package:bapendacore/domain/repositories/auth/auth_repository.dart';
+import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AuthRepository)
@@ -44,19 +47,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity?> getCurrentUserProfile() async {
-    final json = await _securePreference.getUserProfile();
-
-    if (json == null || json.isEmpty) {
-      return null;
-    }
-
-    final map = jsonDecode(json) as Map<String, dynamic>;
-
-    return UserModel.fromJson(map).toEntity();
-  }
-
-  @override
   Future<bool> getCurrentSession() async {
     final token = await _securePreference.getAccessToken();
     return token != null && token.isNotEmpty;
@@ -67,5 +57,5 @@ class AuthRepositoryImpl implements AuthRepository {
       _securePreference.getMustChangePassword();
 
   @override
-  Future<void> logout() => _securePreference.clearSessionData();
+  Future<void> logout() => _securePreference.clearAllSecureData();
 }

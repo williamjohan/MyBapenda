@@ -21,12 +21,16 @@ mixin _$VaQrisState {
   TaxTypeEntity? get selectedTaxType => throw _privateConstructorUsedError;
   TaxBillingEntity? get billing => throw _privateConstructorUsedError;
 
-  /// Jumlah masa terlama yang dipilih (lihat PeriodSelectionLogic).
-  int get selectedCount => throw _privateConstructorUsedError;
+  /// `key` masa belum lunas yang dicentang; boleh yang mana saja (tidak
+  /// harus berurutan).
+  Set<String> get selectedKeys => throw _privateConstructorUsedError;
   bool get confirming => throw _privateConstructorUsedError;
   PaymentSessionEntity? get session => throw _privateConstructorUsedError;
   PaymentSessionStatus get sessionStatus => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
+
+  /// Riwayat "Terakhir dicari" (NOP saja, tanpa Reklame), terbaru dulu.
+  List<RecentReferenceEntity> get recent => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $VaQrisStateCopyWith<VaQrisState> get copyWith =>
@@ -44,11 +48,12 @@ abstract class $VaQrisStateCopyWith<$Res> {
       List<TaxTypeEntity> taxTypes,
       TaxTypeEntity? selectedTaxType,
       TaxBillingEntity? billing,
-      int selectedCount,
+      Set<String> selectedKeys,
       bool confirming,
       PaymentSessionEntity? session,
       PaymentSessionStatus sessionStatus,
-      String? errorMessage});
+      String? errorMessage,
+      List<RecentReferenceEntity> recent});
 }
 
 /// @nodoc
@@ -68,11 +73,12 @@ class _$VaQrisStateCopyWithImpl<$Res, $Val extends VaQrisState>
     Object? taxTypes = null,
     Object? selectedTaxType = freezed,
     Object? billing = freezed,
-    Object? selectedCount = null,
+    Object? selectedKeys = null,
     Object? confirming = null,
     Object? session = freezed,
     Object? sessionStatus = null,
     Object? errorMessage = freezed,
+    Object? recent = null,
   }) {
     return _then(_value.copyWith(
       status: null == status
@@ -91,10 +97,10 @@ class _$VaQrisStateCopyWithImpl<$Res, $Val extends VaQrisState>
           ? _value.billing
           : billing // ignore: cast_nullable_to_non_nullable
               as TaxBillingEntity?,
-      selectedCount: null == selectedCount
-          ? _value.selectedCount
-          : selectedCount // ignore: cast_nullable_to_non_nullable
-              as int,
+      selectedKeys: null == selectedKeys
+          ? _value.selectedKeys
+          : selectedKeys // ignore: cast_nullable_to_non_nullable
+              as Set<String>,
       confirming: null == confirming
           ? _value.confirming
           : confirming // ignore: cast_nullable_to_non_nullable
@@ -111,6 +117,10 @@ class _$VaQrisStateCopyWithImpl<$Res, $Val extends VaQrisState>
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
               as String?,
+      recent: null == recent
+          ? _value.recent
+          : recent // ignore: cast_nullable_to_non_nullable
+              as List<RecentReferenceEntity>,
     ) as $Val);
   }
 }
@@ -128,11 +138,12 @@ abstract class _$$VaQrisStateImplCopyWith<$Res>
       List<TaxTypeEntity> taxTypes,
       TaxTypeEntity? selectedTaxType,
       TaxBillingEntity? billing,
-      int selectedCount,
+      Set<String> selectedKeys,
       bool confirming,
       PaymentSessionEntity? session,
       PaymentSessionStatus sessionStatus,
-      String? errorMessage});
+      String? errorMessage,
+      List<RecentReferenceEntity> recent});
 }
 
 /// @nodoc
@@ -150,11 +161,12 @@ class __$$VaQrisStateImplCopyWithImpl<$Res>
     Object? taxTypes = null,
     Object? selectedTaxType = freezed,
     Object? billing = freezed,
-    Object? selectedCount = null,
+    Object? selectedKeys = null,
     Object? confirming = null,
     Object? session = freezed,
     Object? sessionStatus = null,
     Object? errorMessage = freezed,
+    Object? recent = null,
   }) {
     return _then(_$VaQrisStateImpl(
       status: null == status
@@ -173,10 +185,10 @@ class __$$VaQrisStateImplCopyWithImpl<$Res>
           ? _value.billing
           : billing // ignore: cast_nullable_to_non_nullable
               as TaxBillingEntity?,
-      selectedCount: null == selectedCount
-          ? _value.selectedCount
-          : selectedCount // ignore: cast_nullable_to_non_nullable
-              as int,
+      selectedKeys: null == selectedKeys
+          ? _value._selectedKeys
+          : selectedKeys // ignore: cast_nullable_to_non_nullable
+              as Set<String>,
       confirming: null == confirming
           ? _value.confirming
           : confirming // ignore: cast_nullable_to_non_nullable
@@ -193,6 +205,10 @@ class __$$VaQrisStateImplCopyWithImpl<$Res>
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
               as String?,
+      recent: null == recent
+          ? _value._recent
+          : recent // ignore: cast_nullable_to_non_nullable
+              as List<RecentReferenceEntity>,
     ));
   }
 }
@@ -205,12 +221,16 @@ class _$VaQrisStateImpl extends _VaQrisState {
       final List<TaxTypeEntity> taxTypes = const <TaxTypeEntity>[],
       this.selectedTaxType,
       this.billing,
-      this.selectedCount = 0,
+      final Set<String> selectedKeys = const <String>{},
       this.confirming = false,
       this.session,
       this.sessionStatus = PaymentSessionStatus.pending,
-      this.errorMessage})
+      this.errorMessage,
+      final List<RecentReferenceEntity> recent =
+          const <RecentReferenceEntity>[]})
       : _taxTypes = taxTypes,
+        _selectedKeys = selectedKeys,
+        _recent = recent,
         super._();
 
   @override
@@ -230,10 +250,20 @@ class _$VaQrisStateImpl extends _VaQrisState {
   @override
   final TaxBillingEntity? billing;
 
-  /// Jumlah masa terlama yang dipilih (lihat PeriodSelectionLogic).
+  /// `key` masa belum lunas yang dicentang; boleh yang mana saja (tidak
+  /// harus berurutan).
+  final Set<String> _selectedKeys;
+
+  /// `key` masa belum lunas yang dicentang; boleh yang mana saja (tidak
+  /// harus berurutan).
   @override
   @JsonKey()
-  final int selectedCount;
+  Set<String> get selectedKeys {
+    if (_selectedKeys is EqualUnmodifiableSetView) return _selectedKeys;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(_selectedKeys);
+  }
+
   @override
   @JsonKey()
   final bool confirming;
@@ -245,9 +275,21 @@ class _$VaQrisStateImpl extends _VaQrisState {
   @override
   final String? errorMessage;
 
+  /// Riwayat "Terakhir dicari" (NOP saja, tanpa Reklame), terbaru dulu.
+  final List<RecentReferenceEntity> _recent;
+
+  /// Riwayat "Terakhir dicari" (NOP saja, tanpa Reklame), terbaru dulu.
+  @override
+  @JsonKey()
+  List<RecentReferenceEntity> get recent {
+    if (_recent is EqualUnmodifiableListView) return _recent;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_recent);
+  }
+
   @override
   String toString() {
-    return 'VaQrisState(status: $status, taxTypes: $taxTypes, selectedTaxType: $selectedTaxType, billing: $billing, selectedCount: $selectedCount, confirming: $confirming, session: $session, sessionStatus: $sessionStatus, errorMessage: $errorMessage)';
+    return 'VaQrisState(status: $status, taxTypes: $taxTypes, selectedTaxType: $selectedTaxType, billing: $billing, selectedKeys: $selectedKeys, confirming: $confirming, session: $session, sessionStatus: $sessionStatus, errorMessage: $errorMessage, recent: $recent)';
   }
 
   @override
@@ -260,15 +302,16 @@ class _$VaQrisStateImpl extends _VaQrisState {
             (identical(other.selectedTaxType, selectedTaxType) ||
                 other.selectedTaxType == selectedTaxType) &&
             (identical(other.billing, billing) || other.billing == billing) &&
-            (identical(other.selectedCount, selectedCount) ||
-                other.selectedCount == selectedCount) &&
+            const DeepCollectionEquality()
+                .equals(other._selectedKeys, _selectedKeys) &&
             (identical(other.confirming, confirming) ||
                 other.confirming == confirming) &&
             (identical(other.session, session) || other.session == session) &&
             (identical(other.sessionStatus, sessionStatus) ||
                 other.sessionStatus == sessionStatus) &&
             (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage));
+                other.errorMessage == errorMessage) &&
+            const DeepCollectionEquality().equals(other._recent, _recent));
   }
 
   @override
@@ -278,11 +321,12 @@ class _$VaQrisStateImpl extends _VaQrisState {
       const DeepCollectionEquality().hash(_taxTypes),
       selectedTaxType,
       billing,
-      selectedCount,
+      const DeepCollectionEquality().hash(_selectedKeys),
       confirming,
       session,
       sessionStatus,
-      errorMessage);
+      errorMessage,
+      const DeepCollectionEquality().hash(_recent));
 
   @JsonKey(ignore: true)
   @override
@@ -297,11 +341,12 @@ abstract class _VaQrisState extends VaQrisState {
       final List<TaxTypeEntity> taxTypes,
       final TaxTypeEntity? selectedTaxType,
       final TaxBillingEntity? billing,
-      final int selectedCount,
+      final Set<String> selectedKeys,
       final bool confirming,
       final PaymentSessionEntity? session,
       final PaymentSessionStatus sessionStatus,
-      final String? errorMessage}) = _$VaQrisStateImpl;
+      final String? errorMessage,
+      final List<RecentReferenceEntity> recent}) = _$VaQrisStateImpl;
   const _VaQrisState._() : super._();
 
   @override
@@ -314,8 +359,9 @@ abstract class _VaQrisState extends VaQrisState {
   TaxBillingEntity? get billing;
   @override
 
-  /// Jumlah masa terlama yang dipilih (lihat PeriodSelectionLogic).
-  int get selectedCount;
+  /// `key` masa belum lunas yang dicentang; boleh yang mana saja (tidak
+  /// harus berurutan).
+  Set<String> get selectedKeys;
   @override
   bool get confirming;
   @override
@@ -324,6 +370,10 @@ abstract class _VaQrisState extends VaQrisState {
   PaymentSessionStatus get sessionStatus;
   @override
   String? get errorMessage;
+  @override
+
+  /// Riwayat "Terakhir dicari" (NOP saja, tanpa Reklame), terbaru dulu.
+  List<RecentReferenceEntity> get recent;
   @override
   @JsonKey(ignore: true)
   _$$VaQrisStateImplCopyWith<_$VaQrisStateImpl> get copyWith =>

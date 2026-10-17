@@ -30,6 +30,13 @@ android {
         targetSdk = flutter.targetSdkVersion 
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // API key Maps SDK for Android dari .env (CI menulis .env dari secret).
+        val envProps = Properties()
+        val envFile = rootProject.file("../.env")
+        if (envFile.exists()) envFile.inputStream().use { envProps.load(it) }
+        manifestPlaceholders["googleMapsApiKey"] =
+            envProps.getProperty("GOOGLE_MAPS_API_KEY", "").trim('"', ' ')
     }
 
     // 🚀 BACA KEYSTORE (Tetap gunakan file() karena di Bapenda ada di folder 'app')

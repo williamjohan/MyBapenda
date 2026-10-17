@@ -47,13 +47,38 @@ import '../presentation/features/cek_reklame/screens/ambil_gambar_reklame/reklam
 import '../presentation/features/home/cubit/home_cubit.dart';
 import '../presentation/features/home/pages/home_page.dart';
 import '../presentation/features/my_task/pages/my_task_dashboard_page.dart';
+import '../presentation/features/profile/cubit/profile_cubit.dart';
+import '../presentation/features/profile/pages/profile_page.dart';
+import '../presentation/features/profile/cubit/ubah_kontak_cubit.dart';
+import '../presentation/features/profile/pages/ubah_kontak_page.dart';
+import '../domain/entities/profile/jenis_kontak.dart';
 import '../presentation/features/my_task/pages/my_task_detail_page.dart';
 import '../presentation/features/my_task/pages/my_task_success_page.dart';
 import '../presentation/features/my_task/pages/my_task_work_page.dart';
+import '../presentation/features/pengiriman/cubit/daftar_tugas/daftar_tugas_cubit.dart';
+import '../presentation/features/pengiriman/cubit/detail_berkas/detail_berkas_cubit.dart';
+import '../presentation/features/pengiriman/cubit/lacak/lacak_cubit.dart';
+import '../presentation/features/pengiriman/pages/daftar_tugas_page.dart';
+import '../presentation/features/pengiriman/pages/detail_berkas_page.dart';
+import '../presentation/features/pengiriman/pages/lacak_page.dart';
+import '../presentation/features/pengiriman/pages/pantau_page.dart';
+import '../domain/entities/pengiriman/berkas_entity.dart';
+import '../domain/entities/pengiriman/pengiriman_payload_entity.dart';
+import '../presentation/features/pengiriman/cubit/aksi/aksi_cubit.dart';
+import '../presentation/features/pengiriman/pages/aksi/checkin_page.dart';
+import '../presentation/features/pengiriman/pages/aksi/gagal_page.dart';
+import '../presentation/features/pengiriman/pages/aksi/scan_berkas_page.dart';
+import '../presentation/features/pengiriman/pages/aksi/serah_page.dart';
+import '../presentation/features/pengiriman/pages/antrean_page.dart';
+import '../presentation/features/pengiriman/cubit/pantau/pantau_cubit.dart';
 import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
 import '../presentation/features/splashscreen/pages/splash_page.dart';
 import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
+import '../presentation/features/auth/cubit/lupa_password_cubit.dart';
+import '../presentation/features/auth/pages/lupa_password_page.dart';
+import '../presentation/features/auth/cubit/reset_password_cubit.dart';
+import '../presentation/features/auth/pages/reset_password_page.dart';
 import '../presentation/features/camera/cubit/camera_cubit.dart';
 import '../presentation/features/camera/pages/camera_page.dart';
 import '../presentation/features/va_qris/cubit/va_qris_cubit.dart';
@@ -62,6 +87,9 @@ import '../presentation/features/va_qris/pages/qris_payment_page.dart';
 import '../presentation/features/va_qris/pages/va_payment_page.dart';
 import '../presentation/features/va_qris/pages/va_qris_billing_page.dart';
 import '../presentation/features/va_qris/pages/va_qris_nop_page.dart';
+import '../presentation/features/notifikasi/cubit/notifikasi_badge_cubit.dart';
+import '../presentation/features/notifikasi/cubit/notifikasi_cubit.dart';
+import '../presentation/features/notifikasi/pages/notifikasi_page.dart';
 
 import 'app_routes.dart';
 
@@ -72,15 +100,25 @@ class AppRouter {
   static final GlobalKey<NavigatorState> rootNavigatorKey =
       GlobalKey<NavigatorState>();
 
+  /// Lokasi deep link yang dibuka sebelum login; dituju setelah login.
+  static String? _tujuanTertunda;
+
+  /// Fallback halaman aksi pengiriman bila `extra` hilang (restore).
+  static Widget _daftarTugas() => BlocProvider(
+    create: (_) => getIt<DaftarTugasCubit>()..load(),
+    child: const AdaptiveThemeScope(child: DaftarTugasPage()),
+  );
+
   static const List<String> _publicRoutes = [
     AppRoutes.splashscreen,
     AppRoutes.onboarding,
     AppRoutes.login,
+    AppRoutes.lupaPassword,
   ];
 
   static Widget _vaQrisNopPage() => BlocProvider(
     create: (_) => getIt<VaQrisCubit>()..init(),
-    child: const VaQrisNopPage(),
+    child: const AdaptiveThemeScope(child: VaQrisNopPage()),
   );
 
   static final GoRouter router = GoRouter(
@@ -98,15 +136,36 @@ class AppRouter {
 
       if (location == AppRoutes.splashscreen) return null;
 
+      // Login pakai reset key: wajib ganti kata sandi dulu.
+      if (authState is AuthNeedsPasswordReset) {
+        return location == AppRoutes.resetPassword
+            ? null
+            : AppRoutes.resetPassword;
+      }
+
       final isAuthenticated = authState is AuthAuthenticated;
       final isPublicRoute = _publicRoutes.contains(location);
 
       if (!isAuthenticated && !isPublicRoute) {
+        // Deep link lacak saat belum login (atau sesi belum dicek):
+        // simpan, lanjutkan setelah login.
+        if (location.startsWith('/lacak/') ||
+            location.startsWith('${AppRoutes.home}/lacak/')) {
+          _tujuanTertunda = state.uri.toString();
+        }
         return AppRoutes.login;
       }
 
+      final tujuan = _tujuanTertunda;
+      if (isAuthenticated && tujuan != null) {
+        _tujuanTertunda = null;
+        return tujuan;
+      }
+
       if (isAuthenticated &&
-          (location == AppRoutes.login || location == AppRoutes.onboarding)) {
+          (location == AppRoutes.login ||
+              location == AppRoutes.onboarding ||
+              location == AppRoutes.resetPassword)) {
         return AppRoutes.home;
       }
 
@@ -136,19 +195,110 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: AppRoutes.lupaPassword,
+        name: AppRoutes.lupaPassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<LupaPasswordCubit>(),
+          child: const LupaPasswordPage(),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        name: AppRoutes.resetPassword,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ResetPasswordCubit>(),
+          child: const ResetPasswordPage(),
+        ),
+      ),
+
+      GoRoute(
         path: AppRoutes.home,
         name: AppRoutes.home,
         pageBuilder: (context, state) {
           return CustomTransitionPage(
             key: state.pageKey,
-            child: BlocProvider<HomeCubit>(
-              create: (_) => getIt<HomeCubit>()..onPageOpened(),
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider<HomeCubit>(
+                  create: (_) => getIt<HomeCubit>()..onPageOpened(),
+                ),
+                BlocProvider<NotifikasiBadgeCubit>(
+                  create: (_) => getIt<NotifikasiBadgeCubit>(),
+                ),
+              ],
               child: const AdaptiveThemeScope(child: HomePage()),
             ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
                   return FadeTransition(opacity: animation, child: child);
                 },
+          );
+        },
+        routes: [
+          // Tujuan deep link lacak: di bawah home supaya tombol kembali
+          // berakhir di Home.
+          GoRoute(
+            path: 'lacak/:kode',
+            builder: (context, state) => BlocProvider(
+              create: (_) =>
+                  getIt<LacakCubit>()..lacak(state.pathParameters['kode']!),
+              child: const AdaptiveThemeScope(child: LacakPage()),
+            ),
+          ),
+        ],
+      ),
+
+      // App Link QR surat (`/lacak/{noResi}`) → lacak di bawah Home.
+      GoRoute(
+        path: AppRoutes.lacakDeepLink,
+        redirect: (context, state) =>
+            '${AppRoutes.home}/lacak/'
+            '${Uri.encodeComponent(state.pathParameters['kode']!)}',
+      ),
+
+      //  CEK REKLAME
+      GoRoute(
+        path: AppRoutes.reklameDashboard,
+        name: AppRoutes.reklameDashboard,
+        builder: (context, state) => const ReklameDashboardPage(),
+      ),
+
+      //  CAMERA PAGE
+      GoRoute(
+        path: AppRoutes.camera,
+        name: AppRoutes.camera,
+        builder: (context, state) {
+          return BlocProvider<CameraCubit>(
+            // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
+            create: (_) => getIt<CameraCubit>()..start(),
+            child: const CameraPage(),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.profile,
+        name: AppRoutes.profile,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<ProfileCubit>()..load(),
+          child: const AdaptiveThemeScope(child: ProfilePage()),
+        ),
+      ),
+
+      GoRoute(
+        path: AppRoutes.profileKontak,
+        name: AppRoutes.profileKontak,
+        builder: (context, state) {
+          // extra hilang saat deep link / restore -> default email kosong.
+          final extra = state.extra;
+          final args = extra is ({JenisKontak kontak, String nilaiSekarang})
+              ? extra
+              : (kontak: JenisKontak.email, nilaiSekarang: '');
+          return BlocProvider(
+            create: (_) => getIt<UbahKontakCubit>()
+              ..mulai(kontak: args.kontak, nilaiSekarang: args.nilaiSekarang),
+            child: const AdaptiveThemeScope(child: UbahKontakPage()),
           );
         },
       ),
@@ -424,12 +574,6 @@ class AppRouter {
         },
       ),
 
-      // ======================================================
-      // VA & QRIS
-      // Tiap route membuat VaQrisCubit sendiri dan mengisinya dari `extra`.
-      // TODO(tech-debt): `extra` hilang saat deep link / restore state.
-      // Jika extra tidak sesuai, kembali ke layar input NOP.
-      // ======================================================
       GoRoute(
         path: AppRoutes.nop,
         name: AppRoutes.nop,
@@ -444,7 +588,7 @@ class AppRouter {
           return billing is TaxBillingEntity
               ? BlocProvider(
                   create: (_) => getIt<VaQrisCubit>()..loadBilling(billing),
-                  child: const VaQrisBillingPage(),
+                  child: const AdaptiveThemeScope(child: VaQrisBillingPage()),
                 )
               : _vaQrisNopPage();
         },
@@ -458,7 +602,9 @@ class AppRouter {
           return session is PaymentSessionEntity
               ? BlocProvider(
                   create: (_) => getIt<VaQrisCubit>()..startSession(session),
-                  child: QrisPaymentPage(session: session),
+                  child: AdaptiveThemeScope(
+                    child: QrisPaymentPage(session: session),
+                  ),
                 )
               : _vaQrisNopPage();
         },
@@ -472,7 +618,9 @@ class AppRouter {
           return session is PaymentSessionEntity
               ? BlocProvider(
                   create: (_) => getIt<VaQrisCubit>()..startSession(session),
-                  child: VaPaymentPage(session: session),
+                  child: AdaptiveThemeScope(
+                    child: VaPaymentPage(session: session),
+                  ),
                 )
               : _vaQrisNopPage();
         },
@@ -484,9 +632,135 @@ class AppRouter {
         builder: (context, state) {
           final session = state.extra;
           return session is PaymentSessionEntity
-              ? PaymentSuccessPage(session: session)
+              ? AdaptiveThemeScope(child: PaymentSuccessPage(session: session))
               : _vaQrisNopPage();
         },
+      ),
+
+      //  PENGIRIMAN SURAT
+      GoRoute(
+        path: AppRoutes.pengiriman,
+        name: AppRoutes.pengiriman,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<DaftarTugasCubit>()..load(),
+          child: const AdaptiveThemeScope(child: DaftarTugasPage()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.notifikasi,
+        name: AppRoutes.notifikasi,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<NotifikasiCubit>()..load(),
+          child: const AdaptiveThemeScope(child: NotifikasiPage()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanDetail,
+        name: AppRoutes.pengirimanDetail,
+        builder: (context, state) {
+          final extra = state.extra;
+          // extra hilang saat restore: arahkan ke daftar Pantau.
+          if (extra is! String) {
+            return BlocProvider(
+              create: (_) => getIt<PantauCubit>()..load(),
+              child: const AdaptiveThemeScope(child: PantauPage()),
+            );
+          }
+          return BlocProvider(
+            create: (_) => getIt<DetailBerkasCubit>()..load(extra),
+            child: AdaptiveThemeScope(child: DetailBerkasPage(noResi: extra)),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanLacak,
+        name: AppRoutes.pengirimanLacak,
+        builder: (context, state) => BlocProvider(
+          create: (_) => getIt<PantauCubit>()..load(),
+          child: const AdaptiveThemeScope(child: PantauPage()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanLacakDetail,
+        name: AppRoutes.pengirimanLacakDetail,
+        builder: (context, state) {
+          final extra = state.extra;
+          // extra hilang saat restore: kembali ke daftar Pantau.
+          if (extra is! String) {
+            return BlocProvider(
+              create: (_) => getIt<PantauCubit>()..load(),
+              child: const AdaptiveThemeScope(child: PantauPage()),
+            );
+          }
+          return BlocProvider(
+            create: (_) => getIt<LacakCubit>()..lacak(extra),
+            child: const AdaptiveThemeScope(child: LacakPage()),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanScan,
+        name: AppRoutes.pengirimanScan,
+        builder: (context, state) {
+          final extra = state.extra;
+          final arg = extra is ({ModeScanBerkas mode, List<String> awal})
+              ? extra
+              : (mode: ModeScanBerkas.ambil, awal: const <String>[]);
+          return BlocProvider(
+            create: (_) => getIt<AksiCubit>()..init(),
+            child: AdaptiveThemeScope(
+              child: ScanBerkasPage(mode: arg.mode, awal: arg.awal),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanCheckin,
+        name: AppRoutes.pengirimanCheckin,
+        builder: (context, state) {
+          final extra = state.extra;
+          // extra hilang saat restore: kembali ke daftar tugas.
+          if (extra is! ({String noResi, JenisCheckin jenis})) {
+            return _daftarTugas();
+          }
+          return BlocProvider(
+            create: (_) => getIt<AksiCubit>()..init(),
+            child: AdaptiveThemeScope(
+              child: CheckinPage(noResi: extra.noResi, jenis: extra.jenis),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanSerah,
+        name: AppRoutes.pengirimanSerah,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! BerkasEntity) return _daftarTugas();
+          return BlocProvider(
+            create: (_) => getIt<AksiCubit>()..init(butuhMaster: true),
+            child: AdaptiveThemeScope(child: SerahPage(berkas: extra)),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanGagal,
+        name: AppRoutes.pengirimanGagal,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! String) return _daftarTugas();
+          return BlocProvider(
+            create: (_) => getIt<AksiCubit>()..init(butuhMaster: true),
+            child: AdaptiveThemeScope(child: GagalPage(noResi: extra)),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.pengirimanAntrean,
+        name: AppRoutes.pengirimanAntrean,
+        // AntreanPengirimanCubit app-global (disediakan di main.dart).
+        builder: (context, state) =>
+            const AdaptiveThemeScope(child: AntreanPage()),
       ),
 
       GoRoute(

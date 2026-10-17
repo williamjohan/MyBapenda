@@ -1,8 +1,6 @@
-import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:equatable/equatable.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
-
-const _brand = AppThemeColors.primary;
 
 class PagedOption<T> extends Equatable {
   final T value;
@@ -109,7 +107,7 @@ class PagedSelectField<T> extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.palette.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -133,18 +131,18 @@ class PagedSelectField<T> extends StatelessWidget {
       children: [
         Text.rich(
           TextSpan(
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF52606D),
+              color: context.palette.textSecondary,
             ),
             children: [
               TextSpan(text: label),
               if (mandatory)
-                const TextSpan(
+                TextSpan(
                   text: ' *',
                   style: TextStyle(
-                    color: Color(0xFFEF4444),
+                    color: context.palette.danger,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -153,7 +151,7 @@ class PagedSelectField<T> extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Material(
-          color: enabled ? Colors.white : const Color(0xFFF5F6F8),
+          color: enabled ? context.palette.surface : context.palette.background,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
@@ -162,7 +160,7 @@ class PagedSelectField<T> extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFD9DEE4)),
+                border: Border.all(color: context.palette.borderStrong),
               ),
               child: Row(
                 children: [
@@ -174,16 +172,16 @@ class PagedSelectField<T> extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13.5,
                         color: text != null
-                            ? const Color(0xFF1F2933)
-                            : const Color(0xFF9AA5B1),
+                            ? context.palette.textPrimary
+                            : context.palette.textTertiary,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.keyboard_arrow_down_rounded,
                     color: enabled
-                        ? const Color(0xFF7B8794)
-                        : const Color(0xFFCBD2D9),
+                        ? context.palette.textSecondary
+                        : context.palette.borderStrong,
                   ),
                 ],
               ),
@@ -279,7 +277,7 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD9DEE4),
+                  color: context.palette.borderStrong,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -291,16 +289,16 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
                   Expanded(
                     child: Text(
                       widget.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F2933),
+                        color: context.palette.textPrimary,
                       ),
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded),
-                    color: const Color(0xFF7B8794),
+                    color: context.palette.textSecondary,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -315,13 +313,13 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
                 style: const TextStyle(fontSize: 13.5),
                 decoration: InputDecoration(
                   hintText: widget.searchHint,
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF9AA5B1),
+                    color: context.palette.textTertiary,
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: Color(0xFF9AA5B1),
+                    color: context.palette.textTertiary,
                   ),
                   suffixIcon: _q.isEmpty
                       ? null
@@ -330,7 +328,7 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
                           onPressed: _clearQuery,
                         ),
                   filled: true,
-                  fillColor: const Color(0xFFF5F6F8),
+                  fillColor: context.palette.background,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -343,8 +341,8 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
             SizedBox(
               height: 2,
               child: data.loading && data.items.isNotEmpty
-                  ? const LinearProgressIndicator(
-                      color: _brand,
+                  ? LinearProgressIndicator(
+                      color: context.palette.accent,
                       backgroundColor: Colors.transparent,
                     )
                   : null,
@@ -355,9 +353,9 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
                 child: Text(
                   'Menampilkan ${_fmtInt(data.items.length)} '
                   'dari ${_fmtInt(data.totalData)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
-                    color: Color(0xFF7B8794),
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),
@@ -385,7 +383,10 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
             data.emptyMessage ??
                 (_q.trim().isEmpty ? 'Belum ada pilihan' : 'Tidak ditemukan'),
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF7B8794)),
+            style: TextStyle(
+              fontSize: 13,
+              color: context.palette.textSecondary,
+            ),
           ),
         ),
       );
@@ -408,7 +409,7 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
         final e = data.items[i];
         final selected = e.value == widget.value;
         return Material(
-          color: selected ? const Color(0xFFFFF3DC) : Colors.transparent,
+          color: selected ? context.palette.accentSoft : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
@@ -428,16 +429,18 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
                             fontWeight: selected
                                 ? FontWeight.w700
                                 : FontWeight.w500,
-                            color: selected ? _brand : const Color(0xFF1F2933),
+                            color: selected
+                                ? context.palette.accent
+                                : context.palette.textPrimary,
                           ),
                         ),
                         if (e.subtitle != null && e.subtitle!.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           Text(
                             e.subtitle!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11.5,
-                              color: Color(0xFF7B8794),
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ],
@@ -445,7 +448,11 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
                     ),
                   ),
                   if (selected)
-                    const Icon(Icons.check_rounded, size: 20, color: _brand),
+                    Icon(
+                      Icons.check_rounded,
+                      size: 20,
+                      color: context.palette.accent,
+                    ),
                 ],
               ),
             ),
@@ -470,18 +477,21 @@ class _Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
           width: 26,
           height: 26,
-          child: CircularProgressIndicator(strokeWidth: 2.5, color: _brand),
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: context.palette.accent,
+          ),
         ),
         SizedBox(height: 14),
         Text(
           'Memuat pilihan...',
-          style: TextStyle(fontSize: 13, color: Color(0xFF7B8794)),
+          style: TextStyle(fontSize: 13, color: context.palette.textSecondary),
         ),
       ],
     );
@@ -499,14 +509,21 @@ class _ErrorView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.cloud_off_rounded, size: 34, color: Color(0xFF9AA5B1)),
+        Icon(
+          Icons.cloud_off_rounded,
+          size: 34,
+          color: context.palette.textTertiary,
+        ),
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF52606D)),
+            style: TextStyle(
+              fontSize: 13,
+              color: context.palette.textSecondary,
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -515,8 +532,8 @@ class _ErrorView extends StatelessWidget {
           icon: const Icon(Icons.refresh_rounded, size: 18),
           label: const Text('Coba lagi'),
           style: OutlinedButton.styleFrom(
-            foregroundColor: _brand,
-            side: const BorderSide(color: _brand),
+            foregroundColor: context.palette.accent,
+            side: BorderSide(color: context.palette.accent),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -543,12 +560,17 @@ class _Footer extends StatelessWidget {
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: const Text('Gagal memuat. Coba lagi'),
-                style: TextButton.styleFrom(foregroundColor: _brand),
+                style: TextButton.styleFrom(
+                  foregroundColor: context.palette.accent,
+                ),
               )
-            : const SizedBox(
+            : SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: _brand),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: context.palette.accent,
+                ),
               ),
       ),
     );

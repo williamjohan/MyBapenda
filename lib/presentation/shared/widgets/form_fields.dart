@@ -1,55 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 
 InputDecoration _dec(
+  BuildContext context,
   String? hint, {
   String? suffixText,
   bool readOnly = false,
 }) => InputDecoration(
   hintText: hint,
   suffixText: suffixText,
-  hintStyle: const TextStyle(
-    fontSize: 13,
-    color: const Color(0xFF9AA5B1),
-  ),
+  hintStyle: TextStyle(fontSize: 13, color: context.palette.textTertiary),
   isDense: true,
   filled: true,
-  fillColor: readOnly ? const Color(0xFFEEF0F3) : const Color(0xFFF7F8FA),
+  fillColor: readOnly ? context.palette.border : context.palette.surfaceMuted,
   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
-    borderSide: const BorderSide(color: Color(0xFFE4E7EB)),
+    borderSide: BorderSide(color: context.palette.border),
   ),
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
-    borderSide: const BorderSide(color: Color(0xFFE4E7EB)),
+    borderSide: BorderSide(color: context.palette.border),
   ),
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
     borderSide: BorderSide(
-      color: readOnly ? const Color(0xFFE4E7EB) : const Color(0xFFB8680F),
+      color: readOnly ? context.palette.border : context.palette.accent,
       width: 1.4,
     ),
   ),
 );
 
-Widget _labeled(String label, Widget field, {bool mandatory = false}) => Column(
+Widget _labeled(
+  BuildContext context,
+  String label,
+  Widget field, {
+  bool mandatory = false,
+}) => Column(
   crossAxisAlignment: CrossAxisAlignment.start,
   children: [
     Text.rich(
       TextSpan(
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF52606D),
+          color: context.palette.textSecondary,
         ),
         children: [
           TextSpan(text: label),
           if (mandatory)
-            const TextSpan(
+            TextSpan(
               text: ' *',
               style: TextStyle(
-                color: Color(0xFFEF4444),
+                color: context.palette.danger,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -61,8 +65,8 @@ Widget _labeled(String label, Widget field, {bool mandatory = false}) => Column(
   ],
 );
 
-TextStyle get _valueStyle =>
-    const TextStyle(fontSize: 13.5, color: Color(0xFF1F2933));
+TextStyle _valueStyle(BuildContext context) =>
+    TextStyle(fontSize: 13.5, color: context.palette.textPrimary);
 
 class BapendaTextField extends StatelessWidget {
   final String label;
@@ -95,6 +99,7 @@ class BapendaTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _labeled(
+      context,
       label,
       TextField(
         controller: controller,
@@ -104,8 +109,13 @@ class BapendaTextField extends StatelessWidget {
         maxLines: maxLines,
         readOnly: readOnly,
         onChanged: onChanged,
-        style: _valueStyle,
-        decoration: _dec(hint, suffixText: suffixText, readOnly: readOnly),
+        style: _valueStyle(context),
+        decoration: _dec(
+          context,
+          hint,
+          suffixText: suffixText,
+          readOnly: readOnly,
+        ),
       ),
       mandatory: mandatory,
     );
@@ -133,14 +143,15 @@ class BapendaDropdownField<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _labeled(
+      context,
       label,
       DropdownButtonFormField<T>(
         // ignore: deprecated_member_use
         value: value,
         isExpanded: true,
         icon: const Icon(Icons.keyboard_arrow_down_rounded),
-        style: _valueStyle,
-        decoration: _dec(hint),
+        style: _valueStyle(context),
+        decoration: _dec(context, hint),
         items: [
           for (final e in items.entries)
             DropdownMenuItem<T>(value: e.key, child: Text(e.value)),
@@ -169,15 +180,16 @@ class BapendaDateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _labeled(
+      context,
       label,
       InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: InputDecorator(
-          decoration: _dec(null).copyWith(
+          decoration: _dec(context, null).copyWith(
             suffixIcon: const Icon(Icons.calendar_today_rounded, size: 18),
           ),
-          child: Text(valueText, style: _valueStyle),
+          child: Text(valueText, style: _valueStyle(context)),
         ),
       ),
       mandatory: mandatory,
@@ -238,20 +250,24 @@ class BapendaTimeField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _labeled(
+      context,
       label,
       InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: InputDecorator(
           decoration: _dec(
+            context,
             null,
             readOnly: onTap == null,
           ).copyWith(suffixIcon: const Icon(Icons.schedule_rounded, size: 18)),
           child: Text(
             valueText ?? hint,
             style: valueText == null
-                ? _valueStyle.copyWith(color: const Color(0xFF9AA5B1))
-                : _valueStyle,
+                ? _valueStyle(
+                    context,
+                  ).copyWith(color: context.palette.textTertiary)
+                : _valueStyle(context),
           ),
         ),
       ),

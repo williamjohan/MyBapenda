@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 class PaymentActionBar extends StatelessWidget {
   const PaymentActionBar({
@@ -15,13 +15,13 @@ class PaymentActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
-        color: AppThemeColors.defaultSurface,
-        border: const Border(
-          top: BorderSide(color: AppThemeColors.subtleBorder),
-        ),
+        color: palette.surface,
+        border: Border(top: BorderSide(color: palette.border)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -43,11 +43,9 @@ class PaymentActionBar extends StatelessWidget {
                 icon: const Icon(Icons.share_outlined, size: 20),
                 label: Text(shareLabel),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppThemeColors.gold,
+                  foregroundColor: palette.accent,
                   side: BorderSide(
-                    color: isExpired
-                        ? AppThemeColors.defaultBorder
-                        : AppThemeColors.primary,
+                    color: isExpired ? palette.borderStrong : palette.brand,
                   ),
                   textStyle: const TextStyle(
                     fontSize: 14.5,

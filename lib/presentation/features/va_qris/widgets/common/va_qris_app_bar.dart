@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
+import '../../../../shared/widgets/theme_toggle_button.dart';
 
 /// App bar solid (warna awal gradient header) supaya menyatu tanpa garis
-/// pemisah dengan [VaQrisHeroHeader] di bawahnya.
+/// pemisah dengan [VaQrisHeroHeader] di bawahnya. Tombol terang/gelap ada di
+/// kanan.
 class VaQrisAppBar extends StatelessWidget implements PreferredSizeWidget {
   const VaQrisAppBar({
     super.key,
@@ -22,7 +25,9 @@ class VaQrisAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppThemeColors.goldLight,
+      backgroundColor: context.isDarkMode
+          ? context.palette.headerGradient.first
+          : AppThemeColors.goldLight,
       foregroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -51,6 +56,12 @@ class VaQrisAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
         ],
       ),
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: 12),
+          child: ThemeToggleButton(),
+        ),
+      ],
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 class BillingEmptyState extends StatelessWidget {
   const BillingEmptyState({
@@ -15,6 +15,8 @@ class BillingEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -24,30 +26,30 @@ class BillingEmptyState extends StatelessWidget {
             Container(
               width: 64,
               height: 64,
-              decoration: const BoxDecoration(
-                color: AppThemeColors.successSoft,
+              decoration: BoxDecoration(
+                color: palette.successSoft,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 32, color: AppThemeColors.success),
+              child: Icon(icon, size: 32, color: palette.success),
             ),
             const SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: AppThemeColors.titleText,
+                color: palette.textPrimary,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.4,
-                color: AppThemeColors.secondaryText,
+                color: palette.textSecondary,
               ),
             ),
           ],

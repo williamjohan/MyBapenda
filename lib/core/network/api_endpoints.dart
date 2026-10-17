@@ -8,6 +8,8 @@ class ApiEndpoints {
   static const String login = '/api/auth/login';
   static const String refreshToken = '/api/auth/refresh';
   static const String logout = '/api/auth/logout';
+  static const String lupaPassword = '/api/auth/lupapassword';
+  static const String resetPassword = '/api/auth/resetpassword';
   static const String validasiKontak = '/api/wajibpajak/validasi-kontak';
   static const String register = '/api/wajibpajak/buat-permohonan';
 
@@ -15,7 +17,10 @@ class ApiEndpoints {
   // PROFILE
   // ==========================================
   static const String profile = '/api/profile';
-
+  static const String profileGantiFoto = '/api/profile/ganti-foto';
+  static const String profileKirimOtpKontak = '/api/profile/kontak/kirim-otp';
+  static const String profileVerifikasiOtpKontak =
+      '/api/profile/kontak/verifikasi-otp';
   static const String historyList = '/api/cekreklame/lihat-history';
   static const String uploadReklame = '/api/cekreklame/upload-reklame';
 
@@ -54,8 +59,8 @@ class ApiEndpoints {
   // ==========================================
   static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
   static const String pembayaranTagihan = '/api/pembayaran/tagihan';
-  static const String pembayaranCheckNominal =
-      '/api/pembayaran/check-nominal';
+  static const String pembayaranCariObjek = '/api/pembayaran/cari-objek';
+  static const String pembayaranCheckNominal = '/api/pembayaran/check-nominal';
   static const String pembayaranBayar = '/api/pembayaran/bayar';
   static const String pembayaranStatus = '/api/pembayaran/status';
 

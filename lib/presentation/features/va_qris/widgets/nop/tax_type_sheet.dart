@@ -1,6 +1,6 @@
 import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import 'tax_type_option_tile.dart';
 
 /// Bottom sheet pilihan jenis pajak. Mengembalikan [TaxTypeEntity] yang
@@ -20,7 +20,7 @@ class TaxTypeSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: AppThemeColors.defaultBackground,
+      backgroundColor: context.palette.surfaceMuted,
       showDragHandle: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -32,6 +32,7 @@ class TaxTypeSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxHeight = MediaQuery.sizeOf(context).height * 0.8;
+    final palette = context.palette;
 
     return SafeArea(
       child: ConstrainedBox(
@@ -40,25 +41,22 @@ class TaxTypeSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 4),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
               child: Text(
                 'Pilih jenis pajak',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: AppThemeColors.titleText,
+                  color: palette.textPrimary,
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 0, 16, 14),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
               child: Text(
                 'Nomor yang dicari mengikuti jenis pajak yang dipilih.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppThemeColors.secondaryText,
-                ),
+                style: TextStyle(fontSize: 13, color: palette.textSecondary),
               ),
             ),
             Flexible(
