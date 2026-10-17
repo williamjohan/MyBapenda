@@ -118,6 +118,8 @@ import '../../presentation/features/profile/cubit/ubah_kontak_cubit.dart'
     as _i406;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
+import '../../presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart'
+    as _i5;
 import '../../presentation/features/va_qris/cubit/tax_object_search_cubit.dart'
     as _i410;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
@@ -217,6 +219,10 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i817.DioAuthInterceptor>(
         () => _i817.DioAuthInterceptor(gh<_i233.AppSecureStorage>()));
+    gh.factory<_i5.SurveyLokasiCubit>(() => _i5.SurveyLokasiCubit(
+          gh<_i869.GeoLocationService>(),
+          gh<_i904.GeocodingRepository>(),
+        ));
     gh.lazySingleton<_i361.Dio>(() => registerModule.getDio(
           gh<_i817.DioAuthInterceptor>(),
           gh<_i370.HmacKantorInterceptor>(),
@@ -321,10 +327,10 @@ extension GetItInjectableX on _i174.GetIt {
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
         ));
-    gh.factory<_i410.TaxObjectSearchCubit>(
-        () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i197.VaQrisCubit>(
         () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
+    gh.factory<_i410.TaxObjectSearchCubit>(
+        () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i662.AbsensiCubit>(
         () => _i662.AbsensiCubit(gh<_i248.AbsensiUseCase>()));
     gh.factory<_i233.LaporanCubit>(
