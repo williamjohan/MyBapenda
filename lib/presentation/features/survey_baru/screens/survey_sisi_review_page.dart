@@ -1,10 +1,8 @@
 // lib/presentation/features/survey_baru/screens/survey_sisi_review_page.dart
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import 'survey_foto_page.dart';
 import 'survey_review_page.dart';
@@ -22,13 +20,11 @@ class SurveySisiReviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.palette.background,
+      backgroundColor: const Color(0xFFF5F6F8),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           BapendaSliverHeader(
-            compact: true,
-            trailing: const ThemeToggleButton(),
             title: 'Survey Permohonan Baru',
             showBackButton: true,
             subtitle: Text(
@@ -41,7 +37,7 @@ class SurveySisiReviewPage extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: context.palette.surface,
+              color: Colors.white,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
               child: const StepIndicator(
                 labels: ['Foto', 'Data', 'Review'],
@@ -67,7 +63,7 @@ class SurveySisiReviewPage extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          color: context.palette.surface,
+          color: Colors.white,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: Row(
             children: [

@@ -1,6 +1,5 @@
 // lib/presentation/features/survey_baru/screens/survey_data_page.dart
 import 'package:bapendacore/core/di/injection.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_state.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
@@ -17,7 +16,6 @@ import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:bapendacore/presentation/shared/widgets/paged_select_field.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
@@ -188,7 +186,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.palette.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -196,14 +194,14 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: context.palette.accent),
+              Icon(icon, size: 18, color: const Color(0xFFB8680F)),
               const SizedBox(width: 8),
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: context.palette.textPrimary,
+                  color: Color(0xFF1F2933),
                 ),
               ),
             ],
@@ -239,13 +237,11 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
       child: BlocBuilder<SurveyDataCubit, SurveyDataState>(
         builder: (context, form) {
           return Scaffold(
-            backgroundColor: context.palette.background,
+            backgroundColor: const Color(0xFFF5F6F8),
             body: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
                 BapendaSliverHeader(
-                  compact: true,
-                  trailing: const ThemeToggleButton(),
                   title: 'Survey Permohonan Baru',
                   showBackButton: true,
                   subtitle: Text(
@@ -258,7 +254,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                 ),
                 SliverToBoxAdapter(
                   child: Container(
-                    color: context.palette.surface,
+                    color: Colors.white,
                     padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
                     child: const StepIndicator(
                       labels: ['Foto', 'Data', 'Review'],
@@ -409,7 +405,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
             ),
             bottomNavigationBar: SafeArea(
               child: Container(
-                color: context.palette.surface,
+                color: Colors.white,
                 padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
                 child: Button(
                   label: 'Simpan & Lanjutkan',

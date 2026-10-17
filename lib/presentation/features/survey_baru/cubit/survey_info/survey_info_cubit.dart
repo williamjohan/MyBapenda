@@ -17,6 +17,8 @@ class SurveyInfoCubit extends Cubit<SurveyInfoState> {
   final String nomorPelayanan;
   final MasterDataUseCase _master;
   final AuthUseCase _auth;
+  String? _prefillKec;
+  String? _prefillKel;
 
   // Setiap operasi baru membatalkan hasil operasi sebelumnya.
   int _operationId = 0;
@@ -69,16 +71,32 @@ class SurveyInfoCubit extends Cubit<SurveyInfoState> {
     }
   }
 
-  /// Petugas pembantu (opsional). [nip] null = kosongkan pilihan.
-  void setPetugasPembantu(String? nip, String? nama) {
+  void applyPrefill({
+    String? kecamatanId,
+    String? kelurahanId,
+    List<String> nipPembantu = const [],
+  }) {
+    _prefillKec = kecamatanId;
+    _prefillKel = kelurahanId;
     emit(
       state.copyWith(
-        nipPetugasPembantu: nip,
-        namaPetugasPembantu: nama,
-        clearPetugasPembantu: nip == null,
+        kecamatanId: kecamatanId,
+        kelurahanId: kelurahanId,
+        nipPembantu: nipPembantu,
       ),
     );
   }
+
+  void addPembantu(String nip) {
+    if (state.nipPembantu.contains(nip)) return;
+    emit(state.copyWith(nipPembantu: [...state.nipPembantu, nip]));
+  }
+
+  void removePembantu(String nip) => emit(
+    state.copyWith(
+      nipPembantu: state.nipPembantu.where((e) => e != nip).toList(),
+    ),
+  );
 
   // ---------------------------------------------------------------------------
   // FOTO & LOKASI
@@ -119,8 +137,10 @@ class SurveyInfoCubit extends Cubit<SurveyInfoState> {
         photoCapturedAt: DateTime.now(),
         isPhotoStamped: false,
         clearLocation: true,
-        clearKecamatan: true,
-        clearKelurahan: true,
+        kecamatanId: _prefillKec,
+        kelurahanId: _prefillKel,
+        clearKecamatan: _prefillKec == null,
+        clearKelurahan: _prefillKel == null,
         isLocating: true,
         isStamping: false,
         clearMessage: true,
@@ -134,10 +154,6 @@ class SurveyInfoCubit extends Cubit<SurveyInfoState> {
     await _fetchLocationAndStamp(operationId);
   }
 
-  /// Refresh lokasi secara manual.
-  ///
-  /// Tap berulang diabaikan selama operasi berjalan.
-  /// Foto baru tetap dapat membatalkan operasi ini.
   Future<void> fetchCurrentLocation() async {
     if (state.isLocating || state.isStamping) return;
 

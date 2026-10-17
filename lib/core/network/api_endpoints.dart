@@ -21,7 +21,6 @@ class ApiEndpoints {
   static const String profileKirimOtpKontak = '/api/profile/kontak/kirim-otp';
   static const String profileVerifikasiOtpKontak =
       '/api/profile/kontak/verifikasi-otp';
-
   static const String historyList = '/api/cekreklame/lihat-history';
   static const String uploadReklame = '/api/cekreklame/upload-reklame';
 
@@ -52,6 +51,8 @@ class ApiEndpoints {
   static const String surveyPermohonanDetail = '/api/reklame/bo/survey-form';
   static const String surveySimpan = '/api/reklame/bo/simpan-survey';
   static const String surveyCariNor = '/api/reklame/bo/cari-nor';
+  static const String surveyHistory = '/api/reklame/bo/history-survey';
+  static const String surveyHistoryDetail = '/api/reklame/bo/history-survey/detail';
 
   // ==========================================
   // CREATE VA & QRIS
@@ -79,41 +80,6 @@ class ApiEndpoints {
   static const reklameMasterKecamatan = '/api/reklame/master/kecamatan';
   static const reklameMasterKelurahan = '/api/reklame/master/kelurahan';
   static const reklameMasterJenisProduk = '/api/reklame/master/jenis-produk';
-  static const reklameMasterPegawaiSurvey =
-      '/api/reklame/master/pegawai-survey';
-  static const reklameMasterLokasiPenyelenggaraan =
-      '/api/reklame/master/lokasi-penyelenggaraan';
-
-  // ==========================================
-  // PENGIRIMAN SURAT (CekReklameApi, Bearer NIP)
-  // ==========================================
-  static const String pengirimanMaster = '/api/pengiriman/master';
-  static const String pengirimanDaftar = '/api/pengiriman/daftar';
-  static const String pengirimanDetail = '/api/pengiriman/detail';
-  static const String pengirimanLacak = '/api/pengiriman/lacak';
-  static const String pengirimanAmbil = '/api/pengiriman/ambil';
-  static const String pengirimanPerjalanan = '/api/pengiriman/perjalanan';
-  static const String pengirimanTiba = '/api/pengiriman/tiba';
-  static const String pengirimanSerah = '/api/pengiriman/serah';
-  static const String pengirimanGagal = '/api/pengiriman/gagal';
-  static const String pengirimanKembalikan = '/api/pengiriman/kembalikan';
-
-  /// `?key=`; tanpa header Authorization, key berlaku hari itu saja.
-  static const String pengirimanFoto = '/api/pengiriman/foto';
-
-  // ==========================================
-  // NOTIFIKASI PETUGAS (CekReklameApi, Bearer NIP)
-  // ==========================================
-  static const String notifikasiJumlahBelumDibaca =
-      '/api/notifikasi/jumlah-belum-dibaca';
-  static const String notifikasiInbox = '/api/notifikasi/inbox';
-  static const String notifikasiBaca = '/api/notifikasi/baca';
-  static const String notifikasiBacaSemua = '/api/notifikasi/baca-semua';
-
-  /// Hub SignalR; token lewat query `access_token` (accessTokenFactory).
-  static const String notifikasiHub = '/hubs/notifikasi';
-
-  /// Google Routes API (rute motor di peta lacak). URL penuh: host Google.
-  static const String googleRoutes =
-      'https://routes.googleapis.com/directions/v2:computeRoutes';
+  static const reklameMasterPegawaiSurvey = '/api/reklame/master/pegawai-survey';
+  static const reklameMasterLokasiPenyelenggaraan = '/api/reklame/master/lokasi-penyelenggaraan';
 }

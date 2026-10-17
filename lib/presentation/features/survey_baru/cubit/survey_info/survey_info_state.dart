@@ -6,8 +6,7 @@ class SurveyInfoState extends Equatable {
   // Petugas
   final String? nipPetugas;
   final String? namaPetugas;
-  final String? nipPetugasPembantu;
-  final String? namaPetugasPembantu;
+  final List<String> nipPembantu;
 
   // Foto
   final String? originalPhotoPath;
@@ -37,8 +36,6 @@ class SurveyInfoState extends Equatable {
   const SurveyInfoState({
     this.nipPetugas,
     this.namaPetugas,
-    this.nipPetugasPembantu,
-    this.namaPetugasPembantu,
     this.originalPhotoPath,
     this.selfiePath,
     this.photoCapturedAt,
@@ -56,6 +53,7 @@ class SurveyInfoState extends Equatable {
     this.messageType,
     this.rt,
     this.rw,
+    this.nipPembantu = const [],
   });
 
   SurveyInfoState copyWith({
@@ -79,8 +77,8 @@ class SurveyInfoState extends Equatable {
     bool? isLocating,
     bool? isStamping,
     String? message,
+    List<String>? nipPembantu,
     SurveyInfoMessageType? messageType,
-    bool clearPetugasPembantu = false,
     bool clearLocation = false,
     bool clearKecamatan = false,
     bool clearKelurahan = false,
@@ -89,9 +87,7 @@ class SurveyInfoState extends Equatable {
     return SurveyInfoState(
       nipPetugas: nipPetugas ?? this.nipPetugas,
       namaPetugas: namaPetugas ?? this.namaPetugas,
-      nipPetugasPembantu: clearPetugasPembantu ? null : nipPetugasPembantu ?? this.nipPetugasPembantu,
-      namaPetugasPembantu: clearPetugasPembantu ? null : namaPetugasPembantu ?? this.namaPetugasPembantu,
-
+      nipPembantu: nipPembantu ?? this.nipPembantu,
       originalPhotoPath: originalPhotoPath ?? this.originalPhotoPath,
       selfiePath: selfiePath ?? this.selfiePath,
       photoCapturedAt: photoCapturedAt ?? this.photoCapturedAt,
@@ -121,8 +117,7 @@ class SurveyInfoState extends Equatable {
   List<Object?> get props => [
     nipPetugas,
     namaPetugas,
-    nipPetugasPembantu,
-    namaPetugasPembantu,
+    nipPembantu,
     originalPhotoPath,
     selfiePath,
     photoCapturedAt,

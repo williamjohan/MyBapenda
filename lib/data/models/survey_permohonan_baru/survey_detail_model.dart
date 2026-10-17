@@ -4,6 +4,46 @@ import '../../../domain/entities/cek_reklames/survey_permohonan_baru/detail_surv
 part 'survey_detail_model.g.dart';
 
 // ====================================================================
+// NORMALISASI
+// ====================================================================
+
+/// Angka atau teks -> String. Kosong -> null.
+String? _strOrNull(Object? v) {
+  if (v == null) return null;
+  final s = '$v'.trim();
+  return s.isEmpty ? null : s;
+}
+
+/// "3" atau 3 -> 3. Selain itu null.
+int? _intOrNull(Object? v) {
+  if (v == null) return null;
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  return int.tryParse('$v'.trim());
+}
+
+String? _cleanOrNull(Object? v) {
+  if (v == null) return null;
+  final s = '$v'.trim();
+  return (s.isEmpty || s == '-') ? null : s;
+}
+
+SurveyDetailHeaderModel? _headerFrom(Object? v) => v is Map
+    ? SurveyDetailHeaderModel.fromJson(Map<String, dynamic>.from(v))
+    : null;
+
+SurveyDetailCheckinModel? _checkinFrom(Object? v) => v is Map
+    ? SurveyDetailCheckinModel.fromJson(Map<String, dynamic>.from(v))
+    : null;
+
+/// Object -> parse. String (format lama) -> hanya idNor. Selain itu null.
+SisiNorModel? _norFrom(Object? v) {
+  if (v is Map) return SisiNorModel.fromJson(Map<String, dynamic>.from(v));
+  if (v is String && v.trim().isNotEmpty) return SisiNorModel(idNor: v.trim());
+  return null;
+}
+
+// ====================================================================
 // LEVEL 1: ROOT MODEL (SurveyDetailModel)
 // ====================================================================
 @JsonSerializable(explicitToJson: true)
@@ -20,11 +60,13 @@ class SurveyDetailModel {
   final String? kategoriPenyelenggaraanNama;
   @JsonKey(name: 'statusPermohonan')
   final String? statusPermohonan;
-  @JsonKey(name: 'header')
-  final String? header;
-  @JsonKey(name: 'checkin')
-  final String? checkin;
-  @JsonKey(name: 'sisiList')
+
+  @JsonKey(name: 'header', fromJson: _headerFrom, includeToJson: false)
+  final SurveyDetailHeaderModel? header;
+  @JsonKey(name: 'checkin', fromJson: _checkinFrom, includeToJson: false)
+  final SurveyDetailCheckinModel? checkin;
+
+  @JsonKey(name: 'sisiList', defaultValue: [])
   final List<SisiListModel> sisiList;
 
   const SurveyDetailModel({
@@ -64,8 +106,8 @@ class SisiListModel {
   final String? materiReklamePermohonan;
   @JsonKey(name: 'masaTayang')
   final String? masaTayang;
-  @JsonKey(name: 'nor')
-  final String? nor;
+  @JsonKey(name: 'nor', fromJson: _norFrom, includeToJson: false)
+  final SisiNorModel? nor;
   @JsonKey(name: 'survey')
   final SurveyDataModel? survey;
 
@@ -94,16 +136,27 @@ class SisiListModel {
 class SurveyDataModel {
   @JsonKey(name: 'seq')
   final int seq;
-  @JsonKey(name: 'idNor')
-  final int? idNor;
-  @JsonKey(name: 'idPersil')
-  final int? idPersil;
-  @JsonKey(name: 'lokasiTertentuId')
+
+  // ID string dari BE (mis. idPersil "0000003000" punya nol di depan).
+  @JsonKey(name: 'idNor', fromJson: _strOrNull)
+  final String? idNor;
+  @JsonKey(name: 'idPersil', fromJson: _strOrNull)
+  final String? idPersil;
+
+  // ID master (angka).
+  @JsonKey(name: 'lokasiTertentuId', fromJson: _intOrNull)
   final int? lokasiTertentuId;
-  @JsonKey(name: 'letakReklame')
-  final String? letakReklame;
-  @JsonKey(name: 'statusTanah')
-  final String? statusTanah;
+  @JsonKey(name: 'letakReklame', fromJson: _intOrNull)
+  final int? letakReklame;
+  @JsonKey(name: 'statusTanah', fromJson: _intOrNull)
+  final int? statusTanah;
+  @JsonKey(name: 'idJenisReklame', fromJson: _intOrNull)
+  final int? idJenisReklame;
+  @JsonKey(name: 'idJenisProduk', fromJson: _intOrNull)
+  final int? idJenisProduk;
+  @JsonKey(name: 'sudutPandang', fromJson: _intOrNull)
+  final int? sudutPandang;
+
   @JsonKey(name: 'lokPenyelenggaraan')
   final String? lokPenyelenggaraan;
   @JsonKey(name: 'panjang')
@@ -112,12 +165,6 @@ class SurveyDataModel {
   final double? lebar;
   @JsonKey(name: 'tinggi')
   final double? tinggi;
-  @JsonKey(name: 'idJenisReklame')
-  final int? idJenisReklame;
-  @JsonKey(name: 'idJenisProduk')
-  final int? idJenisProduk;
-  @JsonKey(name: 'sudutPandang')
-  final String? sudutPandang;
   @JsonKey(name: 'ketSisi')
   final String? ketSisi;
   @JsonKey(name: 'materiReklame')
@@ -150,54 +197,125 @@ class SurveyDataModel {
   Map<String, dynamic> toJson() => _$SurveyDataModelToJson(this);
 }
 
+@JsonSerializable(createToJson: false)
+class SurveyDetailHeaderModel {
+  @JsonKey(name: 'kecamatan', fromJson: _cleanOrNull)
+  final String? kecamatan;
+  @JsonKey(name: 'kelurahan', fromJson: _cleanOrNull)
+  final String? kelurahan;
+  @JsonKey(name: 'lokBlok', fromJson: _cleanOrNull)
+  final String? blok;
+  @JsonKey(name: 'lokRt', fromJson: _cleanOrNull)
+  final String? rt;
+  @JsonKey(name: 'lokRw', fromJson: _cleanOrNull)
+  final String? rw;
+
+  const SurveyDetailHeaderModel({
+    this.kecamatan,
+    this.kelurahan,
+    this.blok,
+    this.rt,
+    this.rw,
+  });
+
+  factory SurveyDetailHeaderModel.fromJson(Map<String, dynamic> json) =>
+      _$SurveyDetailHeaderModelFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class SurveyDetailCheckinModel {
+  @JsonKey(name: 'nipPembantu', defaultValue: <String>[])
+  final List<String> nipPembantu;
+
+  const SurveyDetailCheckinModel({required this.nipPembantu});
+
+  factory SurveyDetailCheckinModel.fromJson(Map<String, dynamic> json) =>
+      _$SurveyDetailCheckinModelFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class SisiNorModel {
+  @JsonKey(name: 'idNor', fromJson: _strOrNull)
+  final String? idNor;
+  @JsonKey(name: 'idPersil', fromJson: _strOrNull)
+  final String? idPersil;
+  @JsonKey(name: 'noAlamat', fromJson: _cleanOrNull)
+  final String? noAlamat;
+
+  const SisiNorModel({this.idNor, this.idPersil, this.noAlamat});
+
+  factory SisiNorModel.fromJson(Map<String, dynamic> json) =>
+      _$SisiNorModelFromJson(json);
+}
+
 // ====================================================================
 // EXTENSIONS (MAPPER KE ENTITY)
 // ====================================================================
 extension SurveyDetailModelX on SurveyDetailModel {
   SurveyDetailEntity toEntity() => SurveyDetailEntity(
-        key: key,
-        noPelayanan: noPelayanan,
-        npwpd: npwpd,
-        katPenyelenggaraan: katPenyelenggaraan,
-        kategoriPenyelenggaraanNama: kategoriPenyelenggaraanNama,
-        statusPermohonan: statusPermohonan,
-        header: header,
-        checkin: checkin,
-        sisiList: sisiList.map((e) => e.toEntity()).toList(),
-      );
+    key: key,
+    noPelayanan: noPelayanan,
+    npwpd: npwpd,
+    katPenyelenggaraan: katPenyelenggaraan,
+    kategoriPenyelenggaraanNama: kategoriPenyelenggaraanNama,
+    statusPermohonan: statusPermohonan,
+    header: header?.toEntity(),
+    checkin: checkin?.toEntity(),
+    sisiList: sisiList.map((e) => e.toEntity()).toList(),
+  );
 }
 
 extension SisiListModelX on SisiListModel {
   SisiListEntity toEntity() => SisiListEntity(
-        seq: seq,
-        keySisi: keySisi,
-        imageUrl: imageUrl,
-        jenisReklameNama: jenisReklameNama,
-        lokPenyelenggaraanPermohonan: lokPenyelenggaraanPermohonan,
-        materiReklamePermohonan: materiReklamePermohonan,
-        masaTayang: masaTayang,
-        nor: nor,
-        survey: survey?.toEntity(), // 🚀 Safe call operator karena nullable
-      );
+    seq: seq,
+    keySisi: keySisi,
+    imageUrl: imageUrl,
+    jenisReklameNama: jenisReklameNama,
+    lokPenyelenggaraanPermohonan: lokPenyelenggaraanPermohonan,
+    materiReklamePermohonan: materiReklamePermohonan,
+    masaTayang: masaTayang,
+    nor: nor?.toEntity(),
+    survey: survey?.toEntity(),
+  );
+}
+
+extension SurveyDetailHeaderModelX on SurveyDetailHeaderModel {
+  DetailHeaderEntity toEntity() => DetailHeaderEntity(
+    kecamatan: kecamatan,
+    kelurahan: kelurahan,
+    blok: blok,
+    rt: rt,
+    rw: rw,
+  );
+}
+
+extension SurveyDetailCheckinModelX on SurveyDetailCheckinModel {
+  DetailCheckinEntity toEntity() =>
+      DetailCheckinEntity(nipPembantu: nipPembantu);
+}
+
+extension SisiNorModelX on SisiNorModel {
+  SisiNorEntity toEntity() =>
+      SisiNorEntity(idNor: idNor, idPersil: idPersil, noAlamat: noAlamat);
 }
 
 extension SurveyDataModelX on SurveyDataModel {
   SurveyDataEntity toEntity() => SurveyDataEntity(
-        seq: seq,
-        idNor: idNor,
-        idPersil: idPersil,
-        lokasiTertentuId: lokasiTertentuId,
-        letakReklame: letakReklame,
-        statusTanah: statusTanah,
-        lokPenyelenggaraan: lokPenyelenggaraan,
-        panjang: panjang,
-        lebar: lebar,
-        tinggi: tinggi,
-        idJenisReklame: idJenisReklame,
-        idJenisProduk: idJenisProduk,
-        sudutPandang: sudutPandang,
-        ketSisi: ketSisi,
-        materiReklame: materiReklame,
-        ketSurvey: ketSurvey,
-      );
+    seq: seq,
+    idNor: idNor,
+    idPersil: idPersil,
+    lokasiTertentuId: lokasiTertentuId,
+    letakReklame: letakReklame,
+    statusTanah: statusTanah,
+    lokPenyelenggaraan: lokPenyelenggaraan,
+    panjang: panjang,
+    lebar: lebar,
+    tinggi: tinggi,
+    idJenisReklame: idJenisReklame,
+    idJenisProduk: idJenisProduk,
+    sudutPandang: sudutPandang,
+    ketSisi: ketSisi,
+    materiReklame: materiReklame,
+    ketSurvey: ketSurvey,
+  );
 }
