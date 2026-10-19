@@ -23,6 +23,8 @@ import '../../data/datasources/cek_reklame/cek_reklame_remote_datasource.dart'
     as _i766;
 import '../../data/datasources/cek_reklame/history_remote_datasource.dart'
     as _i451;
+import '../../data/datasources/cek_reklame/survey_history_remote_datasource.dart'
+    as _i870;
 import '../../data/datasources/cek_reklame/survey_remote_datasource.dart'
     as _i215;
 import '../../data/datasources/notifikasi/notifikasi_remote_datasource.dart'
@@ -41,6 +43,8 @@ import '../../data/repositories/cek_reklame/cek_reklame_repository_impl.dart'
     as _i470;
 import '../../data/repositories/cek_reklame/history_repository_impl.dart'
     as _i535;
+import '../../data/repositories/cek_reklame/survey_history_repository_impl.dart'
+    as _i319;
 import '../../data/repositories/cek_reklame/survey_permohonan_repository_impl.dart'
     as _i874;
 import '../../data/repositories/geocoding/geocoding_repository_impl.dart'
@@ -63,6 +67,8 @@ import '../../domain/repositories/notifikasi/i_notifikasi_repository.dart'
 import '../../domain/repositories/pengiriman/i_pengiriman_repository.dart'
     as _i969;
 import '../../domain/repositories/profile/i_profile_repository.dart' as _i640;
+import '../../domain/repositories/survey_permohonan/i_survey_history_remote_repository.dart'
+    as _i101;
 import '../../domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart'
     as _i114;
 import '../../domain/repositories/va_qris/i_va_qris_repository.dart' as _i956;
@@ -73,6 +79,8 @@ import '../../domain/usecases/history/history_usecase.dart' as _i1023;
 import '../../domain/usecases/notifikasi/notifikasi_usecase.dart' as _i813;
 import '../../domain/usecases/pengiriman/pengiriman_usecase.dart' as _i578;
 import '../../domain/usecases/profile/profile_usecase.dart' as _i839;
+import '../../domain/usecases/survey_permohonan/survey_history_usecase.dart'
+    as _i446;
 import '../../domain/usecases/survey_permohonan/survey_permohonan_usecase.dart'
     as _i11;
 import '../../domain/usecases/va_qris/va_qris_usecase.dart' as _i930;
@@ -245,6 +253,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i705.VaQrisRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i766.ICekReklameRemoteDataSource>(
         () => _i766.CekReklameRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i870.ISurveyHistoryRemoteDataSource>(
+        () => _i870.SurveyHistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i60.MasterDataUseCase>(
         () => _i60.MasterDataUseCase(gh<_i1023.IMasterRepository>()));
     gh.lazySingleton<_i348.IBalaiRwRemoteDataSource>(
@@ -260,6 +270,9 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i218.DeviceIdentityService>(),
           gh<_i233.AppSecureStorage>(),
         ));
+    gh.lazySingleton<_i101.ISurveyHistoryRepository>(() =>
+        _i319.SurveyHistoryRepositoryImpl(
+            gh<_i870.ISurveyHistoryRemoteDataSource>()));
     gh.lazySingleton<_i899.IBalaiRwRepository>(() =>
         _i518.BalaiRwRepositoryImpl(gh<_i348.IBalaiRwRemoteDataSource>()));
     gh.lazySingleton<_i956.IVaQrisRepository>(() => _i562.VaQrisRepositoryImpl(
@@ -285,6 +298,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i215.SurveyPermohonanRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i801.MasterDataCubit>(
         () => _i801.MasterDataCubit(gh<_i60.MasterDataUseCase>()));
+    gh.lazySingleton<_i446.SurveyHistoryUseCase>(
+        () => _i446.SurveyHistoryUseCase(gh<_i101.ISurveyHistoryRepository>()));
     gh.factory<_i755.CameraCubit>(() => _i755.CameraCubit(
           gh<_i164.IPermissionService>(),
           gh<_i904.GeocodingRepository>(),
@@ -327,10 +342,10 @@ extension GetItInjectableX on _i174.GetIt {
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
         ));
-    gh.factory<_i197.VaQrisCubit>(
-        () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i410.TaxObjectSearchCubit>(
         () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
+    gh.factory<_i197.VaQrisCubit>(
+        () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i662.AbsensiCubit>(
         () => _i662.AbsensiCubit(gh<_i248.AbsensiUseCase>()));
     gh.factory<_i233.LaporanCubit>(

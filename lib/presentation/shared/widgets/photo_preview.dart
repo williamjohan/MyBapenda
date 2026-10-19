@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class PhotoPreview extends StatelessWidget {
   final String path;
-  final double ratio;
-  final Rect? box;
+  final double ratio; 
+  final Rect? box; 
   final double radius;
   final double maxHeight;
 
