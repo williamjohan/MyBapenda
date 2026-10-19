@@ -19,6 +19,7 @@ import '../cubit/survey_lokasi/survey_lokasi_cubit.dart';
 import '../cubit/survey_lokasi/survey_lokasi_state.dart';
 import '../utils/survey_lokasi_ui_helper.dart';
 import '../widgets/peta_lokasi_reklame.dart';
+import '../widgets/tombol_simpan_draft.dart';
 import 'survey_foto_page.dart';
 import 'survey_sisi_review_page.dart';
 
@@ -65,7 +66,9 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
   final _tinggiPanel = ValueNotifier<double>(_panelAwal);
 
   late SurveyFoto? _foto = widget.initialResult?.foto;
-  late SurveyData? _data = widget.initialResult?.data;
+  // Hasil sebelumnya di app, atau isian draft / survey lama dari server.
+  late SurveyData? _data =
+      widget.initialResult?.data ?? dataDraftOf(widget.sisi);
 
   // true kalau belum ada foto lokal tapi API punya foto -> perlu di-load
   late bool _memuatFotoServer =
@@ -241,6 +244,28 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
     }
   }
 
+  /// Survey baru: draft cukup titik reklame + foto. Isian Data menyusul.
+  bool get _bolehDraft {
+    final h = widget.sisi['header'];
+    return !(h is Map && h['dikembalikan'] == true);
+  }
+
+  Future<void> _simpanDraft() async {
+    final foto = _foto;
+    final lokasi = context.read<SurveyLokasiCubit>().state.hasil;
+    if (foto == null || lokasi == null || _menyimpan) return;
+
+    final ditandai = await _gambarKotak(foto);
+    if (ditandai == null || !mounted) return;
+
+    // Isian lengkap sebelumnya tetap dipakai; selain itu tandai draft.
+    final data = _data;
+    final draft = data != null && !isDataDraft(data)
+        ? data
+        : {...?data, 'seq': _seq, kunciDraftData: true};
+    context.pop<SurveyResult>((foto: ditandai, data: draft, lokasi: lokasi));
+  }
+
   Future<void> _lanjut() async {
     final foto = _foto;
     final lokasi = context.read<SurveyLokasiCubit>().state.hasil;
@@ -258,6 +283,16 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
       );
       if (saved == null || !mounted) return;
       _data = saved;
+
+      // Simpan Draft di halaman Data: langsung kembali ke daftar sisi.
+      if (isDataDraft(saved)) {
+        context.pop<SurveyResult>((
+          foto: ditandai,
+          data: saved,
+          lokasi: lokasi,
+        ));
+        return;
+      }
 
       final result = (foto: ditandai, data: saved, lokasi: lokasi);
 
@@ -533,15 +568,20 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
                     },
                   ),
                 ),
-                _BarLanjut(
-                  menyimpan: _menyimpan,
-                  onLanjut:
-                      s.lokasiSiap &&
-                          _foto != null &&
-                          !_memuatFotoServer &&
-                          !_ambilFoto
-                      ? _lanjut
-                      : null,
+                Builder(
+                  builder: (_) {
+                    final siap =
+                        s.lokasiSiap &&
+                        _foto != null &&
+                        !_memuatFotoServer &&
+                        !_ambilFoto;
+                    return _BarLanjut(
+                      menyimpan: _menyimpan,
+                      onLanjut: siap ? _lanjut : null,
+                      onDraft: _bolehDraft ? _simpanDraft : null,
+                      draftAktif: siap,
+                    );
+                  },
                 ),
               ],
             );
@@ -934,7 +974,16 @@ class _BarLanjut extends StatelessWidget {
   /// null = belum bisa lanjut (tombol nonaktif).
   final VoidCallback? onLanjut;
 
-  const _BarLanjut({required this.menyimpan, required this.onLanjut});
+  /// null = tombol Simpan Draft disembunyikan (survey dikembalikan).
+  final VoidCallback? onDraft;
+  final bool draftAktif;
+
+  const _BarLanjut({
+    required this.menyimpan,
+    required this.onLanjut,
+    this.onDraft,
+    this.draftAktif = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -948,12 +997,24 @@ class _BarLanjut extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 10, 18, 12),
-          child: Button(
-            label: 'Lanjutkan',
-            icon: Icons.arrow_forward_rounded,
-            iconAtEnd: true,
-            isLoading: menyimpan,
-            onPressed: onLanjut,
+          child: Row(
+            children: [
+              if (onDraft != null) ...[
+                TombolSimpanDraft(
+                  onPressed: draftAktif && !menyimpan ? onDraft : null,
+                ),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Button(
+                  label: 'Lanjutkan',
+                  icon: Icons.arrow_forward_rounded,
+                  iconAtEnd: true,
+                  isLoading: menyimpan,
+                  onPressed: onLanjut,
+                ),
+              ),
+            ],
           ),
         ),
       ),

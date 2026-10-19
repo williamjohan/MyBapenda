@@ -24,6 +24,11 @@ typedef SurveyFoto = ({
 
 typedef SurveyData = Map<String, dynamic>;
 
+/// Penanda [SurveyData] hasil Simpan Draft (isian boleh belum lengkap).
+const kunciDraftData = 'draft';
+
+bool isDataDraft(SurveyData? data) => data?[kunciDraftData] == true;
+
 /// [lokasi] = pinpoint reklame sisi ini (halaman peta). Null untuk hasil
 /// lama yang dibuat sebelum ada pinpoint.
 typedef SurveyResult = ({
@@ -73,6 +78,48 @@ List<Map<String, dynamic>> wpFotosOf(Map<String, dynamic> sisi) {
     for (final f in fotos)
       if (f is Map) Map<String, dynamic>.from(f),
   ];
+}
+
+/// Titik reklame tersimpan di draft server (`survey.latitude/longitude`).
+TitikPeta? titikDraftOf(Map<String, dynamic> sisi) {
+  final survey = sisi['survey'];
+  if (survey is! Map) return null;
+  final lat = survey['latitude'], lng = survey['longitude'];
+  if (lat is! num || lng is! num || (lat == 0 && lng == 0)) return null;
+  return (lat: lat.toDouble(), lng: lng.toDouble());
+}
+
+/// Isian sisi dari server (draft tersimpan / survey lama yang dikembalikan)
+/// dalam bentuk [SurveyData] halaman Data. Null bila belum ada isian.
+/// Ditandai draft: petugas tetap harus melewati halaman Data sebelum kirim.
+SurveyData? dataDraftOf(Map<String, dynamic> sisi) {
+  final sv = sisi['survey'];
+  if (sv is! Map) return null;
+  const isian = [
+    'idNor',
+    'idPersil',
+    'lokasiTertentuId',
+    'letakReklame',
+    'statusTanah',
+    'lokPenyelenggaraan',
+    'panjang',
+    'lebar',
+    'tinggi',
+    'idJenisReklame',
+    'idJenisProduk',
+    'sudutPandang',
+    'ketSisi',
+    'materiReklame',
+    'ketSurvey',
+  ];
+  if (!isian.any((k) => sv[k] != null)) return null;
+  return {
+    for (final k in isian) k: sv[k],
+    'seq': sisi['seq'],
+    // lokPenyelenggaraan dari server = id master lokasi penyelenggaraan.
+    'lokasiPenyelenggaraanId': int.tryParse('${sv['lokPenyelenggaraan']}'),
+    kunciDraftData: true,
+  };
 }
 
 String? fotoUrlOf(Map<String, dynamic> m) =>

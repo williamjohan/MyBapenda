@@ -22,6 +22,13 @@ int? _intOrNull(Object? v) {
   return int.tryParse('$v'.trim());
 }
 
+/// "-7.25" atau -7.25 -> -7.25. Kosong / bukan angka -> null.
+double? _doubleOrNull(Object? v) {
+  if (v is num) return v.toDouble();
+  if (v == null) return null;
+  return double.tryParse('$v'.trim().replaceAll(',', '.'));
+}
+
 String? _cleanOrNull(Object? v) {
   if (v == null) return null;
   final s = '$v'.trim();
@@ -60,6 +67,8 @@ class SurveyDetailModel {
   final String? kategoriPenyelenggaraanNama;
   @JsonKey(name: 'statusPermohonan')
   final String? statusPermohonan;
+  @JsonKey(name: 'isDraft', defaultValue: false)
+  final bool isDraft;
 
   @JsonKey(name: 'header', fromJson: _headerFrom, includeToJson: false)
   final SurveyDetailHeaderModel? header;
@@ -76,6 +85,7 @@ class SurveyDetailModel {
     required this.katPenyelenggaraan,
     this.kategoriPenyelenggaraanNama,
     this.statusPermohonan,
+    this.isDraft = false,
     this.header,
     this.checkin,
     required this.sisiList,
@@ -171,6 +181,10 @@ class SurveyDataModel {
   final String? materiReklame;
   @JsonKey(name: 'ketSurvey')
   final String? ketSurvey;
+  @JsonKey(name: 'latitude', fromJson: _doubleOrNull)
+  final double? latitude;
+  @JsonKey(name: 'longitude', fromJson: _doubleOrNull)
+  final double? longitude;
 
   const SurveyDataModel({
     required this.seq,
@@ -189,6 +203,8 @@ class SurveyDataModel {
     this.ketSisi,
     this.materiReklame,
     this.ketSurvey,
+    this.latitude,
+    this.longitude,
   });
 
   factory SurveyDataModel.fromJson(Map<String, dynamic> json) =>
@@ -259,6 +275,7 @@ extension SurveyDetailModelX on SurveyDetailModel {
     katPenyelenggaraan: katPenyelenggaraan,
     kategoriPenyelenggaraanNama: kategoriPenyelenggaraanNama,
     statusPermohonan: statusPermohonan,
+    isDraft: isDraft,
     header: header?.toEntity(),
     checkin: checkin?.toEntity(),
     sisiList: sisiList.map((e) => e.toEntity()).toList(),
@@ -317,5 +334,7 @@ extension SurveyDataModelX on SurveyDataModel {
     ketSisi: ketSisi,
     materiReklame: materiReklame,
     ketSurvey: ketSurvey,
+    latitude: latitude,
+    longitude: longitude,
   );
 }

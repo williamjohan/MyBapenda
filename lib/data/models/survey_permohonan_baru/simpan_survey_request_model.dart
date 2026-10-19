@@ -21,8 +21,6 @@ class SimpanSurveyRequestModel {
       'LokBlok': entity.lokBlok,
       'LokRt': entity.lokRt,
       'LokRw': entity.lokRw,
-      'Latitude': entity.latitude,
-      'Longitude': entity.longitude,
       'SisiList': jsonEncode(entity.sisiList.map(_sisiJson).toList()),
       'Checkin.Latitude': entity.checkin.latitude,
       'Checkin.Longitude': entity.checkin.longitude,
@@ -56,6 +54,10 @@ class SimpanSurveyRequestModel {
     final nb = s.norBaru;
     return {
       'seq': s.seq,
+      // Titik reklame per sisi (wajib untuk draft). Header Latitude/Longitude
+      // tidak dipakai lagi oleh server.
+      'latitude': s.latitude,
+      'longitude': s.longitude,
       'idNor': s.idNor,
       'idPersil': s.idPersil,
       'lokasiTertentuId': s.lokasiTertentuId,

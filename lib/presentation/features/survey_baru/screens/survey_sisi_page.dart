@@ -2,9 +2,13 @@
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
+import '../cubit/survey_submit/survey_submit_cubit.dart';
+import '../widgets/hasil_simpan_survey.dart';
+import '../widgets/tombol_simpan_draft.dart';
 import '../widgets/survey_sisi_tile.dart';
 import 'survey_foto_page.dart';
 
@@ -28,7 +32,23 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
   // TODO: pindahin ke Cubit. Key = seq sisi
   final Map<int, SurveyResult> _results = {};
 
-  bool get _allDone => _results.length == widget.sisiList.length;
+  /// Semua sisi lengkap (bukan draft): boleh Review & Kirim.
+  bool get _allDone =>
+      _results.length == widget.sisiList.length &&
+      _results.values.every((r) => !isDataDraft(r.data));
+
+  /// Survey yang dikembalikan penilai tidak memakai Simpan Draft.
+  bool get _bolehDraft {
+    final h = widget.sisiList.firstOrNull?['header'];
+    return !(h is Map && h['dikembalikan'] == true);
+  }
+
+  /// Server menolak draft bila ada sisi tanpa titik reklame & foto. Sisi
+  /// yang sudah punya draft di server boleh tidak dikirim ulang.
+  bool get _siapDraft => widget.sisiList.every(
+    (s) =>
+        _results.containsKey(s['seq']) || (_isDraft && titikDraftOf(s) != null),
+  );
 
   Future<void> _openSisi(Map<String, dynamic> sisi) async {
     final seq = sisi['seq'] as int;
@@ -37,6 +57,34 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
       extra: (sisi: sisi, result: _results[seq]),
     );
     if (result != null && mounted) setState(() => _results[seq] = result);
+  }
+
+  bool get _isDraft {
+    final h = widget.sisiList.firstOrNull?['header'];
+    return h is Map && h['isDraft'] == true;
+  }
+
+  /// Simpan sisi yang sudah selesai sebagai draft. Server tetap langsung
+  /// submit ke penilaian bila ternyata semua isian sudah lengkap.
+  Future<void> _simpanDraft() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final res = await context.read<SurveySubmitCubit>().submit(
+      info: widget.info,
+      sisiList: widget.sisiList,
+      results: _results,
+    );
+    if (!mounted) return;
+
+    final hasil = res.hasil;
+    if (hasil == null) {
+      if (res.error != null) {
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(res.error!)));
+      }
+      return;
+    }
+    await tampilkanHasilSimpanSurvey(context, hasil);
   }
 
   Future<void> _openReview() async {
@@ -83,6 +131,13 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                 child: SurveyHeaderCard(sisi: list.first),
               ),
             ),
+          if (_isDraft)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(18, 12, 18, 0),
+                child: _InfoDraft(),
+              ),
+            ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(18, 22, 18, 10),
@@ -127,7 +182,10 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                   // foto lokal ATAU foto yang sudah ada di server
                   hasFoto:
                       _results.containsKey(seq) || apiFotosOf(s).isNotEmpty,
-                  done: _results.containsKey(seq),
+                  done:
+                      _results.containsKey(seq) &&
+                      !isDataDraft(_results[seq]!.data),
+                  draft: isDataDraft(_results[seq]?.data),
                   onTap: () => _openSisi(s),
                 );
               },
@@ -139,13 +197,83 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
         child: Container(
           color: Colors.white,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-          child: Button(
-            label: 'Review & Kirim',
-            icon: Icons.arrow_forward_rounded,
-            iconAtEnd: true,
-            onPressed: _allDone ? _openReview : null,
+          child: BlocBuilder<SurveySubmitCubit, bool>(
+            builder: (context, menyimpan) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_bolehDraft && !_siapDraft)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Simpan Draft aktif setelah semua sisi punya titik '
+                      'reklame dan foto.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: Color(0xFF7B8794),
+                      ),
+                    ),
+                  ),
+                Row(
+                  children: [
+                    if (_bolehDraft) ...[
+                      TombolSimpanDraft(
+                        isLoading: menyimpan,
+                        onPressed: _results.isEmpty || !_siapDraft
+                            ? null
+                            : _simpanDraft,
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(
+                      child: Button(
+                        label: 'Review & Kirim',
+                        icon: Icons.arrow_forward_rounded,
+                        iconAtEnd: true,
+                        onPressed: _allDone && !menyimpan ? _openReview : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Penanda survey ini melanjutkan draft yang tersimpan di server.
+class _InfoDraft extends StatelessWidget {
+  const _InfoDraft();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4E5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF5C27A)),
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.edit_note_rounded, size: 20, color: Color(0xFFB8680F)),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Melanjutkan draft survey. Isian dan titik reklame sudah '
+              'terisi dari draft; ambil ulang foto setiap sisi lalu simpan.',
+              style: TextStyle(
+                fontSize: 12.5,
+                height: 1.4,
+                color: Color(0xFF7A4A0C),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -11,6 +11,9 @@ class SurveySisiTile extends StatelessWidget {
   final String masaTayang;
   final bool hasFoto;
   final bool done;
+
+  /// Sisi tersimpan sebagai draft (titik & foto ada, isian belum lengkap).
+  final bool draft;
   final VoidCallback onTap;
 
   const SurveySisiTile({
@@ -22,6 +25,7 @@ class SurveySisiTile extends StatelessWidget {
     required this.masaTayang,
     required this.hasFoto,
     required this.done,
+    this.draft = false,
     required this.onTap,
   });
 
@@ -110,7 +114,11 @@ class SurveySisiTile extends StatelessWidget {
               Column(
                 children: [
                   StatusChip(
-                    label: done ? 'Selesai' : 'Belum',
+                    label: done
+                        ? 'Selesai'
+                        : draft
+                        ? 'Draft'
+                        : 'Belum',
                     tone: done
                         ? BapendaStatusTone.success
                         : BapendaStatusTone.warning,

@@ -7,6 +7,7 @@ import '../../../../core/errors/failure.dart';
 // Import Entities
 import '../../entities/cek_reklames/survey_permohonan_baru/cari_nor_entity.dart';
 import '../../entities/cek_reklames/survey_permohonan_baru/detail_survey_entity.dart';
+import '../../entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
 import '../../entities/cek_reklames/survey_permohonan_baru/simpan_survey_request_entity.dart';
 import '../../entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
 
@@ -31,8 +32,10 @@ class SurveyPermohonanUseCase {
     return _repository.getSurveyDetail(key: key);
   }
 
-  // 3. POST SIMPAN (SUBMIT) SURVEY
-  Future<Either<Failure, bool>> submitSurvey(SimpanSurveyRequestEntity payload) {
+  // 3. POST SIMPAN SURVEY: draft, lalu langsung submit bila isian lengkap
+  Future<Either<Failure, SimpanSurveyHasilEntity>> submitSurvey(
+    SimpanSurveyRequestEntity payload,
+  ) {
     return _repository.submitSurvey(payload);
   }
 

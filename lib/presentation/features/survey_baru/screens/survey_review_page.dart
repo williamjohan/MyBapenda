@@ -13,8 +13,8 @@ import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
+import '../widgets/hasil_simpan_survey.dart';
 import '../widgets/peta_lokasi_reklame.dart';
 import 'survey_foto_page.dart';
 
@@ -38,7 +38,9 @@ class SurveyReviewPage extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Kirim hasil survey?'),
         content: const Text(
-          'Pastikan foto, kotak penanda, dan data semua sisi sudah benar.',
+          'Pastikan foto, titik reklame, dan data semua sisi sudah benar. '
+          'Bila semua isian lengkap, survey langsung dikirim ke penilaian; '
+          'bila belum, disimpan sebagai draft.',
         ),
         actions: [
           TextButton(
@@ -62,7 +64,8 @@ class SurveyReviewPage extends StatelessWidget {
     );
     if (!context.mounted) return;
 
-    if (!res.ok) {
+    final hasil = res.hasil;
+    if (hasil == null) {
       if (res.error != null) {
         messenger
           ..hideCurrentSnackBar()
@@ -71,10 +74,8 @@ class SurveyReviewPage extends StatelessWidget {
       return;
     }
 
-    context.goNamed(AppRoutes.reklameDashboard);
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Hasil survey berhasil dikirim.')),
-    );
+    // Submit -> ke dashboard; Draft -> tetap di sini dengan daftar kekurangan.
+    await tampilkanHasilSimpanSurvey(context, hasil);
   }
 
   @override

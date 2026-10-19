@@ -53,6 +53,7 @@ class SurveyListCubit extends Cubit<SurveyListState> {
         (failure) => (sisi: null, error: failure.message),
         (detail) {
           final prefill = _infoPrefill(detail);
+          header['isDraft'] = detail.isDraft;
           return (
             sisi: detail.sisiList
                 .map((s) => _sisiToMap(s, e, header, prefill))
@@ -126,6 +127,9 @@ class SurveyListCubit extends Cubit<SurveyListState> {
           'ketSisi': sv.ketSisi,
           'materiReklame': sv.materiReklame,
           'ketSurvey': sv.ketSurvey,
+          // Titik reklame draft: jadi posisi awal pin di peta.
+          'latitude': sv.latitude,
+          'longitude': sv.longitude,
         },
         'fotos': const [],
       },
