@@ -8,6 +8,8 @@ import 'package:bapendacore/data/datasources/auth/auth_remote_datasource.dart';
 import 'package:bapendacore/data/models/auth/auth_model.dart';
 import 'package:bapendacore/data/models/users/user_model.dart';
 import 'package:bapendacore/domain/entities/auth/auth_entity.dart';
+import 'package:bapendacore/domain/entities/auth/lupa_password_metode.dart';
+import 'package:bapendacore/domain/entities/users/user_entity.dart';
 import 'package:bapendacore/domain/repositories/auth/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
@@ -47,6 +49,33 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserEntity?> getCurrentUserProfile() async {
+    final json = await _securePreference.getUserProfile();
+
+    if (json == null || json.isEmpty) {
+      return null;
+    }
+
+    final map = jsonDecode(json) as Map<String, dynamic>;
+
+    return UserModel.fromJson(map).toEntity();
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> getProfile() {
+    return executeSafeApiCall<UserEntity>(() async {
+      final nip = await _securePreference.getCurrentNip();
+      if (nip == null || nip.isEmpty) throw const UnauthorizedException();
+
+      final profileModel = await _remoteDataSource.getProfile(nip: nip);
+      await _securePreference.saveUserProfile(
+        jsonEncode(profileModel.toJson()),
+      );
+      return profileModel.toEntity();
+    });
+  }
+
+  @override
   Future<bool> getCurrentSession() async {
     final token = await _securePreference.getAccessToken();
     return token != null && token.isNotEmpty;
@@ -57,5 +86,40 @@ class AuthRepositoryImpl implements AuthRepository {
       _securePreference.getMustChangePassword();
 
   @override
-  Future<void> logout() => _securePreference.clearAllSecureData();
+  Future<void> logout() => _securePreference.clearSessionData();
+
+  @override
+  Future<Either<Failure, bool>> lupaPassword({
+    required String nip,
+    required LupaPasswordMetode metode,
+    required String tujuan,
+  }) {
+    return executeSafeApiCall<bool>(
+      () async => await _remoteDataSource.lupaPassword(
+        LupaPasswordRequestModel(
+          nip: nip,
+          channel: metode.apiValue,
+          tujuan: tujuan,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<Either<Failure, bool>> resetPassword({
+    required String newPassword,
+    required String confirmationPassword,
+  }) {
+    return executeSafeApiCall<bool>(() async {
+      final result = await _remoteDataSource.resetPassword(
+        ResetPasswordRequestModel(
+          newPassword: newPassword,
+          confirmationPassword: confirmationPassword,
+        ),
+      );
+      // Sudah ganti kata sandi, jangan paksa reset lagi saat buka aplikasi.
+      await _securePreference.saveMustChangePassword(false);
+      return result;
+    });
+  }
 }
