@@ -342,10 +342,10 @@ extension GetItInjectableX on _i174.GetIt {
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
         ));
-    gh.factory<_i197.VaQrisCubit>(
-        () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i410.TaxObjectSearchCubit>(
         () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
+    gh.factory<_i197.VaQrisCubit>(
+        () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i662.AbsensiCubit>(
         () => _i662.AbsensiCubit(gh<_i248.AbsensiUseCase>()));
     gh.factory<_i233.LaporanCubit>(
