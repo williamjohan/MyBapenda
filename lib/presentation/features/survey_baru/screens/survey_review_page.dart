@@ -261,7 +261,10 @@ class SisiReviewCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          PhotoPreview(path: f.path, ratio: f.ratio, box: f.box),
+          if (isFotoDraft(f))
+            const _FotoDraftReview()
+          else
+            PhotoPreview(path: f.path, ratio: f.ratio, box: f.box),
           if (f.keterangan.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -463,6 +466,35 @@ class _InfoReviewCard extends StatelessWidget {
           InfoRow(
             label: 'Tanggal Survey',
             value: tgl == null ? '-' : SurveyOptions.fmtTanggal(tgl),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pengganti preview foto untuk sisi yang memakai foto draft server.
+class _FotoDraftReview extends StatelessWidget {
+  const _FotoDraftReview();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4E5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.cloud_done_rounded, color: Color(0xFFB8680F)),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Foto reklame memakai foto yang tersimpan di draft.',
+              style: TextStyle(fontSize: 12.5, color: Color(0xFF7A4A0C)),
+            ),
           ),
         ],
       ),

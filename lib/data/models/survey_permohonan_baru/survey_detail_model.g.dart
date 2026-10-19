@@ -125,6 +125,12 @@ SurveyDetailCheckinModel _$SurveyDetailCheckinModelFromJson(
               ?.map((e) => e as String)
               .toList() ??
           [],
+      tersimpan: json['tersimpan'] as bool? ?? false,
+      latitude: _doubleOrNull(json['latitude']),
+      longitude: _doubleOrNull(json['longitude']),
+      alamat: _cleanOrNull(json['alamat']),
+      fotoUrl: _strOrNull(json['fotoUrl']),
+      tglCheckin: _strOrNull(json['tglCheckin']),
     );
 
 SisiNorModel _$SisiNorModelFromJson(Map<String, dynamic> json) => SisiNorModel(

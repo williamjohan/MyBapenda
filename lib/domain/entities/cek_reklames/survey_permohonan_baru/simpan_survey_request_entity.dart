@@ -38,18 +38,21 @@ class SimpanSurveyRequestEntity extends Equatable {
   ];
 }
 
+/// Check-in petugas. Foto & lokasi null = pakai check-in tersimpan di draft
+/// server (`survey-form` `checkin.tersimpan=true`); hanya petugas pembantu
+/// yang dikirim.
 class CheckinRequestEntity extends Equatable {
-  final File fileDataFormFile;
-  final String latitude;
-  final String longitude;
-  final String alamat;
+  final File? fileDataFormFile;
+  final String? latitude;
+  final String? longitude;
+  final String? alamat;
   final List<String> nipPembantu;
 
   const CheckinRequestEntity({
-    required this.fileDataFormFile,
-    required this.latitude,
-    required this.longitude,
-    required this.alamat,
+    this.fileDataFormFile,
+    this.latitude,
+    this.longitude,
+    this.alamat,
     this.nipPembantu = const [],
   });
 

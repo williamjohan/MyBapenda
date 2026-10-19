@@ -80,6 +80,32 @@ List<Map<String, dynamic>> wpFotosOf(Map<String, dynamic> sisi) {
   ];
 }
 
+/// Penanda foto sisi yang sudah tersimpan di draft server. `survey-form`
+/// tidak mengirim URL foto draft sisi, jadi fotonya tidak bisa ditampilkan;
+/// sisi dikirim tanpa foto dan server memakai foto draft tersimpan.
+const pathFotoDraft = 'draft://foto-sisi';
+
+const SurveyFoto fotoDraftServer = (
+  path: pathFotoDraft,
+  source: pathFotoDraft,
+  ratio: 4 / 3,
+  box: kotakAwalFoto,
+  keterangan: '',
+);
+
+bool isFotoDraft(SurveyFoto? f) => f?.path == pathFotoDraft;
+
+/// Sisi survey baru yang sudah ber-draft di server (titik reklame ada):
+/// foto & titik draft berlaku, petugas tidak perlu foto ulang. Survey ulang
+/// (dikembalikan penilai) selalu wajib foto baru.
+bool punyaFotoDraft(Map<String, dynamic> sisi) {
+  final h = sisi['header'];
+  if (h is! Map || h['isDraft'] != true || h['dikembalikan'] == true) {
+    return false;
+  }
+  return titikDraftOf(sisi) != null && apiFotosOf(sisi).isEmpty;
+}
+
 /// Titik reklame tersimpan di draft server (`survey.latitude/longitude`).
 TitikPeta? titikDraftOf(Map<String, dynamic> sisi) {
   final survey = sisi['survey'];
@@ -118,6 +144,13 @@ SurveyData? dataDraftOf(Map<String, dynamic> sisi) {
     'seq': sisi['seq'],
     // lokPenyelenggaraan dari server = id master lokasi penyelenggaraan.
     'lokasiPenyelenggaraanId': int.tryParse('${sv['lokPenyelenggaraan']}'),
+    // Draft hanya menyimpan persil NOR baru; jenis bangunan, jalan & no
+    // alamat diisi ulang petugas sebelum kirim.
+    if (sisi['nor'] == null && sv['idPersil'] != null)
+      'norBaru': {
+        'persilId': '${sv['idPersil']}',
+        'persilLabel': '${sv['idPersil']}',
+      },
     kunciDraftData: true,
   };
 }

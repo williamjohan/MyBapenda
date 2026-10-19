@@ -181,7 +181,9 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                   masaTayang: s['masaTayang'] as String? ?? '-',
                   // foto lokal ATAU foto yang sudah ada di server
                   hasFoto:
-                      _results.containsKey(seq) || apiFotosOf(s).isNotEmpty,
+                      _results.containsKey(seq) ||
+                      apiFotosOf(s).isNotEmpty ||
+                      punyaFotoDraft(s),
                   done:
                       _results.containsKey(seq) &&
                       !isDataDraft(_results[seq]!.data),
@@ -264,8 +266,8 @@ class _InfoDraft extends StatelessWidget {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Melanjutkan draft survey. Isian dan titik reklame sudah '
-              'terisi dari draft; ambil ulang foto setiap sisi lalu simpan.',
+              'Melanjutkan draft survey. Check-in, titik reklame, foto dan '
+              'isian sudah terisi dari draft; lengkapi yang kurang lalu simpan.',
               style: TextStyle(
                 fontSize: 12.5,
                 height: 1.4,

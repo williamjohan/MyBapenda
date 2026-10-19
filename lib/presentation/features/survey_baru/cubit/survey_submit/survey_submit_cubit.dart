@@ -130,8 +130,9 @@ class SurveySubmitCubit extends Cubit<bool> {
     List<Map<String, dynamic>> sisiList,
     Map<int, SurveyResult> results,
   ) async {
-    final lat = _reqNum(info, 'latitude').toStringAsFixed(6);
-    final lng = _reqNum(info, 'longitude').toStringAsFixed(6);
+    // Check-in draft tersimpan (survey baru ber-draft): foto & lokasi tidak
+    // dikirim, server memakai check-in tersimpan.
+    final checkinTersimpan = info['checkinTersimpan'] == true;
     final tgl = DateTime.tryParse('${info['tanggalSurvey']}') ?? DateTime.now();
 
     // PERBAIKAN: Baca sebagai List<String>, bukan String?
@@ -149,7 +150,15 @@ class SurveySubmitCubit extends Cubit<bool> {
     }
     if (sisi.isEmpty) throw StateError('Belum ada sisi yang disurvey');
 
-    final selfie = await _compress(_req(info, 'selfiePath'));
+    final checkin = checkinTersimpan
+        ? CheckinRequestEntity(nipPembantu: pembantuList)
+        : CheckinRequestEntity(
+            fileDataFormFile: await _compress(_req(info, 'selfiePath')),
+            latitude: _reqNum(info, 'latitude').toStringAsFixed(6),
+            longitude: _reqNum(info, 'longitude').toStringAsFixed(6),
+            alamat: '${info['alamat'] ?? '-'}',
+            nipPembantu: pembantuList,
+          );
 
     return SimpanSurveyRequestEntity(
       key: _req(info, 'key'),
@@ -160,14 +169,7 @@ class SurveySubmitCubit extends Cubit<bool> {
       lokRt: _clean(info['rt']),
       lokRw: _clean(info['rw']),
       sisiList: sisi,
-      checkin: CheckinRequestEntity(
-        fileDataFormFile: selfie,
-        latitude: lat,
-        longitude: lng,
-        alamat: '${info['alamat'] ?? '-'}',
-        // PERBAIKAN: Langsung masukkan list yang sudah diekstrak
-        nipPembantu: pembantuList,
-      ),
+      checkin: checkin,
     );
   }
 
@@ -190,9 +192,10 @@ class SurveySubmitCubit extends Cubit<bool> {
       throw StateError('Titik reklame sisi $seq belum dipilih di peta');
     }
 
-    // Foto dari server (URL) tidak bisa di-upload sebagai File.
+    // Foto dari server (URL) / foto draft tidak di-upload ulang: server
+    // memakai foto tersimpan sisi itu.
     final path = r.foto.path;
-    final File? fotoFile = path.startsWith('http')
+    final File? fotoFile = path.startsWith('http') || isFotoDraft(r.foto)
         ? null
         : await _compress(path); // <-- await
 

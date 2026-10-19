@@ -65,7 +65,10 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
   final _panel = DraggableScrollableController();
   final _tinggiPanel = ValueNotifier<double>(_panelAwal);
 
-  late SurveyFoto? _foto = widget.initialResult?.foto;
+  // Sisi ber-draft di server: foto draft dipakai, tidak perlu foto ulang.
+  late SurveyFoto? _foto =
+      widget.initialResult?.foto ??
+      (punyaFotoDraft(widget.sisi) ? fotoDraftServer : null);
   // Hasil sebelumnya di app, atau isian draft / survey lama dari server.
   late SurveyData? _data =
       widget.initialResult?.data ?? dataDraftOf(widget.sisi);
@@ -203,7 +206,8 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
   /// Buka editor kotak penanda & keterangan untuk foto saat ini.
   Future<void> _tandai() async {
     final foto = _foto;
-    if (foto == null) return;
+    // Foto draft server tidak bisa dibuka di editor (gambarnya tidak ada).
+    if (foto == null || isFotoDraft(foto)) return;
     final hasil = await Navigator.of(context).push<SurveyFoto>(
       MaterialPageRoute(
         builder: (_) => AdaptiveThemeScope(
@@ -224,6 +228,9 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
 
   /// Gambar garis kotak ke foto asli. Return null kalau gagal.
   Future<SurveyFoto?> _gambarKotak(SurveyFoto f) async {
+    // Foto draft / URL server sudah berkotak & tidak di-upload ulang
+    // (server memakai foto tersimpan sisi itu).
+    if (isFotoDraft(f) || f.source.startsWith('http')) return f;
     setState(() => _menyimpan = true);
     try {
       final out = await MarkerStampUtil.drawBox(source: f.source, box: f.box);
@@ -1221,6 +1228,11 @@ class _PanelBawah extends StatelessWidget {
                     isLoading: ambilFoto,
                     onPressed: onAmbil,
                   )
+                : isFotoDraft(foto)
+                ? _FotoDraft(
+                    ambilFoto: ambilFoto,
+                    onAmbil: ambilFoto || menyimpan ? null : onAmbil,
+                  )
                 : Row(
                     children: [
                       GestureDetector(
@@ -1274,6 +1286,69 @@ class _PanelBawah extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Foto reklame sisi ini sudah tersimpan di draft server (tidak bisa
+/// ditampilkan karena `survey-form` tidak mengirim URL-nya). Tidak perlu
+/// foto ulang; ambil ulang hanya bila ingin mengganti.
+class _FotoDraft extends StatelessWidget {
+  final bool ambilFoto;
+  final VoidCallback? onAmbil;
+
+  const _FotoDraft({required this.ambilFoto, required this.onAmbil});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Row(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: palette.accentSoft,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(Icons.cloud_done_rounded, color: palette.accent),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Foto tersimpan di draft',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: palette.textPrimary,
+                ),
+              ),
+              Text(
+                'Tidak perlu foto ulang.',
+                style: TextStyle(fontSize: 11.5, color: palette.textSecondary),
+              ),
+              TextButton.icon(
+                onPressed: onAmbil,
+                icon: ambilFoto
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.photo_camera_outlined, size: 18),
+                label: const Text('Ganti foto'),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

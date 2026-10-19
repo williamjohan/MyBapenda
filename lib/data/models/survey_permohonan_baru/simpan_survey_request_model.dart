@@ -22,14 +22,21 @@ class SimpanSurveyRequestModel {
       'LokRt': entity.lokRt,
       'LokRw': entity.lokRw,
       'SisiList': jsonEncode(entity.sisiList.map(_sisiJson).toList()),
-      'Checkin.Latitude': entity.checkin.latitude,
-      'Checkin.Longitude': entity.checkin.longitude,
-      'Checkin.Alamat': entity.checkin.alamat,
-      'Checkin.FileDataFormFile': await MultipartFile.fromFile(
-        entity.checkin.fileDataFormFile.path,
-        filename: 'checkin_foto.jpg',
-      ),
     };
+
+    // Check-in baru. Tanpa foto = server memakai check-in tersimpan di
+    // draft (jangan kirim Checkin.FileDataFormFile/lokasi).
+    final c = entity.checkin;
+    final foto = c.fileDataFormFile;
+    if (foto != null) {
+      map['Checkin.Latitude'] = c.latitude;
+      map['Checkin.Longitude'] = c.longitude;
+      map['Checkin.Alamat'] = c.alamat;
+      map['Checkin.FileDataFormFile'] = await MultipartFile.fromFile(
+        foto.path,
+        filename: 'checkin_foto.jpg',
+      );
+    }
 
     // Format array ASP.NET: Checkin.NipPembantu[0], [1], ...
     for (var i = 0; i < entity.checkin.nipPembantu.length; i++) {

@@ -146,6 +146,16 @@ class SurveyListCubit extends Cubit<SurveyListState> {
       if (h?.rt != null) 'rt': h!.rt,
       if (h?.rw != null) 'rw': h!.rw,
       if (c != null && c.nipPembantu.isNotEmpty) 'nipPembantu': c.nipPembantu,
+      // Check-in draft tersimpan: halaman Informasi tidak minta selfie &
+      // lokasi ulang (survey ulang selalu tersimpan=false).
+      if (c != null && c.tersimpan)
+        'checkin': {
+          'latitude': c.latitude,
+          'longitude': c.longitude,
+          'alamat': c.alamat,
+          'fotoUrl': c.fotoUrl,
+          'tglCheckin': c.tglCheckin,
+        },
     };
     return m.isEmpty ? null : m;
   }

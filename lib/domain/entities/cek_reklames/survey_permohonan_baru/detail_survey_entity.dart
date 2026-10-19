@@ -176,10 +176,36 @@ class DetailHeaderEntity extends Equatable {
 class DetailCheckinEntity extends Equatable {
   final List<String> nipPembantu;
 
-  const DetailCheckinEntity({this.nipPembantu = const []});
+  /// true = check-in draft tersimpan di server (survey baru yang sudah
+  /// ber-draft). Petugas tidak perlu selfie & ambil lokasi ulang. Selalu
+  /// false untuk survey ulang (dikembalikan dari penilaian).
+  final bool tersimpan;
+  final double? latitude;
+  final double? longitude;
+  final String? alamat;
+  final String? fotoUrl;
+  final String? tglCheckin;
+
+  const DetailCheckinEntity({
+    this.nipPembantu = const [],
+    this.tersimpan = false,
+    this.latitude,
+    this.longitude,
+    this.alamat,
+    this.fotoUrl,
+    this.tglCheckin,
+  });
 
   @override
-  List<Object?> get props => [nipPembantu];
+  List<Object?> get props => [
+    nipPembantu,
+    tersimpan,
+    latitude,
+    longitude,
+    alamat,
+    fotoUrl,
+    tglCheckin,
+  ];
 }
 
 class SisiNorEntity extends Equatable {

@@ -243,7 +243,30 @@ class SurveyDetailCheckinModel {
   @JsonKey(name: 'nipPembantu', defaultValue: <String>[])
   final List<String> nipPembantu;
 
-  const SurveyDetailCheckinModel({required this.nipPembantu});
+  // true = check-in draft (foto + lokasi) tersimpan; app tidak check-in ulang.
+  @JsonKey(name: 'tersimpan', defaultValue: false)
+  final bool tersimpan;
+  @JsonKey(name: 'latitude', fromJson: _doubleOrNull)
+  final double? latitude;
+  @JsonKey(name: 'longitude', fromJson: _doubleOrNull)
+  final double? longitude;
+  @JsonKey(name: 'alamat', fromJson: _cleanOrNull)
+  final String? alamat;
+  @JsonKey(name: 'fotoUrl', fromJson: _strOrNull)
+  final String? fotoUrl;
+  // yyyy-MM-dd HH:mm:ss
+  @JsonKey(name: 'tglCheckin', fromJson: _strOrNull)
+  final String? tglCheckin;
+
+  const SurveyDetailCheckinModel({
+    required this.nipPembantu,
+    this.tersimpan = false,
+    this.latitude,
+    this.longitude,
+    this.alamat,
+    this.fotoUrl,
+    this.tglCheckin,
+  });
 
   factory SurveyDetailCheckinModel.fromJson(Map<String, dynamic> json) =>
       _$SurveyDetailCheckinModelFromJson(json);
@@ -307,8 +330,16 @@ extension SurveyDetailHeaderModelX on SurveyDetailHeaderModel {
 }
 
 extension SurveyDetailCheckinModelX on SurveyDetailCheckinModel {
-  DetailCheckinEntity toEntity() =>
-      DetailCheckinEntity(nipPembantu: nipPembantu);
+  DetailCheckinEntity toEntity() => DetailCheckinEntity(
+    nipPembantu: nipPembantu,
+    // Tanpa koordinat check-in tidak bisa dipakai ulang.
+    tersimpan: tersimpan && latitude != null && longitude != null,
+    latitude: latitude,
+    longitude: longitude,
+    alamat: alamat,
+    fotoUrl: fotoUrl,
+    tglCheckin: tglCheckin,
+  );
 }
 
 extension SisiNorModelX on SisiNorModel {

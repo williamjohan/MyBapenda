@@ -72,6 +72,39 @@ void main() {
     });
   });
 
+  test('check-in tersimpan: Checkin foto & lokasi tidak dikirim', () async {
+    final form = await const SimpanSurveyRequestEntity(
+      key: 'k',
+      tglSurvey: '2026-10-19T09:00:00',
+      kecamatan: '1',
+      kelurahan: '2',
+      lokBlok: '',
+      lokRt: '',
+      lokRw: '',
+      sisiList: [
+        SisiRequestEntity(
+          seq: 1,
+          latitude: '-7.25',
+          longitude: '112.75',
+          ketSisi: '',
+          materiReklame: '',
+          ketSurvey: '',
+        ),
+      ],
+      checkin: CheckinRequestEntity(nipPembantu: ['199001']),
+    ).toModel().toFormData();
+
+    final fields = Map.fromEntries(form.fields);
+    expect(
+      fields.keys.where(
+        (k) => k.startsWith('Checkin.') && !k.startsWith('Checkin.NipPembantu'),
+      ),
+      isEmpty,
+    );
+    expect(fields['Checkin.NipPembantu[0]'], '199001');
+    expect(form.files, isEmpty);
+  });
+
   group('SimpanSurveyHasilModel', () {
     test('Submit = terkirim', () {
       final h = SimpanSurveyHasilModel.fromJson({
@@ -106,6 +139,15 @@ void main() {
       'npwpd': 'N1',
       'katPenyelenggaraan': '1',
       'isDraft': true,
+      'checkin': {
+        'nipPembantu': <String>[],
+        'tersimpan': true,
+        'latitude': '-7.2501',
+        'longitude': '112.7501',
+        'alamat': 'Jl. A',
+        'fotoUrl': 'https://x/foto.jpg',
+        'tglCheckin': '2026-10-19 09:00:00',
+      },
       'sisiList': [
         {
           'seq': 1,
@@ -121,6 +163,9 @@ void main() {
     }).toEntity();
 
     expect(d.isDraft, isTrue);
+    expect(d.checkin?.tersimpan, isTrue);
+    expect(d.checkin?.latitude, -7.2501);
+    expect(d.checkin?.fotoUrl, 'https://x/foto.jpg');
     expect(d.sisiList[0].survey?.latitude, -7.25);
     expect(d.sisiList[0].survey?.longitude, 112.75);
     expect(d.sisiList[1].survey?.latitude, isNull);
