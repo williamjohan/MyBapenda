@@ -17,6 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
+import '../widgets/peta_lokasi_reklame.dart';
 import 'survey_foto_page.dart';
 
 class SurveyReviewPage extends StatelessWidget {
@@ -103,7 +104,7 @@ class SurveyReviewPage extends StatelessWidget {
               color: context.palette.surface,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
               child: const StepIndicator(
-                labels: ['Foto', 'Data', 'Review'],
+                labels: ['Lokasi & Foto', 'Data', 'Review'],
                 currentIndex: 2,
               ),
             ),
@@ -289,6 +290,10 @@ class SisiReviewCard extends StatelessWidget {
                 ],
               ),
             ),
+          if (result.lokasi case final lokasi?) ...[
+            const SizedBox(height: 12),
+            PetaLokasiReklame(lokasi: lokasi),
+          ],
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(height: 1, color: context.palette.border),

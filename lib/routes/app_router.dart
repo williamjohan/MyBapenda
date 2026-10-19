@@ -16,6 +16,8 @@ import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submi
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart';
+import 'package:bapendacore/presentation/features/survey_baru/screens/survey_lokasi_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_review_page.dart';
 import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_page.dart';
@@ -487,8 +489,16 @@ class AppRouter {
           final args =
               state.extra
                   as ({Map<String, dynamic> sisi, SurveyResult? result});
+          // Langkah pertama per sisi: pinpoint lokasi reklame + foto.
           return AdaptiveThemeScope(
-            child: SurveyFotoPage(sisi: args.sisi, initialResult: args.result),
+            child: BlocProvider(
+              create: (_) =>
+                  getIt<SurveyLokasiCubit>()..mulai(awal: args.result?.lokasi),
+              child: SurveyLokasiPage(
+                sisi: args.sisi,
+                initialResult: args.result,
+              ),
+            ),
           );
         },
       ),

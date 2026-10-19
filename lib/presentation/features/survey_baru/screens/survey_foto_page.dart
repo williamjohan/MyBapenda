@@ -1,20 +1,16 @@
 // lib/presentation/features/survey_baru/screens/survey_foto_page.dart
-import 'dart:async';
-import 'package:bapendacore/core/theme/theme_kit.dart';
 import 'dart:io';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_review_page.dart';
+
+import 'package:bapendacore/core/theme/theme_kit.dart';
+import 'package:bapendacore/core/utils/app_file_picker_utils.dart';
+import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
-import 'package:bapendacore/presentation/shared/utils/marker_stamp_util.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/marker_box.dart';
 import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
-import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
-import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
@@ -32,7 +28,38 @@ typedef SurveyFoto = ({
 });
 
 typedef SurveyData = Map<String, dynamic>;
-typedef SurveyResult = ({SurveyFoto foto, SurveyData data});
+
+/// [lokasi] = pinpoint reklame sisi ini (halaman peta). Null untuk hasil
+/// lama yang dibuat sebelum ada pinpoint.
+typedef SurveyResult = ({
+  SurveyFoto foto,
+  SurveyData data,
+  SurveyLokasiHasil? lokasi,
+});
+
+/// Kotak penanda awal untuk foto baru (0..1 relatif ke foto).
+const kotakAwalFoto = Rect.fromLTWH(0.28, 0.2, 0.44, 0.4);
+
+/// Foto kamera baru: rasio dihitung, kotak default, belum ada keterangan.
+Future<SurveyFoto> fotoSurveyBaru(String path) async {
+  final img = await decodeImageFromList(await File(path).readAsBytes());
+  final ratio = img.width / img.height;
+  img.dispose();
+  return (
+    path: path,
+    source: path,
+    ratio: ratio,
+    box: kotakAwalFoto,
+    keterangan: '',
+  );
+}
+
+/// Ambil foto reklame dari kamera (null = batal).
+Future<SurveyFoto?> ambilFotoSurvey() async {
+  final file = await AppFilePickerUtils.pickImage(fromCamera: true);
+  if (file == null) return null;
+  return fotoSurveyBaru(file.path);
+}
 
 List<Map<String, dynamic>> apiFotosOf(Map<String, dynamic> sisi) {
   final survey = sisi['survey'];
@@ -56,11 +83,23 @@ List<Map<String, dynamic>> wpFotosOf(Map<String, dynamic> sisi) {
 String? fotoUrlOf(Map<String, dynamic> m) =>
     (m['url'] ?? m['fotoUrl'] ?? m['path'])?.toString();
 
+/// Editor foto survey satu sisi: tandai reklame dengan kotak, isi
+/// keterangan, atau ambil ulang. Dibuka dari halaman lokasi (peta).
+/// Mengembalikan foto dengan kotak & keterangan baru (garis kotak belum
+/// digambar; digambar saat Lanjut di halaman lokasi).
 class SurveyFotoPage extends StatefulWidget {
   final Map<String, dynamic> sisi;
-  final SurveyResult? initialResult;
+  final SurveyFoto foto;
 
-  const SurveyFotoPage({super.key, required this.sisi, this.initialResult});
+  /// true: foto dimuat dari server (bukan jepretan baru).
+  final bool dariServer;
+
+  const SurveyFotoPage({
+    super.key,
+    required this.sisi,
+    required this.foto,
+    this.dariServer = false,
+  });
 
   @override
   State<SurveyFotoPage> createState() => _SurveyFotoPageState();
@@ -68,33 +107,16 @@ class SurveyFotoPage extends StatefulWidget {
 
 class _SurveyFotoPageState extends State<SurveyFotoPage> {
   Color get _brand => context.palette.accent;
-  static const _defaultBox = Rect.fromLTWH(0.28, 0.2, 0.44, 0.4);
 
-  final _picker = ImagePicker();
   late final TextEditingController _ketCtrl = TextEditingController(
-    text: widget.initialResult?.foto.keterangan ?? '',
+    text: widget.foto.keterangan,
   );
-  late SurveyFoto? _foto = widget.initialResult?.foto;
-  late SurveyData? _data = widget.initialResult?.data;
-
-  // true kalau belum ada foto lokal tapi API punya foto -> perlu di-load
-  late bool _loadingRemote =
-      _foto == null && apiFotosOf(widget.sisi).isNotEmpty;
-  bool _fromServer = false;
+  late SurveyFoto _foto = widget.foto;
+  late bool _fromServer = widget.dariServer;
   bool _busy = false; // ambil foto
-  bool _saving = false; // menggambar garis kotak
   bool _dragging = false;
 
-  // File garis kotak yang dibuat halaman ini (dihapus kalau dibuat ulang).
-  String? _createdMarked;
-
   int get _seq => widget.sisi['seq'] as int;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_loadingRemote) _loadRemote(apiFotosOf(widget.sisi).first);
-  }
 
   @override
   void dispose() {
@@ -107,111 +129,16 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  double _d(dynamic v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
-
-  Future<void> _deleteCreated() async {
-    final p = _createdMarked;
-    _createdMarked = null;
-    if (p == null) return;
-    try {
-      final f = File(p);
-      if (await f.exists()) await f.delete();
-    } catch (_) {
-      // Gagal bersih-bersih tidak boleh mengganggu alur survey.
-    }
-  }
-
-  /// Hitung rasio foto dari URL supaya kotak (0..1) pas.
-  Future<double> _remoteRatio(String url) {
-    final c = Completer<double>();
-    final stream = NetworkImage(url).resolve(const ImageConfiguration());
-    late final ImageStreamListener l;
-    l = ImageStreamListener(
-      (info, _) {
-        if (!c.isCompleted) {
-          c.complete(info.image.width / info.image.height);
-        }
-        stream.removeListener(l);
-      },
-      onError: (e, _) {
-        if (!c.isCompleted) c.completeError(e);
-        stream.removeListener(l);
-      },
-    );
-    stream.addListener(l);
-    return c.future.timeout(const Duration(seconds: 20));
-  }
-
-  Future<void> _loadRemote(Map<String, dynamic> m) async {
-    final url = (m['url'] ?? m['fotoUrl'] ?? m['path'])?.toString();
-    try {
-      if (url == null || url.isEmpty) throw Exception('URL foto kosong');
-      final ratio = await _remoteRatio(url);
-
-      final b = m['box'];
-      final hasBox =
-          b is Map &&
-          _d(b['right']) > _d(b['left']) &&
-          _d(b['bottom']) > _d(b['top']);
-      final box = hasBox
-          ? Rect.fromLTRB(
-              _d(b['left']),
-              _d(b['top']),
-              _d(b['right']),
-              _d(b['bottom']),
-            )
-          : _defaultBox;
-
-      final ket = (m['keterangan'] ?? '').toString();
-
-      if (!mounted) return;
-      setState(() {
-        _foto = (
-          path: url,
-          source: url,
-          ratio: ratio,
-          box: box,
-          keterangan: ket,
-        );
-        _ketCtrl.text = ket;
-        _fromServer = true;
-      });
-    } catch (_) {
-      _snack('Gagal memuat foto dari server. Kamu bisa ambil foto baru.');
-    } finally {
-      if (mounted) setState(() => _loadingRemote = false);
-    }
-  }
-
-  /// Hanya ambil gambar dari kamera. Tidak ada lokasi / proses lain.
   Future<void> _capture() async {
-    if (_busy || _saving) return;
+    if (_busy) return;
     setState(() => _busy = true);
     try {
-      final shot = await _picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 85,
-        maxWidth: 1920,
-      );
-      if (shot == null) return;
-
-      final img = await decodeImageFromList(await shot.readAsBytes());
-      final ratio = img.width / img.height;
-      img.dispose();
-
-      await _deleteCreated(); // garis kotak foto lama sudah tidak dipakai
-
-      if (!mounted) return;
+      final baru = await ambilFotoSurvey();
+      if (baru == null || !mounted) return;
       setState(() {
         // Foto baru -> keterangan lama tidak relevan lagi.
         _ketCtrl.clear();
-        _foto = (
-          path: shot.path,
-          source: shot.path,
-          ratio: ratio,
-          box: _defaultBox,
-          keterangan: '',
-        );
+        _foto = baru;
         _fromServer = false;
       });
     } catch (e) {
@@ -221,69 +148,17 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
     }
   }
 
-  /// Gambar garis kotak ke foto asli. Return null kalau gagal.
-  Future<SurveyFoto?> _mark(SurveyFoto f) async {
-    setState(() => _saving = true);
-    try {
-      final out = await MarkerStampUtil.drawBox(source: f.source, box: f.box);
-      await _deleteCreated();
-      _createdMarked = out;
-      return (
-        path: out,
-        source: f.source,
-        ratio: f.ratio,
-        box: f.box,
-        // Keterangan selalu diambil dari field saat ini.
-        keterangan: _ketCtrl.text.trim(),
-      );
-    } catch (e) {
-      _snack('Gagal menyimpan garis kotak pada foto: $e');
-      return null;
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  Future<void> _next() async {
-    final current = _foto;
-    if (current == null || _saving) return;
+  void _simpan() {
     FocusScope.of(context).unfocus();
-
-    // Garis kotak digambar ke foto sekali di sini, sebelum ke halaman Data.
-    final marked = await _mark(current);
-    if (marked == null || !mounted) return;
-    _foto = marked;
-
-    while (true) {
-      // 1) Data
-      final saved = await context.pushNamed<SurveyData>(
-        AppRoutes.surveyData,
-        extra: (sisi: widget.sisi, initial: _data),
-      );
-      if (saved == null || !mounted) return;
-      _data = saved;
-
-      // 2) Review sisi ini
-      final ok = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(
-          builder: (_) => AdaptiveThemeScope(
-            child: SurveySisiReviewPage(
-              sisi: widget.sisi,
-              result: (foto: marked, data: saved),
-            ),
-          ),
-        ),
-      );
-      if (!mounted) return;
-
-      if (ok == true) {
-        // 3) Simpan -> balik ke daftar sisi
-        context.pop<SurveyResult>((foto: marked, data: saved));
-        return;
-      }
-      if (ok == null) return; // back dari review -> tetap di halaman Foto
-      // ok == false -> loop lagi, buka halaman Data dengan isi sebelumnya
-    }
+    final f = _foto;
+    Navigator.of(context).pop<SurveyFoto>((
+      // Garis kotak digambar ulang dari foto asli saat Lanjut.
+      path: f.source,
+      source: f.source,
+      ratio: f.ratio,
+      box: f.box,
+      keterangan: _ketCtrl.text.trim(),
+    ));
   }
 
   void _previewWp(String url) {
@@ -415,8 +290,6 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final foto = _foto;
-
     return Scaffold(
       backgroundColor: context.palette.background,
       body: CustomScrollView(
@@ -427,23 +300,13 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           BapendaSliverHeader(
             compact: true,
             trailing: const ThemeToggleButton(),
-            title: 'Survey Permohonan Baru',
+            title: 'Tandai Reklame',
             showBackButton: true,
             subtitle: Text(
               'Sisi $_seq',
               style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              color: context.palette.surface,
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
-              child: const StepIndicator(
-                labels: ['Foto', 'Data', 'Review'],
-                currentIndex: 0,
               ),
             ),
           ),
@@ -466,12 +329,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  if (_loadingRemote)
-                    _buildLoading()
-                  else if (foto == null)
-                    _buildEmpty()
-                  else
-                    _buildEditor(foto),
+                  _buildEditor(_foto),
                 ],
               ),
             ),
@@ -483,91 +341,11 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           color: context.palette.surface,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: Button(
-            label: 'Lanjutkan',
-            icon: Icons.arrow_forward_rounded,
-            iconAtEnd: true,
-            isLoading: _saving,
-            onPressed: foto != null && !_busy && !_saving && !_loadingRemote
-                ? _next
-                : null,
+            label: 'Simpan',
+            icon: Icons.check_rounded,
+            onPressed: _busy ? null : _simpan,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLoading() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 64),
-      decoration: BoxDecoration(
-        color: context.palette.surface,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 28,
-            height: 28,
-            child: CircularProgressIndicator(strokeWidth: 2.5),
-          ),
-          SizedBox(height: 14),
-          Text(
-            'Memuat foto dari server...',
-            style: TextStyle(
-              fontSize: 12.5,
-              color: context.palette.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmpty() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
-      decoration: BoxDecoration(
-        color: context.palette.surface,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: context.palette.accentSoft,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.photo_camera_rounded, size: 30, color: _brand),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Belum ada foto survey Sisi $_seq',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: context.palette.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Ambil foto langsung di lokasi. Foto wajib pajak di atas hanya sebagai pembanding dan tidak akan tertimpa.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12.5,
-              height: 1.5,
-              color: context.palette.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 22),
-          Button(
-            label: 'Ambil Foto',
-            icon: Icons.photo_camera_rounded,
-            isLoading: _busy,
-            onPressed: _capture,
-          ),
-        ],
       ),
     );
   }
@@ -683,7 +461,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           variant: BapendaButtonVariant.outlined,
           height: 44,
           isLoading: _busy,
-          onPressed: _saving ? null : _capture,
+          onPressed: _capture,
         ),
       ],
     );
