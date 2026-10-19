@@ -10,16 +10,16 @@ import '../utils/survey_lokasi_ui_helper.dart';
 /// Zoom peta lokasi reklame: dekat, radius maksimal masih kelihatan utuh.
 const zoomPetaReklame = 19.5;
 
-/// Ikon pin reklame: jarum berwarna [warna] berisi papan reklame putih.
-/// Ujung jarum = titik koordinat (pakai `anchor: Offset(0.5, 1)`).
-Future<BitmapDescriptor> ikonPinReklame(Color warna, double dpr) async {
-  const w = 44.0, h = 56.0;
-  final rekam = ui.PictureRecorder();
-  final c = Canvas(rekam)..scale(dpr);
+/// Ukuran (logis) pin reklame; ujung jarum di tengah bawah.
+const ukuranPinReklame = Size(44, 56);
+
+/// Lukis pin reklame: jarum berwarna [warna] berisi papan reklame putih.
+void lukisPinReklame(Canvas c, Color warna) {
+  final w = ukuranPinReklame.width, h = ukuranPinReklame.height;
 
   // Jarum: lingkaran + segitiga ke bawah, dengan bayangan tipis.
   final jarum = Path()
-    ..addOval(Rect.fromCircle(center: const Offset(w / 2, 20), radius: 19))
+    ..addOval(Rect.fromCircle(center: Offset(w / 2, 20), radius: 19))
     ..moveTo(w / 2 - 11, 33)
     ..lineTo(w / 2, h - 2)
     ..lineTo(w / 2 + 11, 33)
@@ -27,7 +27,7 @@ Future<BitmapDescriptor> ikonPinReklame(Color warna, double dpr) async {
   c.drawShadow(jarum, Colors.black, 2, false);
   c.drawPath(jarum, Paint()..color = warna);
   c.drawCircle(
-    const Offset(w / 2, 20),
+    Offset(w / 2, 20),
     19,
     Paint()
       ..color = Colors.white
@@ -39,7 +39,7 @@ Future<BitmapDescriptor> ikonPinReklame(Color warna, double dpr) async {
   final putih = Paint()..color = Colors.white;
   c.drawRRect(
     RRect.fromRectAndRadius(
-      const Rect.fromLTWH(w / 2 - 11, 11, 22, 13),
+      Rect.fromLTWH(w / 2 - 11, 11, 22, 13),
       const Radius.circular(2),
     ),
     putih,
@@ -48,25 +48,23 @@ Future<BitmapDescriptor> ikonPinReklame(Color warna, double dpr) async {
     ..color = Colors.white
     ..strokeWidth = 2.4
     ..strokeCap = StrokeCap.round;
-  c.drawLine(const Offset(w / 2 - 6, 24), const Offset(w / 2 - 6, 30), tiang);
-  c.drawLine(const Offset(w / 2 + 6, 24), const Offset(w / 2 + 6, 30), tiang);
+  c.drawLine(Offset(w / 2 - 6, 24), Offset(w / 2 - 6, 30), tiang);
+  c.drawLine(Offset(w / 2 + 6, 24), Offset(w / 2 + 6, 30), tiang);
   // Garis "iklan" di papan.
   final iklan = Paint()
     ..color = warna
     ..strokeWidth = 1.6
     ..strokeCap = StrokeCap.round;
-  c.drawLine(
-    const Offset(w / 2 - 7, 15.5),
-    const Offset(w / 2 + 7, 15.5),
-    iklan,
-  );
-  c.drawLine(
-    const Offset(w / 2 - 7, 19.5),
-    const Offset(w / 2 + 3, 19.5),
-    iklan,
-  );
+  c.drawLine(Offset(w / 2 - 7, 15.5), Offset(w / 2 + 7, 15.5), iklan);
+  c.drawLine(Offset(w / 2 - 7, 19.5), Offset(w / 2 + 3, 19.5), iklan);
+}
 
-  return _bitmap(rekam, w, h, dpr);
+/// Ikon marker pin reklame. Ujung jarum = titik koordinat (pakai
+/// `anchor: Offset(0.5, 1)`).
+Future<BitmapDescriptor> ikonPinReklame(Color warna, double dpr) async {
+  final rekam = ui.PictureRecorder();
+  lukisPinReklame(Canvas(rekam)..scale(dpr), warna);
+  return _bitmap(rekam, ukuranPinReklame.width, ukuranPinReklame.height, dpr);
 }
 
 /// Titik posisi petugas (dipakai di preview; peta interaktif memakai titik
