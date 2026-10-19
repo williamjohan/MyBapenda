@@ -306,25 +306,6 @@ class AppRouter {
       ),
 
       GoRoute(
-        path: AppRoutes.reklameDashboard,
-        name: AppRoutes.reklameDashboard,
-        builder: (context, state) => const ReklameDashboardPage(),
-      ),
-
-      //  CAMERA PAGE
-      GoRoute(
-        path: AppRoutes.camera,
-        name: AppRoutes.camera,
-        builder: (context, state) {
-          return BlocProvider<CameraCubit>(
-            // .start() langsung dipanggil saat halaman dibuka untuk cek GPS & Permission
-            create: (_) => getIt<CameraCubit>()..start(),
-            child: const CameraPage(),
-          );
-        },
-      ),
-
-      GoRoute(
         path: AppRoutes.history,
         name: AppRoutes.history,
         builder: (context, state) => const HistoryScreen(),
@@ -474,10 +455,15 @@ class AppRouter {
                     List<Map<String, dynamic>> sisiList,
                     Map<String, dynamic> info,
                   });
-          return SurveySisiPage(
-            nomorPelayanan: args.nomor,
-            sisiList: args.sisiList,
-            info: args.info,
+          // Cubit simpan dipakai tombol Simpan Draft.
+          return BlocProvider<SurveySubmitCubit>(
+            create: (_) =>
+                SurveySubmitCubit(useCase: getIt<SurveyPermohonanUseCase>()),
+            child: SurveySisiPage(
+              nomorPelayanan: args.nomor,
+              sisiList: args.sisiList,
+              info: args.info,
+            ),
           );
         },
       ),
@@ -517,7 +503,10 @@ class AppRouter {
           return AdaptiveThemeScope(
             child: BlocProvider(
               create: (_) =>
-                  getIt<SurveyLokasiCubit>()..mulai(awal: args.result?.lokasi),
+                  getIt<SurveyLokasiCubit>()..mulai(
+                    awal: args.result?.lokasi,
+                    pinDraft: titikDraftOf(args.sisi),
+                  ),
               child: SurveyLokasiPage(
                 sisi: args.sisi,
                 initialResult: args.result,

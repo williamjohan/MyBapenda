@@ -76,6 +76,16 @@ void main() {
     expect(s.lokasiSiap, isTrue);
   });
 
+  test('mulai dengan pin draft: pin = titik draft, alamat dimuat', () async {
+    await cubit.mulai(pinDraft: (lat: -7.3301, lng: 112.7001));
+
+    final s = cubit.state;
+    expect(s.pin, (lat: -7.3301, lng: 112.7001));
+    expect(geocoding.permintaan.single.latitude, -7.3301);
+    expect(s.alamat, 'Jl. Kemlaten X No.20, Kebraon');
+    expect(s.jarakMeter, greaterThan(0));
+  });
+
   test('geser pin: jarak berubah, alamat dimuat ulang saat berhenti', () async {
     await cubit.mulai();
     // ±0.001 derajat lintang ≈ 111 m.
