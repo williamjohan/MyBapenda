@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -24,7 +25,7 @@ import 'survey_sisi_review_page.dart';
 /// Langkah pertama survey satu sisi: pinpoint lokasi reklame + foto.
 ///
 /// Urutan bebas: petugas boleh foto dulu atau geser pin dulu. Pin awal =
-/// posisi HP; geser peta sampai pin tepat di reklame. Garis putus-putus
+/// posisi HP; seret pin (atau ketuk peta) sampai tepat di reklame. Garis putus-putus
 /// ("penggaris") menunjukkan jarak dari posisi petugas ke pin; pin di luar
 /// radius [SurveyLokasiState.jarakMaksMeter] diberi warna merah dan Lanjut
 /// dinonaktifkan. Kotak penanda & keterangan diatur di [SurveyFotoPage].
@@ -46,6 +47,22 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
   BitmapDescriptor? _ikonPinJauh;
   bool _ambilFoto = false;
   bool _menyimpan = false; // menggambar garis kotak
+
+  // Seret pin: area sentuh Flutter di atas marker, supaya pin langsung ikut
+  // jari (drag bawaan marker Google butuh tahan lama & sering menggeser
+  // peta). Posisi dalam koordinat logis area peta, titik = ujung jarum.
+  Offset? _posPinLayar;
+  Offset? _posSeret;
+  Size _ukuranPeta = Size.zero;
+  int _urutLayar = 0;
+  bool _mengonversi = false;
+  bool _melepas = false;
+
+  // Panel bawah bisa dikecilkan (tarik / ketuk pegangan) supaya peta lega.
+  static const _panelAwal = 0.45;
+  static const _panelMin = 0.12;
+  final _panel = DraggableScrollableController();
+  final _tinggiPanel = ValueNotifier<double>(_panelAwal);
 
   late SurveyFoto? _foto = widget.initialResult?.foto;
   late SurveyData? _data = widget.initialResult?.data;
@@ -69,7 +86,18 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
   @override
   void dispose() {
     _peta?.dispose();
+    _panel.dispose();
+    _tinggiPanel.dispose();
     super.dispose();
+  }
+
+  void _togglePanel() {
+    if (!_panel.isAttached) return;
+    _panel.animateTo(
+      _panel.size > (_panelAwal + _panelMin) / 2 ? _panelMin : _panelAwal,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   void _snack(String pesan) {
@@ -279,6 +307,97 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
     );
   }
 
+  /// Android memakai piksel fisik untuk koordinat layar peta, iOS logis.
+  double get _skalaLayar => defaultTargetPlatform == TargetPlatform.android
+      ? MediaQuery.devicePixelRatioOf(context)
+      : 1;
+
+  /// Hitung ulang posisi layar pin (dipanggil saat kamera / pin berubah).
+  Future<void> _perbaruiPosPinLayar() async {
+    final peta = _peta;
+    final pin = context.read<SurveyLokasiCubit>().state.pin;
+    if (peta == null || pin == null || _posSeret != null) return;
+    final urut = ++_urutLayar;
+    try {
+      final c = await peta.getScreenCoordinate(LatLng(pin.lat, pin.lng));
+      if (!mounted || urut != _urutLayar || _posSeret != null) return;
+      final k = _skalaLayar;
+      setState(() => _posPinLayar = Offset(c.x / k, c.y / k));
+    } catch (_) {
+      // Peta belum siap; dicoba lagi saat kamera berhenti.
+    }
+  }
+
+  Future<LatLng?> _keLatLng(Offset pos) async {
+    final peta = _peta;
+    if (peta == null) return null;
+    final k = _skalaLayar;
+    try {
+      return await peta.getLatLng(
+        ScreenCoordinate(x: (pos.dx * k).round(), y: (pos.dy * k).round()),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _mulaiSeret(DragStartDetails _) {
+    final pos = _posPinLayar;
+    if (pos == null) return;
+    HapticFeedback.selectionClick();
+    _melepas = false;
+    setState(() => _posSeret = pos);
+  }
+
+  void _seret(DragUpdateDetails d) {
+    final pos = _posSeret;
+    if (pos == null) return;
+    final b = _ukuranPeta;
+    setState(() {
+      _posSeret = Offset(
+        (pos.dx + d.delta.dx).clamp(0, b.width),
+        (pos.dy + d.delta.dy).clamp(0, b.height),
+      );
+    });
+    _laporSeret();
+  }
+
+  /// Jarak & penggaris ikut berubah selama diseret. Satu konversi jalan
+  /// dalam satu waktu; posisi terbaru dikejar setelahnya.
+  Future<void> _laporSeret() async {
+    if (_mengonversi) return;
+    _mengonversi = true;
+    final cubit = context.read<SurveyLokasiCubit>();
+    try {
+      while (true) {
+        final pos = _posSeret;
+        if (pos == null || _melepas) return;
+        final ll = await _keLatLng(pos);
+        if (!mounted || _melepas) return;
+        if (ll != null) cubit.geserPin(ll.latitude, ll.longitude);
+        if (_posSeret == pos) return;
+      }
+    } finally {
+      _mengonversi = false;
+    }
+  }
+
+  Future<void> _selesaiSeret() async {
+    final pos = _posSeret;
+    if (pos == null) return;
+    _melepas = true;
+    final cubit = context.read<SurveyLokasiCubit>();
+    final ll = await _keLatLng(pos);
+    if (!mounted) return;
+    if (ll != null) cubit.geserPin(ll.latitude, ll.longitude);
+    setState(() {
+      if (ll != null) _posPinLayar = pos;
+      _posSeret = null;
+    });
+    if (ll != null) cubit.pinBerhenti();
+    _perbaruiPosPinLayar();
+  }
+
   /// Ikon pin dibuat sekali per warna (normal / terlalu jauh).
   Future<void> _siapkanIkon() async {
     final palette = context.palette;
@@ -306,91 +425,177 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
 
     return Scaffold(
       backgroundColor: palette.background,
-      body: BlocConsumer<SurveyLokasiCubit, SurveyLokasiState>(
-        listenWhen: (a, b) =>
-            b.pesanError != null &&
-            a.pesanError != b.pesanError &&
-            b.petugas != null,
-        // Peta sudah tampil: error GPS berikutnya cukup snackbar.
-        listener: (context, s) => _snack(s.pesanError!),
-        builder: (context, s) {
-          final pin = s.pin;
-          return Column(
-            children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    if (pin == null)
-                      _StatusAwal(state: s)
-                    else
-                      _buildPeta(s, pin),
-                    SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _TombolBulat(
-                              icon: Icons.arrow_back_rounded,
-                              tooltip: 'Kembali',
-                              onTap: () => context.pop(),
+      body: BlocListener<SurveyLokasiCubit, SurveyLokasiState>(
+        // Pin pindah bukan karena diseret (ketuk peta / tombol): area
+        // sentuh pin ikut dipindah.
+        listenWhen: (a, b) => a.pin != b.pin && _posSeret == null,
+        listener: (_, _) => _perbaruiPosPinLayar(),
+        child: BlocConsumer<SurveyLokasiCubit, SurveyLokasiState>(
+          listenWhen: (a, b) =>
+              b.pesanError != null &&
+              a.pesanError != b.pesanError &&
+              b.petugas != null,
+          // Peta sudah tampil: error GPS berikutnya cukup snackbar.
+          listener: (context, s) => _snack(s.pesanError!),
+          builder: (context, s) {
+            final pin = s.pin;
+            return Column(
+              children: [
+                Expanded(
+                  // Peta selalu seukuran area ini; panel bawah menimpa peta
+                  // (bukan memotongnya) supaya ukuran peta tidak berubah saat
+                  // isi panel berubah. Ubah ukuran peta di Android membuat
+                  // gambar peta melar sesaat (terlihat zoom in/out mendadak).
+                  child: LayoutBuilder(
+                    builder: (context, c) {
+                      final tinggi = c.maxHeight;
+                      return Stack(
+                        children: [
+                          if (pin == null)
+                            _StatusAwal(state: s)
+                          else
+                            _buildPetaInteraktif(
+                              s,
+                              pin,
+                              paddingBawah: tinggi * _panelMin,
                             ),
-                            const SizedBox(width: 10),
-                            if (pin != null)
-                              Expanded(child: _PetunjukPeta(state: s)),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (pin != null)
-                      Positioned(
-                        right: 12,
-                        bottom: 12,
-                        child: Column(
-                          children: [
-                            _TombolBulat(
-                              icon: Icons.push_pin_outlined,
-                              tooltip: 'Pindahkan pin ke posisi saya',
-                              onTap: _pinKePosisiSaya,
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _TombolBulat(
+                                    icon: Icons.arrow_back_rounded,
+                                    tooltip: 'Kembali',
+                                    onTap: () => context.pop(),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  if (pin != null)
+                                    Expanded(child: _PetunjukPeta(state: s)),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 10),
-                            _TombolBulat(
-                              icon: Icons.my_location_rounded,
-                              tooltip: 'Ke posisi saya',
-                              memuat: s.status == SurveyLokasiStatus.memuat,
-                              onTap: _kePosisiSaya,
+                          ),
+                          if (pin != null)
+                            ValueListenableBuilder<double>(
+                              valueListenable: _tinggiPanel,
+                              builder: (_, f, child) => Positioned(
+                                right: 12,
+                                bottom: tinggi * f + 12,
+                                child: child!,
+                              ),
+                              child: Column(
+                                children: [
+                                  _TombolBulat(
+                                    icon: Icons.push_pin_outlined,
+                                    tooltip: 'Pindahkan pin ke posisi saya',
+                                    onTap: _pinKePosisiSaya,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  _TombolBulat(
+                                    icon: Icons.my_location_rounded,
+                                    tooltip: 'Ke posisi saya',
+                                    memuat:
+                                        s.status == SurveyLokasiStatus.memuat,
+                                    onTap: _kePosisiSaya,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
-                  ],
+                          NotificationListener<DraggableScrollableNotification>(
+                            onNotification: (n) {
+                              _tinggiPanel.value = n.extent;
+                              return false;
+                            },
+                            child: DraggableScrollableSheet(
+                              controller: _panel,
+                              initialChildSize: _panelAwal,
+                              minChildSize: _panelMin,
+                              maxChildSize: _panelAwal,
+                              snap: true,
+                              builder: (context, scroll) => _PanelBawah(
+                                scroll: scroll,
+                                onTapPegangan: _togglePanel,
+                                state: s,
+                                seq: _seq,
+                                foto: _foto,
+                                memuatFoto: _memuatFotoServer,
+                                ambilFoto: _ambilFoto,
+                                menyimpan: _menyimpan,
+                                onAmbil: _ambil,
+                                onTandai: _tandai,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              ),
-              _PanelBawah(
-                state: s,
-                seq: _seq,
-                foto: _foto,
-                memuatFoto: _memuatFotoServer,
-                ambilFoto: _ambilFoto,
-                menyimpan: _menyimpan,
-                onAmbil: _ambil,
-                onTandai: _tandai,
-                onLanjut:
-                    s.lokasiSiap &&
-                        _foto != null &&
-                        !_memuatFotoServer &&
-                        !_ambilFoto
-                    ? _lanjut
-                    : null,
-              ),
-            ],
-          );
-        },
+                _BarLanjut(
+                  menyimpan: _menyimpan,
+                  onLanjut:
+                      s.lokasiSiap &&
+                          _foto != null &&
+                          !_memuatFotoServer &&
+                          !_ambilFoto
+                      ? _lanjut
+                      : null,
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildPeta(SurveyLokasiState s, TitikPeta pin) {
+  /// Peta + area sentuh pin (transparan). Marker Google tetap yang tampil
+  /// dan ikut posisi jari; widget yang dilukis di atas peta Android memicu
+  /// kedip/melar, jadi area sentuh sengaja tidak menggambar apa pun.
+  Widget _buildPetaInteraktif(
+    SurveyLokasiState s,
+    TitikPeta pin, {
+    required double paddingBawah,
+  }) {
+    const lebar = 72.0, tinggi = 84.0, bawah = 12.0;
+    final pos = _posSeret ?? _posPinLayar;
+
+    return LayoutBuilder(
+      builder: (context, c) {
+        _ukuranPeta = c.biggest;
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: _buildPeta(s, pin, paddingBawah: paddingBawah),
+            ),
+            if (pos != null)
+              Positioned(
+                left: pos.dx - lebar / 2,
+                top: pos.dy - tinggi + bawah,
+                width: lebar,
+                height: tinggi,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  dragStartBehavior: DragStartBehavior.down,
+                  onPanStart: _mulaiSeret,
+                  onPanUpdate: _seret,
+                  onPanEnd: (_) => _selesaiSeret(),
+                  onPanCancel: _selesaiSeret,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPeta(
+    SurveyLokasiState s,
+    TitikPeta pin, {
+    required double paddingBawah,
+  }) {
     final palette = context.palette;
     final petugas = s.petugas;
     final warna = s.terlaluJauh ? palette.statusGagal : palette.accent;
@@ -406,7 +611,16 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
             : LatLng(pin.lat, pin.lng),
         zoom: zoomPetaReklame,
       ),
-      onMapCreated: (c) => _peta = c,
+      onMapCreated: (c) {
+        _peta = c;
+        _perbaruiPosPinLayar();
+      },
+      // Logo Google tetap terlihat di atas panel versi kecil. Nilainya
+      // tetap (tidak ikut tinggi panel) supaya peta tidak bergeser.
+      padding: EdgeInsets.only(bottom: paddingBawah),
+      // Area sentuh pin mengikuti kamera.
+      onCameraMove: (_) => _perbaruiPosPinLayar(),
+      onCameraIdle: _perbaruiPosPinLayar,
       // Ketuk peta = pindahkan pin ke titik itu.
       onTap: (p) {
         cubit.geserPin(p.latitude, p.longitude);
@@ -504,7 +718,7 @@ class _PetunjukPeta extends StatelessWidget {
                   Text(
                     jauh
                         ? 'Pin di luar radius $maks m'
-                        : 'Ketuk peta atau tahan & geser pin',
+                        : 'Ketuk peta atau seret pin',
                     style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
@@ -712,7 +926,44 @@ class _Langkah extends StatelessWidget {
   }
 }
 
+/// Tombol Lanjutkan, tetap di bawah layar (di luar panel yang bisa
+/// dikecilkan).
+class _BarLanjut extends StatelessWidget {
+  final bool menyimpan;
+
+  /// null = belum bisa lanjut (tombol nonaktif).
+  final VoidCallback? onLanjut;
+
+  const _BarLanjut({required this.menyimpan, required this.onLanjut});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Container(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        border: Border(top: BorderSide(color: palette.border)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 10, 18, 12),
+          child: Button(
+            label: 'Lanjutkan',
+            icon: Icons.arrow_forward_rounded,
+            iconAtEnd: true,
+            isLoading: menyimpan,
+            onPressed: onLanjut,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PanelBawah extends StatelessWidget {
+  final ScrollController scroll;
+  final VoidCallback onTapPegangan;
   final SurveyLokasiState state;
   final int seq;
   final SurveyFoto? foto;
@@ -722,10 +973,9 @@ class _PanelBawah extends StatelessWidget {
   final VoidCallback onAmbil;
   final VoidCallback onTandai;
 
-  /// null = belum bisa lanjut (tombol nonaktif).
-  final VoidCallback? onLanjut;
-
   const _PanelBawah({
+    required this.scroll,
+    required this.onTapPegangan,
     required this.state,
     required this.seq,
     required this.foto,
@@ -734,7 +984,6 @@ class _PanelBawah extends StatelessWidget {
     required this.menyimpan,
     required this.onAmbil,
     required this.onTandai,
-    required this.onLanjut,
   });
 
   @override
@@ -752,191 +1001,217 @@ class _PanelBawah extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [BoxShadow(color: palette.shadow, blurRadius: 12)],
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Survey Sisi $seq',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: palette.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // 1. Titik reklame
-              _Langkah(
-                nomor: 1,
-                judul: 'Titik reklame',
-                selesai: s.lokasiSiap,
-                error: s.terlaluJauh,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: s.terlaluJauh
-                        ? palette.statusGagalSoft
-                        : palette.accentSoft,
-                    borderRadius: BorderRadius.circular(12),
+      child: ListView(
+        controller: scroll,
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 16),
+        children: [
+          // Pegangan + judul: tarik / ketuk untuk kecilkan-besarkan.
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTapPegangan,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 14),
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: palette.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  child: s.pin == null || s.memuatAlamat
-                      ? Text(
-                          'Mencari alamat...',
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Survey Sisi $seq',
                           style: TextStyle(
-                            fontSize: 12.5,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: palette.textPrimary,
+                          ),
+                        ),
+                      ),
+                      // Ringkasan, tetap terbaca saat panel dikecilkan.
+                      Text(
+                        [
+                          if (jarak != null) SurveyLokasiUiHelper.jarak(jarak),
+                          foto == null ? 'Belum foto' : 'Foto ✓',
+                        ].join(' · '),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: s.terlaluJauh
+                              ? palette.statusGagal
+                              : palette.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 1. Titik reklame
+          _Langkah(
+            nomor: 1,
+            judul: 'Titik reklame',
+            selesai: s.lokasiSiap,
+            error: s.terlaluJauh,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: s.terlaluJauh
+                    ? palette.statusGagalSoft
+                    : palette.accentSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: s.pin == null || s.memuatAlamat
+                  ? Text(
+                      'Mencari alamat...',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: palette.textSecondary,
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          alamat.judul,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: palette.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          alamat.detail,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            height: 1.4,
                             color: palette.textSecondary,
                           ),
-                        )
-                      : Column(
+                        ),
+                        if (jarak != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            s.terlaluJauh
+                                ? '${SurveyLokasiUiHelper.jarak(jarak)} '
+                                      'dari Anda, maksimal $maks m. Dekati '
+                                      'reklame atau geser pin.'
+                                : '${SurveyLokasiUiHelper.jarak(jarak)} '
+                                      'dari Anda · akurasi GPS '
+                                      '±${s.petugas!.akurasiMeter.round()} m',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: s.terlaluJauh
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                              color: s.terlaluJauh
+                                  ? palette.statusGagal
+                                  : palette.textTertiary,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 2. Foto reklame
+          _Langkah(
+            nomor: 2,
+            judul: 'Foto reklame',
+            selesai: foto != null,
+            child: memuatFoto
+                ? Row(
+                    children: [
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Memuat foto dari server...',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: palette.textSecondary,
+                        ),
+                      ),
+                    ],
+                  )
+                : foto == null
+                ? Button(
+                    label: 'Ambil Foto Reklame',
+                    icon: Icons.photo_camera_rounded,
+                    variant: BapendaButtonVariant.outlined,
+                    height: 44,
+                    isLoading: ambilFoto,
+                    onPressed: onAmbil,
+                  )
+                : Row(
+                    children: [
+                      GestureDetector(
+                        onTap: ambilFoto || menyimpan ? null : onTandai,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: BapendaImage(
+                            path: foto.source,
+                            width: 60,
+                            height: 60,
+                            cacheWidth: 200,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              alamat.judul,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w700,
-                                color: palette.textPrimary,
+                            TextButton.icon(
+                              onPressed: ambilFoto || menyimpan
+                                  ? null
+                                  : onTandai,
+                              icon: const Icon(
+                                Icons.crop_free_rounded,
+                                size: 18,
+                              ),
+                              label: const Text('Tandai reklame'),
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              alamat.detail,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                height: 1.4,
-                                color: palette.textSecondary,
+                            TextButton.icon(
+                              onPressed: ambilFoto || menyimpan
+                                  ? null
+                                  : onAmbil,
+                              icon: const Icon(
+                                Icons.photo_camera_outlined,
+                                size: 18,
+                              ),
+                              label: const Text('Ambil ulang'),
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
                               ),
                             ),
-                            if (jarak != null) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                s.terlaluJauh
-                                    ? '${SurveyLokasiUiHelper.jarak(jarak)} '
-                                          'dari Anda, maksimal $maks m. Dekati '
-                                          'reklame atau geser pin.'
-                                    : '${SurveyLokasiUiHelper.jarak(jarak)} '
-                                          'dari Anda · akurasi GPS '
-                                          '±${s.petugas!.akurasiMeter.round()} m',
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: s.terlaluJauh
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                  color: s.terlaluJauh
-                                      ? palette.statusGagal
-                                      : palette.textTertiary,
-                                ),
-                              ),
-                            ],
                           ],
                         ),
-                ),
-              ),
-              const SizedBox(height: 14),
-
-              // 2. Foto reklame
-              _Langkah(
-                nomor: 2,
-                judul: 'Foto reklame',
-                selesai: foto != null,
-                child: memuatFoto
-                    ? Row(
-                        children: [
-                          const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Memuat foto dari server...',
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              color: palette.textSecondary,
-                            ),
-                          ),
-                        ],
-                      )
-                    : foto == null
-                    ? Button(
-                        label: 'Ambil Foto Reklame',
-                        icon: Icons.photo_camera_rounded,
-                        variant: BapendaButtonVariant.outlined,
-                        height: 44,
-                        isLoading: ambilFoto,
-                        onPressed: onAmbil,
-                      )
-                    : Row(
-                        children: [
-                          GestureDetector(
-                            onTap: ambilFoto || menyimpan ? null : onTandai,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: BapendaImage(
-                                path: foto.source,
-                                width: 60,
-                                height: 60,
-                                cacheWidth: 200,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: ambilFoto || menyimpan
-                                      ? null
-                                      : onTandai,
-                                  icon: const Icon(
-                                    Icons.crop_free_rounded,
-                                    size: 18,
-                                  ),
-                                  label: const Text('Tandai reklame'),
-                                  style: TextButton.styleFrom(
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ),
-                                TextButton.icon(
-                                  onPressed: ambilFoto || menyimpan
-                                      ? null
-                                      : onAmbil,
-                                  icon: const Icon(
-                                    Icons.photo_camera_outlined,
-                                    size: 18,
-                                  ),
-                                  label: const Text('Ambil ulang'),
-                                  style: TextButton.styleFrom(
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
-              ),
-              const SizedBox(height: 16),
-              Button(
-                label: 'Lanjutkan',
-                icon: Icons.arrow_forward_rounded,
-                iconAtEnd: true,
-                isLoading: menyimpan,
-                onPressed: onLanjut,
-              ),
-            ],
+                    ],
+                  ),
           ),
-        ),
+        ],
       ),
     );
   }
