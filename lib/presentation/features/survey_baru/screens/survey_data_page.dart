@@ -257,7 +257,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                     color: Colors.white,
                     padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
                     child: const StepIndicator(
-                      labels: ['Foto', 'Data', 'Review'],
+                      labels: ['Lokasi & Foto', 'Data', 'Review'],
                       currentIndex: 1,
                     ),
                   ),
