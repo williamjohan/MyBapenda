@@ -21,6 +21,8 @@ class AppRoutes {
   static const String surveyData = '/survey-data';
   static const String surveyReview = '/survey-review';
   static const String surveyInfo = '/survey-info';
+  static const String surveyHistory = '/survey-history';
+  static const String surveyHistoryDetail = '/survey-history-detail';
 
   /// Absensi pegawai
   static const String absensi = '/absensi';

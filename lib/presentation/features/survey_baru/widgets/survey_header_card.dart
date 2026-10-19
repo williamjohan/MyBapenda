@@ -1,5 +1,6 @@
+import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
 import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 class SurveyHeaderCard extends StatelessWidget {
@@ -22,11 +23,15 @@ class SurveyHeaderCard extends StatelessWidget {
       return (x == null || '$x'.trim().isEmpty) ? '-' : '$x';
     }
 
-    return Container(
+    final returned = h['dikembalikan'] == true;
+    final ket = h['ketPengembalian'] as String?;
+    final tgl = h['tglPengembalian'];
+
+    final card = Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: context.palette.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Theme(
@@ -38,28 +43,25 @@ class SurveyHeaderCard extends StatelessWidget {
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           shape: const Border(),
           collapsedShape: const Border(),
-          leading: Icon(
+          leading: const Icon(
             Icons.assignment_outlined,
             size: 20,
-            color: context.palette.accent,
+            color: AppThemeColors.primary,
           ),
-          title: Text(
+          title: const Text(
             'Informasi Permohonan',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: context.palette.textPrimary,
+              color: Color(0xFF1F2933),
             ),
           ),
           subtitle: Text(
             v('noPelayanan'),
-            style: TextStyle(
-              fontSize: 12,
-              color: context.palette.textSecondary,
-            ),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF7B8794)),
           ),
           children: [
-            Divider(height: 1, color: context.palette.border),
+            const Divider(height: 1, color: Color(0xFFEEF0F3)),
             const SizedBox(height: 10),
             InfoRow(label: 'No. Pelayanan', value: v('noPelayanan')),
             InfoRow(label: 'NPWPD', value: v('npwpd')),
@@ -75,6 +77,73 @@ class SurveyHeaderCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+
+    if (!returned) return card;
+
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppThemeColors.dangerSoft,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: AppThemeColors.danger.withValues(alpha: 0.25),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.assignment_return_outlined,
+                size: 18,
+                color: AppThemeColors.danger,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Dikembalikan dari Penilaian',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppThemeColors.danger,
+                      ),
+                    ),
+                    if (ket != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        ket,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          height: 1.4,
+                          color: Color(0xFF3E4C59),
+                        ),
+                      ),
+                    ],
+                    if (tgl is DateTime) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        HistoryFmt.tanggalJam(tgl),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF7B8794),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        card,
+      ],
     );
   }
 }

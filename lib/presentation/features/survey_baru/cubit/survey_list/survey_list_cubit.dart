@@ -51,10 +51,15 @@ class SurveyListCubit extends Cubit<SurveyListState> {
 
       return result.fold<({List<Map<String, dynamic>>? sisi, String? error})>(
         (failure) => (sisi: null, error: failure.message),
-        (detail) => (
-          sisi: detail.sisiList.map((s) => _sisiToMap(s, e, header)).toList(),
-          error: null,
-        ),
+        (detail) {
+          final prefill = _infoPrefill(detail);
+          return (
+            sisi: detail.sisiList
+                .map((s) => _sisiToMap(s, e, header, prefill))
+                .toList(),
+            error: null,
+          );
+        },
       );
     } catch (err, st) {
       debugPrint('fetchSisi error: $err\n$st');
@@ -76,6 +81,9 @@ class SurveyListCubit extends Cubit<SurveyListState> {
       'lokPenyelenggaraan': e.lokPenyelenggaraan,
       'tglMulai': p.first.trim(),
       'tglSelesai': p.length > 1 ? p.last.trim() : '-',
+      'dikembalikan': e.dikembalikanPenilaian,
+      'ketPengembalian': e.ketPengembalian,
+      'tglPengembalian': e.tglPengembalian,
     };
   }
 
@@ -83,22 +91,23 @@ class SurveyListCubit extends Cubit<SurveyListState> {
     SisiListEntity s,
     SurveyPermohonanEntity e,
     Map<String, dynamic> header,
+    Map<String, dynamic>? prefill,
   ) {
     final sv = s.survey;
     return {
       'header': header,
+      if (prefill != null) 'infoPrefill': prefill,
       'seq': s.seq,
       'keySisi': s.keySisi,
       'imageUrl': s.imageUrl,
       'fotosWp': [
         if (s.imageUrl != null) {'url': s.imageUrl},
       ],
-      // Detail sering null, jadi fallback ke data header permohonan.
       'jenisReklameNama': s.jenisReklameNama ?? e.jenisReklameNama,
       'lokPenyelenggaraanPermohonan': s.lokPenyelenggaraanPermohonan,
       'materiReklamePermohonan': s.materiReklamePermohonan,
       'masaTayang': s.masaTayang ?? e.masaTayang,
-      'nor': s.nor,
+      'nor': s.nor?.label,
       'survey': {
         if (sv != null) ...{
           'seq': sv.seq,
@@ -121,6 +130,20 @@ class SurveyListCubit extends Cubit<SurveyListState> {
         'fotos': const [],
       },
     };
+  }
+
+  Map<String, dynamic>? _infoPrefill(SurveyDetailEntity d) {
+    final h = d.header;
+    final c = d.checkin;
+    final m = <String, dynamic>{
+      if (h?.kecamatan != null) 'kecamatanId': h!.kecamatan,
+      if (h?.kelurahan != null) 'kelurahanId': h!.kelurahan,
+      if (h?.blok != null) 'blok': h!.blok,
+      if (h?.rt != null) 'rt': h!.rt,
+      if (h?.rw != null) 'rw': h!.rw,
+      if (c != null && c.nipPembantu.isNotEmpty) 'nipPembantu': c.nipPembantu,
+    };
+    return m.isEmpty ? null : m;
   }
 
   void search(String q) => emit(state.copyWith(query: q));

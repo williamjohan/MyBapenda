@@ -15,15 +15,10 @@ import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
 typedef SurveyFoto = ({
-  /// Foto final (sudah ada garis kotak). Dipakai review & upload.
   String path,
-
-  /// Foto asli tanpa garis. Dipakai editor supaya garis tidak dobel.
   String source,
   double ratio,
   Rect box,
-
-  /// Keterangan foto yang diisi petugas.
   String keterangan,
 });
 
@@ -199,7 +194,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.palette.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -209,13 +204,13 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
             children: [
               Icon(Icons.person_pin_rounded, size: 18, color: _brand),
               const SizedBox(width: 8),
-              Expanded(
+              const Expanded(
                 child: Text(
                   'Foto dari Wajib Pajak',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: context.palette.textPrimary,
+                    color: Color(0xFF1F2933),
                   ),
                 ),
               ),
@@ -227,12 +222,9 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           ),
           const SizedBox(height: 12),
           if (url == null)
-            Text(
+            const Text(
               'Wajib pajak belum melampirkan foto.',
-              style: TextStyle(
-                fontSize: 12.5,
-                color: context.palette.textSecondary,
-              ),
+              style: TextStyle(fontSize: 12.5, color: Color(0xFF7B8794)),
             )
           else
             GestureDetector(
@@ -291,7 +283,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.palette.background,
+      backgroundColor: const Color(0xFFF5F6F8),
       body: CustomScrollView(
         physics: _dragging
             ? const NeverScrollableScrollPhysics()
@@ -320,12 +312,12 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
                   const SizedBox(height: 14),
                   _buildFotoWp(),
                   const SizedBox(height: 20),
-                  Text(
+                  const Text(
                     'Foto Survey Petugas',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: context.palette.textPrimary,
+                      color: Color(0xFF1F2933),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -338,7 +330,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          color: context.palette.surface,
+          color: Colors.white,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: Button(
             label: 'Simpan',
@@ -442,7 +434,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: context.palette.surface,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(18),
           ),
           child: BapendaTextField(

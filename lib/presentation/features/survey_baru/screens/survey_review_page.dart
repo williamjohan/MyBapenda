@@ -1,6 +1,5 @@
 // lib/presentation/features/survey_baru/screens/survey_review_page.dart
 import 'package:bapendacore/core/di/injection.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
@@ -12,7 +11,6 @@ import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:bapendacore/presentation/shared/widgets/photo_preview.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
@@ -82,13 +80,11 @@ class SurveyReviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.palette.background,
+      backgroundColor: const Color(0xFFF5F6F8),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           BapendaSliverHeader(
-            compact: true,
-            trailing: const ThemeToggleButton(),
             title: 'Survey Permohonan Baru',
             showBackButton: true,
             subtitle: Text(
@@ -101,7 +97,7 @@ class SurveyReviewPage extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: context.palette.surface,
+              color: Colors.white,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
               child: const StepIndicator(
                 labels: ['Lokasi & Foto', 'Data', 'Review'],
@@ -119,7 +115,7 @@ class SurveyReviewPage extends StatelessWidget {
                 ),
               ),
             ),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(18, 20, 18, 4),
               child: Text(
@@ -127,7 +123,7 @@ class SurveyReviewPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: context.palette.textPrimary,
+                  color: Color(0xFF1F2933),
                 ),
               ),
             ),
@@ -161,7 +157,7 @@ class SurveyReviewPage extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          color: context.palette.surface,
+          color: Colors.white,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: BlocBuilder<SurveySubmitCubit, bool>(
             builder: (context, sending) => Button(
@@ -220,7 +216,7 @@ class SisiReviewCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.palette.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -228,19 +224,19 @@ class SisiReviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.campaign_rounded,
                 size: 18,
-                color: context.palette.accent,
+                color: Color(0xFFB8680F),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Sisi $seq',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: context.palette.textPrimary,
+                    color: Color(0xFF1F2933),
                   ),
                 ),
               ),
@@ -256,7 +252,7 @@ class SisiReviewCard extends StatelessWidget {
                     ),
                   ),
                   style: TextButton.styleFrom(
-                    foregroundColor: context.palette.accent,
+                    foregroundColor: const Color(0xFFB8680F),
                     visualDensity: VisualDensity.compact,
                   ),
                 ),
@@ -271,19 +267,19 @@ class SisiReviewCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.notes_rounded,
                     size: 15,
-                    color: context.palette.textTertiary,
+                    color: Color(0xFF9AA5B1),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       f.keterangan,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12.5,
                         height: 1.4,
-                        color: context.palette.textSecondary,
+                        color: Color(0xFF52606D),
                       ),
                     ),
                   ),
@@ -296,7 +292,7 @@ class SisiReviewCard extends StatelessWidget {
           ],
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: context.palette.border),
+            child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
 
           InfoRow(label: 'NOR', value: nor),
@@ -390,22 +386,27 @@ class _InfoReviewCard extends StatelessWidget {
     final kec = m.optionsOf(MasterOptionType.kecamatan)[kecId] ?? '-';
     final kel = m.kelurahanOf(kecId)[info['kelurahanId']] ?? '-';
 
+    // Petugas pembantu boleh lebih dari satu (list nama dari halaman info).
+    final pembantu = [
+      for (final n in (info['namaPembantu'] as List? ?? const [])) '$n',
+    ];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.palette.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(
                 Icons.location_on_outlined,
                 size: 18,
-                color: context.palette.accent,
+                color: Color(0xFFB8680F),
               ),
               SizedBox(width: 8),
               Text(
@@ -413,7 +414,7 @@ class _InfoReviewCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: context.palette.textPrimary,
+                  color: Color(0xFF1F2933),
                 ),
               ),
             ],
@@ -432,22 +433,20 @@ class _InfoReviewCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Text(
                     'Foto selfie petugas',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: context.palette.textSecondary,
-                    ),
+                    style: TextStyle(fontSize: 12.5, color: Color(0xFF52606D)),
                   ),
                 ),
               ],
             ),
-          Padding(
+          const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: context.palette.border),
+            child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
+          InfoRow(label: 'Alamat', value: '${info['alamat'] ?? '-'}'),
           InfoRow(label: 'Kecamatan', value: kec),
           InfoRow(label: 'Kelurahan', value: kel),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),
@@ -458,7 +457,7 @@ class _InfoReviewCard extends StatelessWidget {
           ),
           InfoRow(
             label: 'Petugas Pembantu',
-            value: '${info['namaPetugasPembantu'] ?? '-'}',
+            value: pembantu.isEmpty ? '-' : pembantu.join(', '),
           ),
           InfoRow(
             label: 'Tanggal Survey',

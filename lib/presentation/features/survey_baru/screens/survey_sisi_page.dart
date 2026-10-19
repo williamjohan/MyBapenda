@@ -1,9 +1,7 @@
 // lib/presentation/features/reklame/pages/survey_sisi_page.dart
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
-import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
@@ -63,13 +61,11 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
     final list = widget.sisiList;
 
     return Scaffold(
-      backgroundColor: context.palette.background,
+      backgroundColor: const Color(0xFFF5F6F8),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           BapendaSliverHeader(
-            compact: true,
-            trailing: const ThemeToggleButton(),
             title: 'Mulai Survey',
             showBackButton: true,
             subtitle: Text(
@@ -95,19 +91,19 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                   Expanded(
                     child: Text(
                       'Daftar Sisi Reklame',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: context.palette.textPrimary,
+                        color: const Color(0xFF1F2933),
                       ),
                     ),
                   ),
                   Text(
                     '${_results.length}/${list.length} selesai',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: context.palette.accent,
+                      color: const Color(0xFFB8680F),
                     ),
                   ),
                 ],
@@ -141,7 +137,7 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          color: context.palette.surface,
+          color: Colors.white,
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
           child: Button(
             label: 'Review & Kirim',

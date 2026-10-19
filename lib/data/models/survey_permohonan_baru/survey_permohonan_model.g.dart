@@ -25,24 +25,25 @@ SurveyPermohonanModel _$SurveyPermohonanModelFromJson(
       statusPermohonan: json['statusPermohonan'] as String,
       startTask: json['startTask'] as String,
       expTask: json['expTask'] as String,
+      dikembalikanPenilaian: json['dikembalikanPenilaian'] as bool? ?? false,
+      ketPengembalian: _textOrNull(json['ketPengembalian']),
+      tglPengembalian: _dateTimeOrNull(json['tglPengembalian']),
+      badge: json['badge'] == null
+          ? null
+          : SurveyBadgeModel.fromJson(json['badge'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$SurveyPermohonanModelToJson(
-        SurveyPermohonanModel instance) =>
-    <String, dynamic>{
-      'key': instance.key,
-      'keyTask': instance.keyTask,
-      'noPelayanan': instance.noPelayanan,
-      'npwpd': instance.npwpd,
-      'katPenyelenggaraan': instance.katPenyelenggaraan,
-      'kategoriPenyelenggaraanNama': instance.kategoriPenyelenggaraanNama,
-      'jenisReklameNama': instance.jenisReklameNama,
-      'lokPenyelenggaraan': instance.lokPenyelenggaraan,
-      'masaTayang': instance.masaTayang,
-      'masaPajakHari': instance.masaPajakHari,
-      'jumlahSisi': instance.jumlahSisi,
-      'statusProses': instance.statusProses,
-      'statusPermohonan': instance.statusPermohonan,
-      'startTask': instance.startTask,
-      'expTask': instance.expTask,
-    };
+SurveyBadgeModel _$SurveyBadgeModelFromJson(Map<String, dynamic> json) =>
+    SurveyBadgeModel(
+      text: json['text'] as String? ?? '',
+      color: json['color'] == null
+          ? null
+          : SurveyBadgeColorModel.fromJson(
+              json['color'] as Map<String, dynamic>),
+    );
+
+SurveyBadgeColorModel _$SurveyBadgeColorModelFromJson(
+        Map<String, dynamic> json) =>
+    SurveyBadgeColorModel(
+      description: json['description'] as String? ?? '',
+    );

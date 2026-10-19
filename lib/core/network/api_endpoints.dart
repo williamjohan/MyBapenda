@@ -1,5 +1,5 @@
+
 class ApiEndpoints {
-  // Private constructor agar tidak bisa di-instantiate (Best Practice)
   ApiEndpoints._();
 
   // ==========================================
@@ -18,7 +18,8 @@ class ApiEndpoints {
   // ==========================================
   static const String profile = '/api/profile';
   static const String profileGantiFoto = '/api/profile/ganti-foto';
-  static const String profileKirimOtpKontak = '/api/profile/kontak/kirim-otp';
+  static const String profileKirimOtpKontak =
+      '/api/profile/kontak/kirim-otp';
   static const String profileVerifikasiOtpKontak =
       '/api/profile/kontak/verifikasi-otp';
 
@@ -26,7 +27,8 @@ class ApiEndpoints {
   static const String uploadReklame = '/api/cekreklame/upload-reklame';
 
   // ==========================================
-  // ABSENSI PEGAWAI (SurabayaTaxApi - KantorController)
+  // ABSENSI PEGAWAI
+  // SurabayaTaxApi - KantorController
   // Wajib header HMAC X-App-*, lihat HmacKantorInterceptor.
   // ==========================================
   static const String kantorPrefix = '/api/kantor/';
@@ -52,40 +54,55 @@ class ApiEndpoints {
   static const String surveyPermohonanDetail = '/api/reklame/bo/survey-form';
   static const String surveySimpan = '/api/reklame/bo/simpan-survey';
   static const String surveyCariNor = '/api/reklame/bo/cari-nor';
+  static const String surveyHistory = '/api/reklame/bo/history-survey';
+  static const String surveyHistoryDetail =
+      '/api/reklame/bo/history-survey/detail';
 
   // ==========================================
   // CREATE VA & QRIS
   // ==========================================
-  static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
+  static const String pembayaranJenisPajak =
+      '/api/pembayaran/jenis-pajak';
   static const String pembayaranTagihan = '/api/pembayaran/tagihan';
   static const String pembayaranCariObjek = '/api/pembayaran/cari-objek';
-  static const String pembayaranCheckNominal = '/api/pembayaran/check-nominal';
+  static const String pembayaranCheckNominal =
+      '/api/pembayaran/check-nominal';
   static const String pembayaranBayar = '/api/pembayaran/bayar';
   static const String pembayaranStatus = '/api/pembayaran/status';
 
   // ==========================================
-  // MASTER DATA
+  // MASTER DATA REKLAME
   // ==========================================
-  static const reklameMasterLokasiTertentu =
+  static const String reklameMasterLokasiTertentu =
       '/api/reklame/master/lokasi-tertentu';
-  static const reklameMasterJenisReklame = '/api/reklame/master/jenis-reklame';
-  static const reklameMasterLetakReklame = '/api/reklame/master/letak-reklame';
-  static const reklameMasterStatusTanah = '/api/reklame/master/status-tanah';
-  static const reklameMasterSudutPandang = '/api/reklame/master/sudut-pandang';
-  static const reklameMasterPersil = '/api/reklame/master/persil';
-  static const reklameMasterJenisBangunan =
+  static const String reklameMasterJenisReklame =
+      '/api/reklame/master/jenis-reklame';
+  static const String reklameMasterLetakReklame =
+      '/api/reklame/master/letak-reklame';
+  static const String reklameMasterStatusTanah =
+      '/api/reklame/master/status-tanah';
+  static const String reklameMasterSudutPandang =
+      '/api/reklame/master/sudut-pandang';
+  static const String reklameMasterPersil =
+      '/api/reklame/master/persil';
+  static const String reklameMasterJenisBangunan =
       '/api/reklame/master/jenis-bangunan';
-  static const reklameMasterNamaJalan = '/api/reklame/master/nama-jalan';
-  static const reklameMasterKecamatan = '/api/reklame/master/kecamatan';
-  static const reklameMasterKelurahan = '/api/reklame/master/kelurahan';
-  static const reklameMasterJenisProduk = '/api/reklame/master/jenis-produk';
-  static const reklameMasterPegawaiSurvey =
+  static const String reklameMasterNamaJalan =
+      '/api/reklame/master/nama-jalan';
+  static const String reklameMasterKecamatan =
+      '/api/reklame/master/kecamatan';
+  static const String reklameMasterKelurahan =
+      '/api/reklame/master/kelurahan';
+  static const String reklameMasterJenisProduk =
+      '/api/reklame/master/jenis-produk';
+  static const String reklameMasterPegawaiSurvey =
       '/api/reklame/master/pegawai-survey';
-  static const reklameMasterLokasiPenyelenggaraan =
+  static const String reklameMasterLokasiPenyelenggaraan =
       '/api/reklame/master/lokasi-penyelenggaraan';
 
   // ==========================================
-  // PENGIRIMAN SURAT (CekReklameApi, Bearer NIP)
+  // PENGIRIMAN SURAT
+  // CekReklameApi, Bearer NIP
   // ==========================================
   static const String pengirimanMaster = '/api/pengiriman/master';
   static const String pengirimanDaftar = '/api/pengiriman/daftar';
@@ -102,7 +119,8 @@ class ApiEndpoints {
   static const String pengirimanFoto = '/api/pengiriman/foto';
 
   // ==========================================
-  // NOTIFIKASI PETUGAS (CekReklameApi, Bearer NIP)
+  // NOTIFIKASI PETUGAS
+  // CekReklameApi, Bearer NIP
   // ==========================================
   static const String notifikasiJumlahBelumDibaca =
       '/api/notifikasi/jumlah-belum-dibaca';
@@ -113,7 +131,10 @@ class ApiEndpoints {
   /// Hub SignalR; token lewat query `access_token` (accessTokenFactory).
   static const String notifikasiHub = '/hubs/notifikasi';
 
-  /// Google Routes API (rute motor di peta lacak). URL penuh: host Google.
+  // ==========================================
+  // GOOGLE ROUTES API
+  // Rute motor di peta lacak.
+  // ==========================================
   static const String googleRoutes =
       'https://routes.googleapis.com/directions/v2:computeRoutes';
 }
