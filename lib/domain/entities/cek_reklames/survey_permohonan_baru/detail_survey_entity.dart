@@ -10,6 +10,9 @@ class SurveyDetailEntity extends Equatable {
   final String katPenyelenggaraan;
   final String? kategoriPenyelenggaraanNama;
   final String? statusPermohonan;
+
+  /// true = header & isian sisi berasal dari draft tersimpan.
+  final bool isDraft;
   final DetailHeaderEntity? header;
   final DetailCheckinEntity? checkin;
   final List<SisiListEntity> sisiList;
@@ -21,6 +24,7 @@ class SurveyDetailEntity extends Equatable {
     required this.katPenyelenggaraan,
     this.kategoriPenyelenggaraanNama,
     this.statusPermohonan,
+    this.isDraft = false,
     this.header,
     this.checkin,
     required this.sisiList,
@@ -34,6 +38,7 @@ class SurveyDetailEntity extends Equatable {
     katPenyelenggaraan,
     kategoriPenyelenggaraanNama,
     statusPermohonan,
+    isDraft,
     header,
     checkin,
     sisiList,
@@ -101,6 +106,10 @@ class SurveyDataEntity extends Equatable {
   final String? materiReklame;
   final String? ketSurvey;
 
+  /// Titik reklame sisi ini (draft / survey tersimpan).
+  final double? latitude;
+  final double? longitude;
+
   const SurveyDataEntity({
     required this.seq,
     this.idNor,
@@ -118,6 +127,8 @@ class SurveyDataEntity extends Equatable {
     this.ketSisi,
     this.materiReklame,
     this.ketSurvey,
+    this.latitude,
+    this.longitude,
   });
 
   @override
@@ -138,6 +149,8 @@ class SurveyDataEntity extends Equatable {
     ketSisi,
     materiReklame,
     ketSurvey,
+    latitude,
+    longitude,
   ];
 }
 
@@ -163,10 +176,36 @@ class DetailHeaderEntity extends Equatable {
 class DetailCheckinEntity extends Equatable {
   final List<String> nipPembantu;
 
-  const DetailCheckinEntity({this.nipPembantu = const []});
+  /// true = check-in draft tersimpan di server (survey baru yang sudah
+  /// ber-draft). Petugas tidak perlu selfie & ambil lokasi ulang. Selalu
+  /// false untuk survey ulang (dikembalikan dari penilaian).
+  final bool tersimpan;
+  final double? latitude;
+  final double? longitude;
+  final String? alamat;
+  final String? fotoUrl;
+  final String? tglCheckin;
+
+  const DetailCheckinEntity({
+    this.nipPembantu = const [],
+    this.tersimpan = false,
+    this.latitude,
+    this.longitude,
+    this.alamat,
+    this.fotoUrl,
+    this.tglCheckin,
+  });
 
   @override
-  List<Object?> get props => [nipPembantu];
+  List<Object?> get props => [
+    nipPembantu,
+    tersimpan,
+    latitude,
+    longitude,
+    alamat,
+    fotoUrl,
+    tglCheckin,
+  ];
 }
 
 class SisiNorEntity extends Equatable {

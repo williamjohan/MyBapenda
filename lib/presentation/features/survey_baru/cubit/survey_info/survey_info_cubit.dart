@@ -87,6 +87,22 @@ class SurveyInfoCubit extends Cubit<SurveyInfoState> {
     );
   }
 
+  /// Check-in draft tersimpan di server dipakai ulang: koordinat & alamat
+  /// diisi dari draft, tanpa selfie dan GPS ulang.
+  void pakaiCheckinTersimpan({
+    required double latitude,
+    required double longitude,
+    String? alamat,
+  }) {
+    emit(
+      state.copyWith(
+        latitude: latitude,
+        longitude: longitude,
+        address: alamat ?? '-',
+      ),
+    );
+  }
+
   void addPembantu(String nip) {
     if (state.nipPembantu.contains(nip)) return;
     emit(state.copyWith(nipPembantu: [...state.nipPembantu, nip]));

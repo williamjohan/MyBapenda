@@ -15,6 +15,7 @@ SurveyDetailModel _$SurveyDetailModelFromJson(Map<String, dynamic> json) =>
       kategoriPenyelenggaraanNama:
           json['kategoriPenyelenggaraanNama'] as String?,
       statusPermohonan: json['statusPermohonan'] as String?,
+      isDraft: json['isDraft'] as bool? ?? false,
       header: _headerFrom(json['header']),
       checkin: _checkinFrom(json['checkin']),
       sisiList: (json['sisiList'] as List<dynamic>?)
@@ -31,6 +32,7 @@ Map<String, dynamic> _$SurveyDetailModelToJson(SurveyDetailModel instance) =>
       'katPenyelenggaraan': instance.katPenyelenggaraan,
       'kategoriPenyelenggaraanNama': instance.kategoriPenyelenggaraanNama,
       'statusPermohonan': instance.statusPermohonan,
+      'isDraft': instance.isDraft,
       'sisiList': instance.sisiList.map((e) => e.toJson()).toList(),
     };
 
@@ -80,6 +82,8 @@ SurveyDataModel _$SurveyDataModelFromJson(Map<String, dynamic> json) =>
       ketSisi: json['ketSisi'] as String?,
       materiReklame: json['materiReklame'] as String?,
       ketSurvey: json['ketSurvey'] as String?,
+      latitude: _doubleOrNull(json['latitude']),
+      longitude: _doubleOrNull(json['longitude']),
     );
 
 Map<String, dynamic> _$SurveyDataModelToJson(SurveyDataModel instance) =>
@@ -100,6 +104,8 @@ Map<String, dynamic> _$SurveyDataModelToJson(SurveyDataModel instance) =>
       'ketSisi': instance.ketSisi,
       'materiReklame': instance.materiReklame,
       'ketSurvey': instance.ketSurvey,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };
 
 SurveyDetailHeaderModel _$SurveyDetailHeaderModelFromJson(
@@ -119,6 +125,12 @@ SurveyDetailCheckinModel _$SurveyDetailCheckinModelFromJson(
               ?.map((e) => e as String)
               .toList() ??
           [],
+      tersimpan: json['tersimpan'] as bool? ?? false,
+      latitude: _doubleOrNull(json['latitude']),
+      longitude: _doubleOrNull(json['longitude']),
+      alamat: _cleanOrNull(json['alamat']),
+      fotoUrl: _strOrNull(json['fotoUrl']),
+      tglCheckin: _strOrNull(json['tglCheckin']),
     );
 
 SisiNorModel _$SisiNorModelFromJson(Map<String, dynamic> json) => SisiNorModel(

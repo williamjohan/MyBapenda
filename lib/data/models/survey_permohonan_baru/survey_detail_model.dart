@@ -22,6 +22,13 @@ int? _intOrNull(Object? v) {
   return int.tryParse('$v'.trim());
 }
 
+/// "-7.25" atau -7.25 -> -7.25. Kosong / bukan angka -> null.
+double? _doubleOrNull(Object? v) {
+  if (v is num) return v.toDouble();
+  if (v == null) return null;
+  return double.tryParse('$v'.trim().replaceAll(',', '.'));
+}
+
 String? _cleanOrNull(Object? v) {
   if (v == null) return null;
   final s = '$v'.trim();
@@ -60,6 +67,8 @@ class SurveyDetailModel {
   final String? kategoriPenyelenggaraanNama;
   @JsonKey(name: 'statusPermohonan')
   final String? statusPermohonan;
+  @JsonKey(name: 'isDraft', defaultValue: false)
+  final bool isDraft;
 
   @JsonKey(name: 'header', fromJson: _headerFrom, includeToJson: false)
   final SurveyDetailHeaderModel? header;
@@ -76,6 +85,7 @@ class SurveyDetailModel {
     required this.katPenyelenggaraan,
     this.kategoriPenyelenggaraanNama,
     this.statusPermohonan,
+    this.isDraft = false,
     this.header,
     this.checkin,
     required this.sisiList,
@@ -171,6 +181,10 @@ class SurveyDataModel {
   final String? materiReklame;
   @JsonKey(name: 'ketSurvey')
   final String? ketSurvey;
+  @JsonKey(name: 'latitude', fromJson: _doubleOrNull)
+  final double? latitude;
+  @JsonKey(name: 'longitude', fromJson: _doubleOrNull)
+  final double? longitude;
 
   const SurveyDataModel({
     required this.seq,
@@ -189,6 +203,8 @@ class SurveyDataModel {
     this.ketSisi,
     this.materiReklame,
     this.ketSurvey,
+    this.latitude,
+    this.longitude,
   });
 
   factory SurveyDataModel.fromJson(Map<String, dynamic> json) =>
@@ -227,7 +243,30 @@ class SurveyDetailCheckinModel {
   @JsonKey(name: 'nipPembantu', defaultValue: <String>[])
   final List<String> nipPembantu;
 
-  const SurveyDetailCheckinModel({required this.nipPembantu});
+  // true = check-in draft (foto + lokasi) tersimpan; app tidak check-in ulang.
+  @JsonKey(name: 'tersimpan', defaultValue: false)
+  final bool tersimpan;
+  @JsonKey(name: 'latitude', fromJson: _doubleOrNull)
+  final double? latitude;
+  @JsonKey(name: 'longitude', fromJson: _doubleOrNull)
+  final double? longitude;
+  @JsonKey(name: 'alamat', fromJson: _cleanOrNull)
+  final String? alamat;
+  @JsonKey(name: 'fotoUrl', fromJson: _strOrNull)
+  final String? fotoUrl;
+  // yyyy-MM-dd HH:mm:ss
+  @JsonKey(name: 'tglCheckin', fromJson: _strOrNull)
+  final String? tglCheckin;
+
+  const SurveyDetailCheckinModel({
+    required this.nipPembantu,
+    this.tersimpan = false,
+    this.latitude,
+    this.longitude,
+    this.alamat,
+    this.fotoUrl,
+    this.tglCheckin,
+  });
 
   factory SurveyDetailCheckinModel.fromJson(Map<String, dynamic> json) =>
       _$SurveyDetailCheckinModelFromJson(json);
@@ -259,6 +298,7 @@ extension SurveyDetailModelX on SurveyDetailModel {
     katPenyelenggaraan: katPenyelenggaraan,
     kategoriPenyelenggaraanNama: kategoriPenyelenggaraanNama,
     statusPermohonan: statusPermohonan,
+    isDraft: isDraft,
     header: header?.toEntity(),
     checkin: checkin?.toEntity(),
     sisiList: sisiList.map((e) => e.toEntity()).toList(),
@@ -290,8 +330,16 @@ extension SurveyDetailHeaderModelX on SurveyDetailHeaderModel {
 }
 
 extension SurveyDetailCheckinModelX on SurveyDetailCheckinModel {
-  DetailCheckinEntity toEntity() =>
-      DetailCheckinEntity(nipPembantu: nipPembantu);
+  DetailCheckinEntity toEntity() => DetailCheckinEntity(
+    nipPembantu: nipPembantu,
+    // Tanpa koordinat check-in tidak bisa dipakai ulang.
+    tersimpan: tersimpan && latitude != null && longitude != null,
+    latitude: latitude,
+    longitude: longitude,
+    alamat: alamat,
+    fotoUrl: fotoUrl,
+    tglCheckin: tglCheckin,
+  );
 }
 
 extension SisiNorModelX on SisiNorModel {
@@ -317,5 +365,7 @@ extension SurveyDataModelX on SurveyDataModel {
     ketSisi: ketSisi,
     materiReklame: materiReklame,
     ketSurvey: ketSurvey,
+    latitude: latitude,
+    longitude: longitude,
   );
 }

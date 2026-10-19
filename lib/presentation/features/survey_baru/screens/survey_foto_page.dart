@@ -24,6 +24,11 @@ typedef SurveyFoto = ({
 
 typedef SurveyData = Map<String, dynamic>;
 
+/// Penanda [SurveyData] hasil Simpan Draft (isian boleh belum lengkap).
+const kunciDraftData = 'draft';
+
+bool isDataDraft(SurveyData? data) => data?[kunciDraftData] == true;
+
 /// [lokasi] = pinpoint reklame sisi ini (halaman peta). Null untuk hasil
 /// lama yang dibuat sebelum ada pinpoint.
 typedef SurveyResult = ({
@@ -73,6 +78,81 @@ List<Map<String, dynamic>> wpFotosOf(Map<String, dynamic> sisi) {
     for (final f in fotos)
       if (f is Map) Map<String, dynamic>.from(f),
   ];
+}
+
+/// Penanda foto sisi yang sudah tersimpan di draft server. `survey-form`
+/// tidak mengirim URL foto draft sisi, jadi fotonya tidak bisa ditampilkan;
+/// sisi dikirim tanpa foto dan server memakai foto draft tersimpan.
+const pathFotoDraft = 'draft://foto-sisi';
+
+const SurveyFoto fotoDraftServer = (
+  path: pathFotoDraft,
+  source: pathFotoDraft,
+  ratio: 4 / 3,
+  box: kotakAwalFoto,
+  keterangan: '',
+);
+
+bool isFotoDraft(SurveyFoto? f) => f?.path == pathFotoDraft;
+
+/// Sisi survey baru yang sudah ber-draft di server (titik reklame ada):
+/// foto & titik draft berlaku, petugas tidak perlu foto ulang. Survey ulang
+/// (dikembalikan penilai) selalu wajib foto baru.
+bool punyaFotoDraft(Map<String, dynamic> sisi) {
+  final h = sisi['header'];
+  if (h is! Map || h['isDraft'] != true || h['dikembalikan'] == true) {
+    return false;
+  }
+  return titikDraftOf(sisi) != null && apiFotosOf(sisi).isEmpty;
+}
+
+/// Titik reklame tersimpan di draft server (`survey.latitude/longitude`).
+TitikPeta? titikDraftOf(Map<String, dynamic> sisi) {
+  final survey = sisi['survey'];
+  if (survey is! Map) return null;
+  final lat = survey['latitude'], lng = survey['longitude'];
+  if (lat is! num || lng is! num || (lat == 0 && lng == 0)) return null;
+  return (lat: lat.toDouble(), lng: lng.toDouble());
+}
+
+/// Isian sisi dari server (draft tersimpan / survey lama yang dikembalikan)
+/// dalam bentuk [SurveyData] halaman Data. Null bila belum ada isian.
+/// Ditandai draft: petugas tetap harus melewati halaman Data sebelum kirim.
+SurveyData? dataDraftOf(Map<String, dynamic> sisi) {
+  final sv = sisi['survey'];
+  if (sv is! Map) return null;
+  const isian = [
+    'idNor',
+    'idPersil',
+    'lokasiTertentuId',
+    'letakReklame',
+    'statusTanah',
+    'lokPenyelenggaraan',
+    'panjang',
+    'lebar',
+    'tinggi',
+    'idJenisReklame',
+    'idJenisProduk',
+    'sudutPandang',
+    'ketSisi',
+    'materiReklame',
+    'ketSurvey',
+  ];
+  if (!isian.any((k) => sv[k] != null)) return null;
+  return {
+    for (final k in isian) k: sv[k],
+    'seq': sisi['seq'],
+    // lokPenyelenggaraan dari server = id master lokasi penyelenggaraan.
+    'lokasiPenyelenggaraanId': int.tryParse('${sv['lokPenyelenggaraan']}'),
+    // Draft hanya menyimpan persil NOR baru; jenis bangunan, jalan & no
+    // alamat diisi ulang petugas sebelum kirim.
+    if (sisi['nor'] == null && sv['idPersil'] != null)
+      'norBaru': {
+        'persilId': '${sv['idPersil']}',
+        'persilLabel': '${sv['idPersil']}',
+      },
+    kunciDraftData: true,
+  };
 }
 
 String? fotoUrlOf(Map<String, dynamic> m) =>

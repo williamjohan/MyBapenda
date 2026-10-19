@@ -1,5 +1,7 @@
 import 'package:bapendacore/data/models/survey_permohonan_baru/cari_nor_model.dart';
+import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
 import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_request_model.dart';
+import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
 import 'package:bapendacore/data/models/survey_permohonan_baru/survey_detail_model.dart';
 import 'package:bapendacore/data/models/survey_permohonan_baru/survey_permohonan_model.dart';
 import 'package:dartz/dartz.dart';
@@ -46,10 +48,12 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   // 3. POST SIMPAN SURVEY (Map Entity -> Model)
   // ===========================================================================
   @override
-  Future<Either<Failure, bool>> submitSurvey(SimpanSurveyRequestEntity payload) {
-    return executeSafeApiCall<bool>(() async {
-      final requestModel = payload.toModel();
-      return await _remoteDataSource.submitSurvey(requestModel);
+  Future<Either<Failure, SimpanSurveyHasilEntity>> submitSurvey(
+    SimpanSurveyRequestEntity payload,
+  ) {
+    return executeSafeApiCall<SimpanSurveyHasilEntity>(() async {
+      final model = await _remoteDataSource.submitSurvey(payload.toModel());
+      return model.toEntity();
     });
   }
 

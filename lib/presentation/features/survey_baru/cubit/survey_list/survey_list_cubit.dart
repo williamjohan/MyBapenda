@@ -53,6 +53,7 @@ class SurveyListCubit extends Cubit<SurveyListState> {
         (failure) => (sisi: null, error: failure.message),
         (detail) {
           final prefill = _infoPrefill(detail);
+          header['isDraft'] = detail.isDraft;
           return (
             sisi: detail.sisiList
                 .map((s) => _sisiToMap(s, e, header, prefill))
@@ -126,6 +127,9 @@ class SurveyListCubit extends Cubit<SurveyListState> {
           'ketSisi': sv.ketSisi,
           'materiReklame': sv.materiReklame,
           'ketSurvey': sv.ketSurvey,
+          // Titik reklame draft: jadi posisi awal pin di peta.
+          'latitude': sv.latitude,
+          'longitude': sv.longitude,
         },
         'fotos': const [],
       },
@@ -142,6 +146,16 @@ class SurveyListCubit extends Cubit<SurveyListState> {
       if (h?.rt != null) 'rt': h!.rt,
       if (h?.rw != null) 'rw': h!.rw,
       if (c != null && c.nipPembantu.isNotEmpty) 'nipPembantu': c.nipPembantu,
+      // Check-in draft tersimpan: halaman Informasi tidak minta selfie &
+      // lokasi ulang (survey ulang selalu tersimpan=false).
+      if (c != null && c.tersimpan)
+        'checkin': {
+          'latitude': c.latitude,
+          'longitude': c.longitude,
+          'alamat': c.alamat,
+          'fotoUrl': c.fotoUrl,
+          'tglCheckin': c.tglCheckin,
+        },
     };
     return m.isEmpty ? null : m;
   }

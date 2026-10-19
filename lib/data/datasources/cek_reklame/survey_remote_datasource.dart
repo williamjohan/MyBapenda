@@ -4,6 +4,7 @@ import '../../../core/errors/exception.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/network/base_api/base_api_response_model.dart';
 import '../../models/survey_permohonan_baru/cari_nor_model.dart';
+import '../../models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
 import '../../models/survey_permohonan_baru/simpan_survey_request_model.dart';
 import '../../models/survey_permohonan_baru/survey_permohonan_model.dart';
 import '../../models/survey_permohonan_baru/survey_detail_model.dart'; 
@@ -16,8 +17,10 @@ abstract class ISurveyPermohonanRemoteDataSource {
   //  Get Detail Header - Survey Permohonan Baru
   Future<SurveyDetailModel> getSurveyDetail({required String key});
 
-  // Post Simpan Survey
-  Future<bool> submitSurvey(SimpanSurveyRequestModel requestModel) ;
+  // Post Simpan Survey: draft, lalu langsung submit bila isian lengkap
+  Future<SimpanSurveyHasilModel> submitSurvey(
+    SimpanSurveyRequestModel requestModel,
+  );
 
   // Cari Nor 
   Future<List<CariNorModel>> cariNor({required String nor});
@@ -87,7 +90,9 @@ class SurveyPermohonanRemoteDataSourceImpl
   // 3. POST SIMPAN SURVEY
   // ===========================================================================
   @override
-  Future<bool> submitSurvey(SimpanSurveyRequestModel requestModel) async {
+  Future<SimpanSurveyHasilModel> submitSurvey(
+    SimpanSurveyRequestModel requestModel,
+  ) async {
     final formData = await requestModel.toFormData();
 
     final response = await _dio.post(
@@ -95,16 +100,25 @@ class SurveyPermohonanRemoteDataSourceImpl
       data: formData,
     );
 
-    final apiResponse = BaseApiResponseModel<dynamic>.fromJson(
+    final apiResponse = BaseApiResponseModel<SimpanSurveyHasilModel>.fromJson(
       response.data,
-      (json) => json, 
+      (json) => json is Map
+          ? SimpanSurveyHasilModel.fromJson(Map<String, dynamic>.from(json))
+          : throw const ServerException(
+              500,
+              'Respons simpan survey tidak dikenali.',
+            ),
     );
 
     if (!apiResponse.isSuccess) {
       throw ServerException(apiResponse.status, apiResponse.errorMessage);
     }
 
-    return true;
+    final data = apiResponse.data;
+    if (data == null) {
+      throw const ServerException(500, 'Respons simpan survey kosong.');
+    }
+    return data;
   }
 
   

@@ -1,5 +1,6 @@
 import 'package:bapendacore/presentation/features/survey_baru/constants/survey_option.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../screens/survey_foto_page.dart'; // kunciDraftData
 import 'survey_data_state.dart';
 
 typedef SurveyDataTexts = ({
@@ -149,5 +150,33 @@ class SurveyDataCubit extends Cubit<SurveyDataState> {
       return;
     }
     emit(state.copyWith(result: _payload(texts)));
+  }
+
+  /// Simpan apa adanya tanpa validasi (draft): pilihan kosong = null, bukan
+  /// 0, supaya server mempertahankan nilai draft lama. Kelengkapan dicek
+  /// server saat simpan (`kurangLengkap`).
+  void simpanDraft(SurveyDataTexts texts) {
+    double? ukuran(String s) {
+      final n = _num(s);
+      return n > 0 ? n : null;
+    }
+
+    emit(
+      state.copyWith(
+        result: {
+          ..._payload(texts),
+          'lokasiTertentuId': state.lokasiTertentuId,
+          'letakReklame': state.letakId,
+          'statusTanah': state.statusTanahId,
+          'idJenisReklame': state.jenisReklameId,
+          'idJenisProduk': state.jenisProdukId,
+          'sudutPandang': state.sudutId,
+          'panjang': ukuran(texts.panjang),
+          'lebar': ukuran(texts.lebar),
+          'tinggi': ukuran(texts.tinggi),
+          kunciDraftData: true,
+        },
+      ),
+    );
   }
 }

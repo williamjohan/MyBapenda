@@ -19,6 +19,7 @@ import '../cubit/survey_lokasi/survey_lokasi_cubit.dart';
 import '../cubit/survey_lokasi/survey_lokasi_state.dart';
 import '../utils/survey_lokasi_ui_helper.dart';
 import '../widgets/peta_lokasi_reklame.dart';
+import '../widgets/tombol_simpan_draft.dart';
 import 'survey_foto_page.dart';
 import 'survey_sisi_review_page.dart';
 
@@ -64,8 +65,13 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
   final _panel = DraggableScrollableController();
   final _tinggiPanel = ValueNotifier<double>(_panelAwal);
 
-  late SurveyFoto? _foto = widget.initialResult?.foto;
-  late SurveyData? _data = widget.initialResult?.data;
+  // Sisi ber-draft di server: foto draft dipakai, tidak perlu foto ulang.
+  late SurveyFoto? _foto =
+      widget.initialResult?.foto ??
+      (punyaFotoDraft(widget.sisi) ? fotoDraftServer : null);
+  // Hasil sebelumnya di app, atau isian draft / survey lama dari server.
+  late SurveyData? _data =
+      widget.initialResult?.data ?? dataDraftOf(widget.sisi);
 
   // true kalau belum ada foto lokal tapi API punya foto -> perlu di-load
   late bool _memuatFotoServer =
@@ -200,7 +206,8 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
   /// Buka editor kotak penanda & keterangan untuk foto saat ini.
   Future<void> _tandai() async {
     final foto = _foto;
-    if (foto == null) return;
+    // Foto draft server tidak bisa dibuka di editor (gambarnya tidak ada).
+    if (foto == null || isFotoDraft(foto)) return;
     final hasil = await Navigator.of(context).push<SurveyFoto>(
       MaterialPageRoute(
         builder: (_) => AdaptiveThemeScope(
@@ -221,6 +228,9 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
 
   /// Gambar garis kotak ke foto asli. Return null kalau gagal.
   Future<SurveyFoto?> _gambarKotak(SurveyFoto f) async {
+    // Foto draft / URL server sudah berkotak & tidak di-upload ulang
+    // (server memakai foto tersimpan sisi itu).
+    if (isFotoDraft(f) || f.source.startsWith('http')) return f;
     setState(() => _menyimpan = true);
     try {
       final out = await MarkerStampUtil.drawBox(source: f.source, box: f.box);
@@ -241,6 +251,28 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
     }
   }
 
+  /// Survey baru: draft cukup titik reklame + foto. Isian Data menyusul.
+  bool get _bolehDraft {
+    final h = widget.sisi['header'];
+    return !(h is Map && h['dikembalikan'] == true);
+  }
+
+  Future<void> _simpanDraft() async {
+    final foto = _foto;
+    final lokasi = context.read<SurveyLokasiCubit>().state.hasil;
+    if (foto == null || lokasi == null || _menyimpan) return;
+
+    final ditandai = await _gambarKotak(foto);
+    if (ditandai == null || !mounted) return;
+
+    // Isian lengkap sebelumnya tetap dipakai; selain itu tandai draft.
+    final data = _data;
+    final draft = data != null && !isDataDraft(data)
+        ? data
+        : {...?data, 'seq': _seq, kunciDraftData: true};
+    context.pop<SurveyResult>((foto: ditandai, data: draft, lokasi: lokasi));
+  }
+
   Future<void> _lanjut() async {
     final foto = _foto;
     final lokasi = context.read<SurveyLokasiCubit>().state.hasil;
@@ -258,6 +290,16 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
       );
       if (saved == null || !mounted) return;
       _data = saved;
+
+      // Simpan Draft di halaman Data: langsung kembali ke daftar sisi.
+      if (isDataDraft(saved)) {
+        context.pop<SurveyResult>((
+          foto: ditandai,
+          data: saved,
+          lokasi: lokasi,
+        ));
+        return;
+      }
 
       final result = (foto: ditandai, data: saved, lokasi: lokasi);
 
@@ -533,15 +575,20 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
                     },
                   ),
                 ),
-                _BarLanjut(
-                  menyimpan: _menyimpan,
-                  onLanjut:
-                      s.lokasiSiap &&
-                          _foto != null &&
-                          !_memuatFotoServer &&
-                          !_ambilFoto
-                      ? _lanjut
-                      : null,
+                Builder(
+                  builder: (_) {
+                    final siap =
+                        s.lokasiSiap &&
+                        _foto != null &&
+                        !_memuatFotoServer &&
+                        !_ambilFoto;
+                    return _BarLanjut(
+                      menyimpan: _menyimpan,
+                      onLanjut: siap ? _lanjut : null,
+                      onDraft: _bolehDraft ? _simpanDraft : null,
+                      draftAktif: siap,
+                    );
+                  },
                 ),
               ],
             );
@@ -934,7 +981,16 @@ class _BarLanjut extends StatelessWidget {
   /// null = belum bisa lanjut (tombol nonaktif).
   final VoidCallback? onLanjut;
 
-  const _BarLanjut({required this.menyimpan, required this.onLanjut});
+  /// null = tombol Simpan Draft disembunyikan (survey dikembalikan).
+  final VoidCallback? onDraft;
+  final bool draftAktif;
+
+  const _BarLanjut({
+    required this.menyimpan,
+    required this.onLanjut,
+    this.onDraft,
+    this.draftAktif = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -948,12 +1004,24 @@ class _BarLanjut extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 10, 18, 12),
-          child: Button(
-            label: 'Lanjutkan',
-            icon: Icons.arrow_forward_rounded,
-            iconAtEnd: true,
-            isLoading: menyimpan,
-            onPressed: onLanjut,
+          child: Row(
+            children: [
+              if (onDraft != null) ...[
+                TombolSimpanDraft(
+                  onPressed: draftAktif && !menyimpan ? onDraft : null,
+                ),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: Button(
+                  label: 'Lanjutkan',
+                  icon: Icons.arrow_forward_rounded,
+                  iconAtEnd: true,
+                  isLoading: menyimpan,
+                  onPressed: onLanjut,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1160,6 +1228,11 @@ class _PanelBawah extends StatelessWidget {
                     isLoading: ambilFoto,
                     onPressed: onAmbil,
                   )
+                : isFotoDraft(foto)
+                ? _FotoDraft(
+                    ambilFoto: ambilFoto,
+                    onAmbil: ambilFoto || menyimpan ? null : onAmbil,
+                  )
                 : Row(
                     children: [
                       GestureDetector(
@@ -1213,6 +1286,69 @@ class _PanelBawah extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Foto reklame sisi ini sudah tersimpan di draft server (tidak bisa
+/// ditampilkan karena `survey-form` tidak mengirim URL-nya). Tidak perlu
+/// foto ulang; ambil ulang hanya bila ingin mengganti.
+class _FotoDraft extends StatelessWidget {
+  final bool ambilFoto;
+  final VoidCallback? onAmbil;
+
+  const _FotoDraft({required this.ambilFoto, required this.onAmbil});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Row(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: palette.accentSoft,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(Icons.cloud_done_rounded, color: palette.accent),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Foto tersimpan di draft',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: palette.textPrimary,
+                ),
+              ),
+              Text(
+                'Tidak perlu foto ulang.',
+                style: TextStyle(fontSize: 11.5, color: palette.textSecondary),
+              ),
+              TextButton.icon(
+                onPressed: onAmbil,
+                icon: ambilFoto
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.photo_camera_outlined, size: 18),
+                label: const Text('Ganti foto'),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

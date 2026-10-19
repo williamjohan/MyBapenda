@@ -21,7 +21,9 @@ class SurveyLokasiCubit extends Cubit<SurveyLokasiState> {
 
   /// [awal] = hasil sebelumnya (buka ulang sisi): pin & alamat dipulihkan,
   /// posisi petugas tetap diambil ulang.
-  Future<void> mulai({SurveyLokasiHasil? awal}) async {
+  /// [awal] = hasil sisi ini sebelumnya di app; [pinDraft] = titik reklame
+  /// dari draft server (alamatnya dimuat ulang).
+  Future<void> mulai({SurveyLokasiHasil? awal, TitikPeta? pinDraft}) async {
     if (awal != null) {
       emit(
         state.copyWith(
@@ -29,6 +31,8 @@ class SurveyLokasiCubit extends Cubit<SurveyLokasiState> {
           alamat: awal.alamat,
         ),
       );
+    } else if (pinDraft != null) {
+      emit(state.copyWith(pin: pinDraft));
     }
     await perbaruiPosisiPetugas();
   }
