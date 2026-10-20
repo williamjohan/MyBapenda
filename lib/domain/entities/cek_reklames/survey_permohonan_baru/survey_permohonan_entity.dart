@@ -20,6 +20,8 @@ class SurveyPermohonanEntity extends Equatable {
   final String? ketPengembalian;
   final DateTime? tglPengembalian;
   final SurveyBadgeEntity? badge;
+  final double latitude;
+  final double longitude;
 
   const SurveyPermohonanEntity({
     required this.key,
@@ -41,6 +43,8 @@ class SurveyPermohonanEntity extends Equatable {
     this.ketPengembalian,
     this.tglPengembalian,
     this.badge,
+    required this.latitude,
+    required this.longitude,
   });
 
   bool get showReturnBanner =>
@@ -63,6 +67,8 @@ class SurveyPermohonanEntity extends Equatable {
     statusPermohonan,
     startTask,
     expTask,
+    latitude,
+    longitude
   ];
 }
 

@@ -5,12 +5,16 @@ import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_route.dart';
 import 'package:bapendacore/presentation/shared/utils/location_util.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'
+    show LatLng; // [UBAH] dulu latlong2
 import 'package:shared_preferences/shared_preferences.dart';
 import 'survey_map_state.dart';
 
 class SurveyMapCubit extends Cubit<SurveyMapState> {
-  SurveyMapCubit() : super(const SurveyMapState());
+  SurveyMapCubit()
+    : super(
+        SurveyMapState(),
+      ); // [UBAH] tanpa const (lihat survey_map_state.dart)
 
   static const _prefix = 'survey_map_';
 

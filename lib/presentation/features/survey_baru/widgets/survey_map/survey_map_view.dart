@@ -1,39 +1,47 @@
+// [UBAH TOTAL] flutter_map (OpenStreetMap)  ->  Google Maps.
+//
+// Yang hilang dari versi lama:
+//  - _Pin, _PinPainter  -> diganti gambar pin di survey_pin_icons.dart
+//  - _UserDot           -> diganti titik biru bawaan Google (tanpa animasi,
+//                          jadi tidak ada animasi 60 fps yang memberatkan HP)
+//  - lingkaran akurasi & atribusi OSM -> sudah ditangani Google
+import 'dart:math' as math;
 
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart' hide Path;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'survey_deadline.dart';
+import 'survey_map_controller.dart';
 import 'survey_map_point.dart';
+import 'survey_pin_icons.dart';
 import 'survey_route.dart';
 
 const _blue = Color(0xFF3B6FF5);
 const _skipGrey = Color(0xFF9AA5B1);
 
-CameraFit surveyFit(
-  SurveyMapState s, {
-  EdgeInsets padding = const EdgeInsets.fromLTRB(52, 64, 52, 56),
-}) => CameraFit.coordinates(
-  coordinates: [
-    for (final p in s.points) p.position,
-    if (s.plan.from != null) s.plan.from!,
-  ],
-  padding: padding,
-  maxZoom: 16,
-);
-
-class SurveyMapView extends StatelessWidget {
-  final MapController controller;
+class SurveyMapView extends StatefulWidget {
+  final SurveyMapController controller;
   final SurveyMapState data;
   final String? selectedId;
   final ValueChanged<String?> onSelect;
   final bool showRoute;
   final VoidCallback onFit;
   final VoidCallback onLocate;
-  final CameraFit initialFit;
 
   /// Jarak dari atas untuk chip & tombol (layar penuh punya top bar).
   final double topInset;
+
+  /// [BARU] Bagian peta yang tertutup sesuatu (top bar / sheet). Kamera dan
+  /// logo Google akan menghindarinya. Pengganti `padding` di CameraFit lama.
+  final EdgeInsets mapPadding;
+
+  /// [BARU] false = peta tidak bisa digeser/di-zoom (ketuk pin tetap bisa).
+  /// Dipakai di kartu mini supaya scroll halaman tidak "tersangkut" di peta
+  /// dan peta tidak perlu memproses gestur.
+  final bool interactive;
 
   const SurveyMapView({
     super.key,
@@ -44,17 +52,106 @@ class SurveyMapView extends StatelessWidget {
     required this.showRoute,
     required this.onFit,
     required this.onLocate,
-    required this.initialFit,
     this.topInset = 0,
+    this.mapPadding = EdgeInsets.zero,
+    this.interactive = true,
   });
 
+  @override
+  State<SurveyMapView> createState() => _SurveyMapViewState();
+}
+
+class _SurveyMapViewState extends State<SurveyMapView> {
+  // Pin kecil: 2x sudah tajam. Lebih dari itu hanya memboroskan RAM.
+  double _dpr = 2;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _dpr = math.min(MediaQuery.devicePixelRatioOf(context), 2.0);
+    _prepareIcons();
+  }
+
+  @override
+  void didUpdateWidget(SurveyMapView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _prepareIcons();
+  }
+
+  @override
+  void dispose() {
+    widget.controller.detach();
+    super.dispose();
+  }
+
+  // ---- Pin ----
+
+  PinSpec _specOf(SurveyMapPoint p, SurveyPlan plan) {
+    final skipped = plan.isSkipped(p.id);
+    final number = plan.numberOf(p.id);
+    return (
+      label: skipped ? '–' : (number > 99 ? '99+' : '$number'),
+      color: skipped ? _skipGrey : SurveyDeadline.styleOf(p.daysLeft).fg,
+      selected: p.id == widget.selectedId,
+      pinned: plan.isPinned(p.id),
+    );
+  }
+
+  /// Gambar pin yang belum ada dibuat satu per satu (bukan serentak) supaya
+  /// lonjakan memori kecil. Pin yang sudah pernah dibuat langsung dipakai.
+  Future<void> _prepareIcons() async {
+    if (!TickerMode.of(context)) return; // peta sedang dilepas
+    final plan = widget.data.plan;
+    final missing = [
+      for (final p in widget.data.points)
+        if (SurveyPinIcons.peek(_specOf(p, plan)) == null) _specOf(p, plan),
+    ];
+    if (missing.isEmpty) return;
+
+    var sinceRefresh = 0;
+    for (final spec in missing) {
+      await SurveyPinIcons.ensure(spec, _dpr);
+      // Tampilkan bertahap tiap 10 pin supaya tidak menunggu semuanya.
+      if (++sinceRefresh == 10 && mounted) {
+        sinceRefresh = 0;
+        setState(() {});
+      }
+    }
+    if (mounted) setState(() {});
+  }
+
+  Set<Marker> _markers(SurveyPlan plan) {
+    final markers = <Marker>{};
+    for (final p in widget.data.points) {
+      final spec = _specOf(p, plan);
+      final icon = SurveyPinIcons.peek(spec);
+      if (icon == null) continue; // gambar pin masih dibuat
+
+      markers.add(
+        Marker(
+          markerId: MarkerId(p.id),
+          position: p.position,
+          icon: icon,
+          anchor: const Offset(0.5, 1), // ujung bawah pin = koordinat
+          consumeTapEvents: true, // tanpa gerak kamera / info window bawaan
+          zIndexInt: spec.selected ? 3 : 1, // pin terpilih paling atas
+          onTap: () => widget.onSelect(p.id),
+        ),
+      );
+    }
+    return markers;
+  }
+
+  // ---- Status di pojok peta ----
+
   ({String text, bool busy})? _status(SurveyPlan plan) {
-    if (showRoute && data.loadingRoute) {
+    final data = widget.data;
+    if (widget.showRoute && data.loadingRoute) {
       return (text: 'Menghitung rute…', busy: true);
     }
     if (data.locating) return (text: 'Mencari lokasimu…', busy: true);
     final r = data.validRouteFor(plan);
-    if (showRoute && r != null && !r.isRoad) {
+    if (widget.showRoute && r != null && !r.isRoad) {
       return (text: 'Rute perkiraan', busy: false);
     }
     if (data.locDenied) return (text: 'Lokasi tidak aktif', busy: false);
@@ -64,129 +161,97 @@ class SurveyMapView extends StatelessWidget {
     return null;
   }
 
-  Marker _pin(SurveyMapPoint p, SurveyPlan plan) {
-    final skipped = plan.isSkipped(p.id);
-    return Marker(
-      point: p.position,
-      width: 40,
-      height: 50,
-      alignment: Alignment.topCenter, // ujung bawah pin = koordinat
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onSelect(p.id),
-        child: _Pin(
-          label: skipped ? '–' : '${plan.numberOf(p.id)}',
-          color: skipped ? _skipGrey : SurveyDeadline.styleOf(p.daysLeft).fg,
-          selected: p.id == selectedId,
-          pinned: plan.isPinned(p.id),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Halaman ini sedang tertutup halaman lain (mis. layar survey)? Lepas peta
+    // Google. Ini penghemat RAM terbesar: tidak ada dua peta hidup sekaligus.
+    // Peta dibuat lagi otomatis begitu halaman ini terlihat kembali.
+    if (!TickerMode.of(context)) return const _MapPlaceholder();
+
+    final data = widget.data;
     final plan = data.plan;
-    final route = showRoute ? data.validRouteFor(plan) : null;
-    final gps = data.gps;
+    final route = widget.showRoute ? data.validRouteFor(plan) : null;
     final status = _status(plan);
 
-    // Pin terpilih digambar paling atas.
-    final markers = <Marker>[
-      for (final p in data.points)
-        if (p.id != selectedId) _pin(p, plan),
-      for (final p in data.points)
-        if (p.id == selectedId) _pin(p, plan),
-    ];
-
     return Stack(
+      fit: StackFit.expand,
       children: [
-        FlutterMap(
-          mapController: controller,
-          options: MapOptions(
-            initialCameraFit: initialFit,
-            minZoom: 10,
-            maxZoom: 18,
-            interactionOptions: InteractionOptions(
-              flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-            ),
-            onTap: (_, __) => onSelect(null),
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.bapenda.cekreklame',
-            ),
+        GoogleMap(
+          initialCameraPosition: SurveyMapController.initialCamera(data),
+          onMapCreated: (g) {
+            widget.controller.attach(g);
+            Future.delayed(const Duration(milliseconds: 300), () {
+              if (mounted) widget.controller.fit(widget.data, animate: false);
+            });
+          },
+          padding: widget.mapPadding,
+          markers: _markers(plan),
+          polylines: {
             if (route != null)
-              PolylineLayer(
-                polylines: [
-                  Polyline(
-                    points: route.line,
-                    strokeWidth: 5,
-                    color: route.isRoad ? _blue : _blue.withValues(alpha: 0.7),
-                    borderStrokeWidth: 2,
-                    borderColor: Colors.white,
-                    strokeCap: StrokeCap.round,
-                    strokeJoin: StrokeJoin.round,
-                  ),
-                ],
+              Polyline(
+                polylineId: const PolylineId('rute'),
+                points: route.line,
+                width: 5,
+                color: _blue,
+                jointType: JointType.round,
+                startCap: Cap.roundCap,
+                endCap: Cap.roundCap,
+                // Rute perkiraan (garis lurus) digambar putus-putus.
+                patterns: route.isRoad
+                    ? const []
+                    : [PatternItem.dash(16), PatternItem.gap(8)],
               ),
-            if (gps != null)
-              CircleLayer(
-                circles: [
-                  CircleMarker(
-                    point: gps,
-                    radius: data.accuracy.clamp(15.0, 300.0).toDouble(),
-                    useRadiusInMeter: true,
-                    color: _blue.withValues(alpha: 0.12),
-                    borderColor: _blue.withValues(alpha: 0.35),
-                    borderStrokeWidth: 1.5,
+          },
+          onTap: (_) => widget.onSelect(null),
+
+          // Titik biru bawaan Google = posisi petugas (hanya bila GPS sudah
+          // didapat, berarti izin lokasi sudah diberikan).
+          myLocationEnabled: data.gps != null,
+          myLocationButtonEnabled: false,
+
+          // Matikan semua yang tidak dipakai: lebih ringan di GPU dan RAM.
+          buildingsEnabled: false,
+          indoorViewEnabled: false,
+          trafficEnabled: false,
+          tiltGesturesEnabled: false,
+          rotateGesturesEnabled: false,
+          compassEnabled: false,
+          zoomControlsEnabled: false,
+          mapToolbarEnabled: false,
+          scrollGesturesEnabled: widget.interactive,
+          zoomGesturesEnabled: widget.interactive,
+          gestureRecognizers: widget.interactive
+              ? {
+                  Factory<OneSequenceGestureRecognizer>(
+                    EagerGestureRecognizer.new,
                   ),
-                ],
-              ),
-            if (gps != null)
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: gps,
-                    width: 64,
-                    height: 64,
-                    child: const _UserDot(),
-                  ),
-                ],
-              ),
-            MarkerLayer(markers: markers),
-            const RichAttributionWidget(
-              alignment: AttributionAlignment.bottomLeft,
-              attributions: [
-                TextSourceAttribution('OpenStreetMap contributors'),
-              ],
-            ),
-          ],
+                }
+              : const <Factory<OneSequenceGestureRecognizer>>{},
+          minMaxZoomPreference: const MinMaxZoomPreference(10, 18),
         ),
         if (status != null)
           Positioned(
-            top: 8 + topInset,
+            top: 8 + widget.topInset,
             left: 8,
             child: _MapChip(text: status.text, busy: status.busy),
           ),
         Positioned(
-          top: 8 + topInset,
+          top: 8 + widget.topInset,
           right: 8,
           child: Column(
             children: [
               _MapButton(
                 icon: Icons.center_focus_strong_rounded,
                 tooltip: 'Tampilkan semua',
-                onTap: onFit,
+                onTap: widget.onFit,
               ),
               const SizedBox(height: 8),
               _MapButton(
                 icon: Icons.my_location_rounded,
                 tooltip: 'Posisiku',
                 busy: data.locating,
-                highlight: gps != null,
-                onTap: onLocate,
+                highlight: data.gps != null,
+                onTap: widget.onLocate,
               ),
             ],
           ),
@@ -195,6 +260,27 @@ class SurveyMapView extends StatelessWidget {
     );
   }
 }
+
+/// [BARU] Pengganti peta saat halaman tertutup halaman lain.
+class _MapPlaceholder extends StatelessWidget {
+  const _MapPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox.expand(
+      child: ColoredBox(
+        color: Color(0xFFEEF0F3),
+        child: Center(
+          child: Icon(Icons.map_outlined, size: 32, color: Color(0xFFB4BCC6)),
+        ),
+      ),
+    );
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Widget kecil di atas peta (TIDAK BERUBAH dari versi lama)
+// ----------------------------------------------------------------------------
 
 /// Chip "Rute" (nyala/mati).
 class SurveyRouteToggle extends StatelessWidget {
@@ -243,184 +329,6 @@ class SurveyRouteToggle extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-// ----------------------------------------------------------------------------
-// Pin & penanda
-// ----------------------------------------------------------------------------
-
-class _PinPainter extends CustomPainter {
-  final Color color;
-  final bool selected;
-
-  const _PinPainter({required this.color, required this.selected});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final r = size.width / 2;
-    final head = Path()
-      ..addOval(Rect.fromCircle(center: Offset(r, r), radius: r - 2));
-    final tail = Path()
-      ..moveTo(r - r * 0.62, r + r * 0.55)
-      ..lineTo(r, size.height - 1)
-      ..lineTo(r + r * 0.62, r + r * 0.55)
-      ..close();
-    final pin = Path.combine(PathOperation.union, head, tail);
-
-    canvas.drawPath(
-      pin,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 4
-        ..strokeJoin = StrokeJoin.round,
-    );
-    canvas.drawPath(pin, Paint()..color = color);
-    if (selected) {
-      canvas.drawCircle(Offset(r, r), r * 0.58, Paint()..color = Colors.white);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _PinPainter old) =>
-      old.color != color || old.selected != selected;
-}
-
-class _Pin extends StatelessWidget {
-  final String label;
-  final Color color;
-  final bool selected;
-  final bool pinned;
-
-  const _Pin({
-    required this.label,
-    required this.color,
-    required this.selected,
-    required this.pinned,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: selected ? 1.18 : 1,
-      alignment: Alignment.bottomCenter,
-      duration: const Duration(milliseconds: 150),
-      curve: Curves.easeOutBack,
-      child: SizedBox(
-        width: 40,
-        height: 50,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _PinPainter(color: color, selected: selected),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 40,
-              child: Center(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: selected ? color : Colors.white,
-                    height: 1,
-                  ),
-                ),
-              ),
-            ),
-            // Penanda "dikunci petugas".
-            if (pinned)
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  width: 15,
-                  height: 15,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1F2933),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 1.5),
-                  ),
-                  child: const Icon(
-                    Icons.push_pin_rounded,
-                    size: 8,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Titik biru posisi petugas: halo statis + gelombang berdenyut.
-class _UserDot extends StatefulWidget {
-  const _UserDot();
-
-  @override
-  State<_UserDot> createState() => _UserDotState();
-}
-
-class _UserDotState extends State<_UserDot>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1800),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (_, __) {
-        final t = Curves.easeOut.transform(_c.value);
-        final wave = 24 + 40 * t;
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: wave,
-              height: wave,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _blue.withValues(alpha: 0.28 * (1 - t)),
-              ),
-            ),
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _blue.withValues(alpha: 0.16),
-              ),
-            ),
-            Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _blue,
-                border: Border.all(color: Colors.white, width: 3),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

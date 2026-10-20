@@ -4,11 +4,6 @@ import 'package:bapendacore/domain/entities/my_task/task_type.dart';
 
 enum TaskUrgency { overdue, urgent, soon, normal }
 
-/// Aturan penentuan tugas yang di-highlight di dashboard.
-///
-/// TODO(tech-debt): sementara berdasar status + deadline. Ganti/atur ulang
-/// setelah kontrak payload BE (mis. field prioritas dari BE) disepakati.
-/// Murni Dart, siap dipindah ke Cubit/UseCase.
 abstract final class TaskPriorityLogic {
   static const Duration urgentWindow = Duration(hours: 24);
   static const Duration soonWindow = Duration(hours: 72);

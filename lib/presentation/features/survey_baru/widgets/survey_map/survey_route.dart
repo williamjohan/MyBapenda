@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'
+    show LatLng; // [UBAH] dulu latlong2
 import 'survey_map_point.dart';
 
 String fmtKm(double m) => m < 1000
@@ -93,9 +94,22 @@ class SurveyPlan {
 class SurveyRoutePlanner {
   SurveyRoutePlanner._();
 
-  static const _dist = Distance();
+  /// [UBAH] Jarak garis lurus dua titik (rumus haversine), dalam meter.
+  /// Dulu memakai `Distance` dari latlong2; sekarang tanpa paket tambahan.
+  static double meters(LatLng a, LatLng b) {
+    const earthRadius = 6371000.0;
+    double rad(double deg) => deg * math.pi / 180;
 
-  static double meters(LatLng a, LatLng b) => _dist.as(LengthUnit.Meter, a, b);
+    final dLat = rad(b.latitude - a.latitude);
+    final dLng = rad(b.longitude - a.longitude);
+    final sinLat = math.sin(dLat / 2);
+    final sinLng = math.sin(dLng / 2);
+    final h =
+        sinLat * sinLat +
+        math.cos(rad(a.latitude)) * math.cos(rad(b.latitude)) * sinLng * sinLng;
+
+    return 2 * earthRadius * math.asin(math.sqrt(h.clamp(0.0, 1.0)));
+  }
 
   /// Posisi petugas dipakai hanya kalau < 60 km dari tugas terdekat
   /// (emulator di luar negeri tidak merusak peta).
@@ -158,24 +172,49 @@ class SurveyRoutePlanner {
       cursor = first.position;
     }
 
+    // [UBAH] Dulu: sort ulang seluruh daftar di setiap langkah (berat di HP
+    // lawas). Sekarang cukup cari satu titik terdekat per langkah.
     while (rest.isNotEmpty) {
-      final c = cursor!;
-      rest.sort(
-        (a, b) => meters(c, a.position).compareTo(meters(c, b.position)),
-      );
-      final next = rest.removeAt(0);
+      final next = _nearest(rest, cursor!);
+      rest.remove(next);
       out.add(next);
       cursor = next.position;
     }
     return out;
+  }
+
+  /// [BARU] Titik di [pts] yang paling dekat ke [from].
+  static SurveyMapPoint _nearest(List<SurveyMapPoint> pts, LatLng from) {
+    var best = pts.first;
+    var bestDistance = meters(from, best.position);
+    for (final p in pts.skip(1)) {
+      final d = meters(from, p.position);
+      if (d < bestDistance) {
+        best = p;
+        bestDistance = d;
+      }
+    }
+    return best;
   }
 }
 
 class SurveyRouteService {
   SurveyRouteService._();
 
+  /// [UBAH] Alamat server rute dipisah di sini supaya gampang diganti.
+  ///
+  /// TODO: ini SATU-SATUNYA bagian yang masih "uji coba". Server publik OSRM
+  /// tidak untuk produksi (ada batas pemakaian, tanpa jaminan hidup). Sebelum
+  /// rilis: pasang OSRM sendiri, atau minta backend meneruskan ke layanan rute
+  /// berbayar. Cukup ganti alamat ini, format jawabannya sama untuk OSRM.
+  static const _routeUrl = 'https://router.project-osrm.org/route/v1/driving';
+
+  /// [BARU] Titik rute yang lebih rapat dari ini dibuang. Rute asli bisa
+  /// berisi ribuan titik; di layar HP tidak terlihat bedanya, tapi RAM-nya
+  /// jauh lebih hemat.
+  static const _minPointGapMeters = 12.0;
+
   // Dio terpisah: token API tidak boleh terkirim ke server lain.
-  // TODO: server demo OSRM hanya untuk uji coba.
   static final _dio = Dio(
     BaseOptions(
       connectTimeout: const Duration(seconds: 8),
@@ -190,7 +229,7 @@ class SurveyRouteService {
           .map((p) => '${p.longitude},${p.latitude}')
           .join(';');
       final res = await _dio.get(
-        'https://router.project-osrm.org/route/v1/driving/$coords',
+        '$_routeUrl/$coords',
         queryParameters: {'overview': 'full', 'geometries': 'geojson'},
       );
 
@@ -203,10 +242,9 @@ class SurveyRouteService {
       if (routes.isEmpty) return _straight(waypoints);
 
       final r = routes.first as Map;
-      final line = [
-        for (final c in (r['geometry']['coordinates'] as List))
-          LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble()),
-      ];
+      final line = _thin(r['geometry']['coordinates'] as List);
+      if (line.length < 2) return _straight(waypoints);
+
       final legs = <RouteLeg>[
         for (final l in (r['legs'] as List))
           (
@@ -226,6 +264,22 @@ class SurveyRouteService {
       debugPrint('OSRM error: $e');
       return _straight(waypoints);
     }
+  }
+
+  /// [BARU] Ubah koordinat GeoJSON [[lng, lat], ...] jadi daftar LatLng,
+  /// sambil membuang titik yang terlalu rapat. Titik awal & akhir dipertahankan.
+  static List<LatLng> _thin(List coords) {
+    final out = <LatLng>[];
+    for (var i = 0; i < coords.length; i++) {
+      final c = coords[i] as List;
+      final p = LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble());
+      final isEdge = i == 0 || i == coords.length - 1;
+      if (isEdge ||
+          SurveyRoutePlanner.meters(out.last, p) >= _minPointGapMeters) {
+        out.add(p);
+      }
+    }
+    return out;
   }
 
   /// Cadangan: garis lurus, jarak x1,3, kecepatan kota 25 km/jam.
