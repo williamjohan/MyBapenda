@@ -332,9 +332,9 @@ class _Summary extends StatelessWidget {
             spacing: 14,
             runSpacing: 6,
             children: [
-              _dot('Mendesak', SurveyDeadline.styleOf(0).fg),
-              _dot('Segera', SurveyDeadline.styleOf(2).fg),
-              _dot('Aman', SurveyDeadline.styleOf(10).fg),
+              _dot('Prioritas Tinggi', SurveyDeadline.styleOf(0).fg),
+              _dot('Prioritas Menengah', SurveyDeadline.styleOf(2).fg),
+              _dot('Prioritas Rendah', SurveyDeadline.styleOf(10).fg),
             ],
           ),
           const SizedBox(height: 4),
