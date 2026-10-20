@@ -3,9 +3,11 @@ import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/s
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
+// [HAPUS] import 'package:flutter_map/flutter_map.dart';
 import 'survey_deadline.dart';
+import 'survey_map_controller.dart'; // [BARU]
 import 'survey_map_view.dart';
+import 'survey_pin_icons.dart'; // [BARU]
 import 'survey_route.dart';
 import 'survey_task_detail.dart';
 
@@ -31,14 +33,14 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
   static const _ink = Color(0xFF1F2933);
   static const _accent = Color(0xFFB8680F);
 
-  final _controller = MapController();
+  final _controller = SurveyMapController(); // [UBAH] dulu MapController()
   String? _selectedId;
   bool _showRoute = true;
 
+  // [UBAH] Semua pemanggilan kamera sudah aman sendiri (lihat
+  // SurveyMapController), jadi try/catch di sini tidak perlu lagi.
   void _fit(SurveyMapState s) {
-    try {
-      _controller.fitCamera(surveyFit(s));
-    } catch (_) {}
+    _controller.fit(s);
   }
 
   Future<void> _locate() async {
@@ -47,18 +49,16 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
     if (!mounted) return;
     final s = cubit.state;
     final from = s.plan.from;
-    try {
-      if (from != null) {
-        _controller.move(from, 16);
-      } else {
-        _fit(s);
-      }
-    } catch (_) {}
+    if (from != null) {
+      await _controller.moveTo(from, 16);
+    } else {
+      await _controller.fit(s);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    SurveyPinIcons.clear(); // [UBAH] lepas cache gambar pin
     super.dispose();
   }
 
@@ -116,7 +116,10 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
                 ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
+                  clipBehavior:
+                      Clip.hardEdge, // [UBAH] lebih ringan dari antiAlias
                   child: SizedBox(
+                    width: double.infinity,
                     height: widget.mapHeight,
                     child: SurveyMapView(
                       controller: _controller,
@@ -124,9 +127,9 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
                       selectedId: sel?.id,
                       onSelect: (id) => setState(() => _selectedId = id),
                       showRoute: _showRoute,
-                      initialFit: surveyFit(data),
                       onFit: () => _fit(data),
                       onLocate: _locate,
+                      interactive: true,
                     ),
                   ),
                 ),
@@ -158,9 +161,8 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
                               pinned: plan.isPinned(sel.id),
                               skipped: plan.isSkipped(sel.id),
                               isFirst: plan.numberOf(sel.id) == 1,
-                              onStart: sel.source == null
-                                  ? null
-                                  : () => widget.onStart(sel.source!),
+                              // [UBAH] source selalu ada (tidak ada data contoh)
+                              onStart: () => widget.onStart(sel.source),
                               onFirst: () => cubit.doFirst(sel.id),
                               onRestore: () => cubit.unskip(sel.id),
                             ),
@@ -175,6 +177,10 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
     );
   }
 }
+
+// ----------------------------------------------------------------------------
+// _Summary: TIDAK BERUBAH dari versi lama
+// ----------------------------------------------------------------------------
 
 class _Summary extends StatelessWidget {
   final SurveyMapState data;

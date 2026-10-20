@@ -13,6 +13,18 @@ String? _textOrNull(Object? v) {
 DateTime? _dateTimeOrNull(Object? v) =>
     v == null ? null : DateTime.tryParse('$v'.trim());
 
+double _doubleFromJson(Object? v) {
+  if (v is num) return v.toDouble();
+
+  final result = double.tryParse('$v'.trim().replaceAll(',', '.'));
+
+  if (result == null || !result.isFinite) {
+    throw FormatException('Nilai koordinat tidak valid: $v');
+  }
+
+  return result;
+}
+
 @JsonSerializable(createToJson: false)
 class SurveyPermohonanModel {
   @JsonKey(name: 'key')
@@ -60,6 +72,12 @@ class SurveyPermohonanModel {
   @JsonKey(name: 'expTask')
   final String expTask;
 
+  @JsonKey(name: 'latitude', fromJson: _doubleFromJson)
+  final double latitude;
+
+  @JsonKey(name: 'longitude', fromJson: _doubleFromJson)
+  final double longitude;
+
   // ---- Baru: tugas yang dikembalikan dari penilaian ----
 
   @JsonKey(name: 'dikembalikanPenilaian', defaultValue: false)
@@ -94,6 +112,8 @@ class SurveyPermohonanModel {
     this.ketPengembalian,
     this.tglPengembalian,
     this.badge,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory SurveyPermohonanModel.fromJson(Map<String, dynamic> json) =>
@@ -153,6 +173,8 @@ extension SurveyPermohonanModelX on SurveyPermohonanModel {
     dikembalikanPenilaian: dikembalikanPenilaian,
     ketPengembalian: ketPengembalian,
     tglPengembalian: tglPengembalian,
+    latitude: latitude,
+    longitude: longitude,
     badge: badge == null
         ? null
         : SurveyBadgeEntity(

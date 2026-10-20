@@ -1,7 +1,8 @@
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_route.dart';
 import 'package:equatable/equatable.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'
+    show LatLng; // [UBAH] dulu latlong2
 
 class SurveyMapState extends Equatable {
   final List<SurveyMapPoint> points;
@@ -22,7 +23,9 @@ class SurveyMapState extends Equatable {
   final bool routeHasFrom;
   final bool loadingRoute;
 
-  const SurveyMapState({
+  // [UBAH] `const` dihapus dari constructor: Dart tidak mengizinkan
+  // `late final` di class ber-constructor const (lihat `plan` di bawah).
+  SurveyMapState({
     this.points = const [],
     this.pinned = const [],
     this.skipped = const <String>{},
@@ -36,7 +39,10 @@ class SurveyMapState extends Equatable {
     this.loadingRoute = false,
   });
 
-  SurveyPlan get plan => SurveyRoutePlanner.plan(
+  /// [UBAH] Urutan kunjungan. Dulu `get` yang menghitung ulang (sort + jarak)
+  /// setiap kali dibaca, padahal dibaca belasan kali tiap rebuild. Sekarang
+  /// dihitung sekali per state, lalu dipakai ulang.
+  late final SurveyPlan plan = SurveyRoutePlanner.plan(
     points,
     from: gps,
     pinned: pinned,

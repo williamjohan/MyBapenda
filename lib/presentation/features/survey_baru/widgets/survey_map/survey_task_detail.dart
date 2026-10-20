@@ -172,7 +172,8 @@ class SurveyTaskDetail extends StatelessWidget {
               ],
               Expanded(
                 child: Button(
-                  label: point.isDemo ? 'Data contoh' : 'Mulai Survey',
+                  label:
+                      'Mulai Survey', // [UBAH] dulu: point.isDemo ? 'Data contoh' : ...
                   icon: Icons.arrow_forward_rounded,
                   iconAtEnd: true,
                   height: 42,
