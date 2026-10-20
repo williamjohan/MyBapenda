@@ -25,4 +25,20 @@ class AppShareUtils {
       AppLogger.error('❌ Gagal membagikan file: $filePath', e);
     }
   }
+
+  /// Membuka menu "Share" bawaan OS untuk membagikan teks saja.
+  static Future<void> shareText(String text, {String? subject}) async {
+    try {
+      // ignore: deprecated_member_use
+      final result = await Share.share(text, subject: subject);
+
+      if (result.status == ShareResultStatus.success) {
+        AppLogger.info('✅ Teks berhasil dibagikan');
+      } else if (result.status == ShareResultStatus.dismissed) {
+        AppLogger.info('ℹ️ Batal membagikan teks');
+      }
+    } catch (e) {
+      AppLogger.error('❌ Gagal membagikan teks', e);
+    }
+  }
 }

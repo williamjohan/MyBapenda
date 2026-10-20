@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 enum VaQrisBannerTone { info, warning, danger }
 
@@ -15,39 +15,38 @@ class VaQrisInfoBanner extends StatelessWidget {
   final IconData icon;
   final VaQrisBannerTone tone;
 
-  Color get _background => switch (tone) {
-    VaQrisBannerTone.info => AppThemeColors.primarySoft,
-    VaQrisBannerTone.warning => AppThemeColors.warningSoft,
-    VaQrisBannerTone.danger => AppThemeColors.dangerSoft,
+  Color _background(AppPalette palette) => switch (tone) {
+    VaQrisBannerTone.info => palette.accentSoft,
+    VaQrisBannerTone.warning => palette.warningSoft,
+    VaQrisBannerTone.danger => palette.dangerSoft,
   };
 
-  Color get _foreground => switch (tone) {
-    VaQrisBannerTone.info => AppThemeColors.brown,
-    VaQrisBannerTone.warning => AppThemeColors.gold,
-    VaQrisBannerTone.danger => AppThemeColors.danger,
+  Color _foreground(AppPalette palette) => switch (tone) {
+    VaQrisBannerTone.info => palette.brandStrong,
+    VaQrisBannerTone.warning => palette.accent,
+    VaQrisBannerTone.danger => palette.danger,
   };
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+    final foreground = _foreground(palette);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: _background,
+        color: _background(palette),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: _foreground),
+          Icon(icon, size: 18, color: foreground),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
-                fontSize: 12.5,
-                height: 1.4,
-                color: _foreground,
-              ),
+              style: TextStyle(fontSize: 12.5, height: 1.4, color: foreground),
             ),
           ),
         ],

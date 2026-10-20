@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 
 class BillingTabBar extends StatelessWidget {
   const BillingTabBar({
@@ -16,15 +16,17 @@ class BillingTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
+
     return Container(
-      color: AppThemeColors.defaultBackground,
+      color: palette.surfaceMuted,
       child: TabBar(
         controller: controller,
-        labelColor: AppThemeColors.gold,
-        unselectedLabelColor: AppThemeColors.secondaryText,
-        indicatorColor: AppThemeColors.primary,
+        labelColor: palette.accent,
+        unselectedLabelColor: palette.textSecondary,
+        indicatorColor: palette.brand,
         indicatorWeight: 3,
-        dividerColor: AppThemeColors.defaultBorder,
+        dividerColor: palette.borderStrong,
         labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
         unselectedLabelStyle: const TextStyle(
           fontSize: 14,
@@ -53,6 +55,7 @@ class _CountTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showAlert = isAlert && count > 0;
+    final palette = context.palette;
     return Tab(
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -62,7 +65,7 @@ class _CountTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
             decoration: BoxDecoration(
-              color: showAlert ? AppThemeColors.danger : AppThemeColors.grey4,
+              color: showAlert ? palette.danger : palette.borderStrong,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -70,7 +73,7 @@ class _CountTab extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: showAlert ? Colors.white : AppThemeColors.secondaryText,
+                color: showAlert ? Colors.white : palette.textSecondary,
               ),
             ),
           ),

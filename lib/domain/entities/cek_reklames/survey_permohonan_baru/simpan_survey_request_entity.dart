@@ -9,8 +9,6 @@ class SimpanSurveyRequestEntity extends Equatable {
   final String lokBlok;
   final String lokRt;
   final String lokRw;
-  final String latitude;
-  final String longitude;
   final List<SisiRequestEntity> sisiList;
   final CheckinRequestEntity checkin;
 
@@ -22,8 +20,6 @@ class SimpanSurveyRequestEntity extends Equatable {
     required this.lokBlok,
     required this.lokRt,
     required this.lokRw,
-    required this.latitude,
-    required this.longitude,
     required this.sisiList,
     required this.checkin,
   });
@@ -37,25 +33,26 @@ class SimpanSurveyRequestEntity extends Equatable {
     lokBlok,
     lokRt,
     lokRw,
-    latitude,
-    longitude,
     sisiList,
     checkin,
   ];
 }
 
+/// Check-in petugas. Foto & lokasi null = pakai check-in tersimpan di draft
+/// server (`survey-form` `checkin.tersimpan=true`); hanya petugas pembantu
+/// yang dikirim.
 class CheckinRequestEntity extends Equatable {
-  final File fileDataFormFile;
-  final String latitude;
-  final String longitude;
-  final String alamat;
+  final File? fileDataFormFile;
+  final String? latitude;
+  final String? longitude;
+  final String? alamat;
   final List<String> nipPembantu;
 
   const CheckinRequestEntity({
-    required this.fileDataFormFile,
-    required this.latitude,
-    required this.longitude,
-    required this.alamat,
+    this.fileDataFormFile,
+    this.latitude,
+    this.longitude,
+    this.alamat,
     this.nipPembantu = const [],
   });
 
@@ -98,18 +95,23 @@ class FotoRequestEntity extends Equatable {
 
 class SisiRequestEntity extends Equatable {
   final int seq;
+
+  /// Titik reklame sisi ini (pin di peta), bukan lokasi check-in petugas.
+  final String latitude;
+  final String longitude;
   final String? idNor;
   final String? idPersil;
-  final int lokasiTertentuId;
-  final int letakReklame;
-  final int statusTanah;
+  // Isian null = belum diisi (draft); server mempertahankan nilai lama.
+  final int? lokasiTertentuId;
+  final int? letakReklame;
+  final int? statusTanah;
   final String lokPenyelenggaraan;
-  final double panjang;
-  final double lebar;
-  final double tinggi;
-  final int idJenisReklame;
-  final int idJenisProduk;
-  final int sudutPandang;
+  final double? panjang;
+  final double? lebar;
+  final double? tinggi;
+  final int? idJenisReklame;
+  final int? idJenisProduk;
+  final int? sudutPandang;
   final String ketSisi;
   final String materiReklame;
   final String ketSurvey;
@@ -118,18 +120,20 @@ class SisiRequestEntity extends Equatable {
 
   const SisiRequestEntity({
     required this.seq,
+    required this.latitude,
+    required this.longitude,
     this.idNor,
     this.idPersil,
-    required this.lokasiTertentuId,
-    required this.letakReklame,
-    required this.statusTanah,
-    required this.lokPenyelenggaraan,
-    required this.panjang,
-    required this.lebar,
-    required this.tinggi,
-    required this.idJenisReklame,
-    required this.idJenisProduk,
-    required this.sudutPandang,
+    this.lokasiTertentuId,
+    this.letakReklame,
+    this.statusTanah,
+    this.lokPenyelenggaraan = '',
+    this.panjang,
+    this.lebar,
+    this.tinggi,
+    this.idJenisReklame,
+    this.idJenisProduk,
+    this.sudutPandang,
     required this.ketSisi,
     required this.materiReklame,
     required this.ketSurvey,
@@ -140,6 +144,8 @@ class SisiRequestEntity extends Equatable {
   @override
   List<Object?> get props => [
     seq,
+    latitude,
+    longitude,
     idNor,
     idPersil,
     lokasiTertentuId,

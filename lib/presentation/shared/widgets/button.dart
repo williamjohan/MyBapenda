@@ -1,5 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_button.dart
 import 'package:flutter/material.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 
 enum BapendaButtonVariant { primary, outlined }
 
@@ -7,7 +8,7 @@ class Button extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
-  final bool iconAtEnd; 
+  final bool iconAtEnd;
   final BapendaButtonVariant variant;
   final bool isLoading;
   final bool expanded;
@@ -25,12 +26,10 @@ class Button extends StatelessWidget {
     this.height = 50,
   });
 
-  static const Color _brand = Color(0xFFB8680F);
-
   @override
   Widget build(BuildContext context) {
     final isPrimary = variant == BapendaButtonVariant.primary;
-    final fg = isPrimary ? Colors.white : _brand;
+    final fg = isPrimary ? Colors.white : context.palette.accent;
     final disabled = onPressed == null || isLoading;
 
     final textStyle = TextStyle(
@@ -76,8 +75,10 @@ class Button extends StatelessWidget {
         ? ElevatedButton(
             onPressed: disabled ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: _brand,
-              disabledBackgroundColor: _brand.withValues(alpha: 0.5),
+              backgroundColor: context.palette.accent,
+              disabledBackgroundColor: context.palette.accent.withValues(
+                alpha: 0.5,
+              ),
               elevation: 0,
               shape: shape,
             ),
@@ -87,7 +88,9 @@ class Button extends StatelessWidget {
             onPressed: disabled ? null : onPressed,
             style: OutlinedButton.styleFrom(
               side: BorderSide(
-                color: _brand.withValues(alpha: disabled ? 0.3 : 0.6),
+                color: context.palette.accent.withValues(
+                  alpha: disabled ? 0.3 : 0.6,
+                ),
               ),
               shape: shape,
             ),

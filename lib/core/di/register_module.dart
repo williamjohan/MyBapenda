@@ -8,7 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
-import '../network/resilent_dns_resolver.dart';
+import '../network/bapenda_http_client.dart';
 import '../network/connectivity_check_interceptor.dart';
 import '../network/dio_auth_interceptor.dart';
 import '../network/hmac_kantor_interceptor.dart';
@@ -46,69 +46,9 @@ abstract class RegisterModule {
     // =========================================================================
     // 🛡️ ENGINE KONEKSI CUSTOM (Anti-Blokir & Anti-Hang)
     // =========================================================================
+    // DoH + bypass sertifikat khusus host Bapenda (lihat bapenda_http_client.dart).
     dio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () {
-        final client = HttpClient();
-        client.connectionTimeout = const Duration(seconds: 25);
-
-        // Security Upgrade: Jangan terima semua sertifikat, batasi ke Bapenda saja.
-        bool isCertBypassAllowed(String host) {
-          final parsedBaseHost = Uri.tryParse(EnvConfig.baseUrl)?.host ?? '';
-          const allowedHosts = [
-            'apibapenda.surabaya.go.id',
-            'drivebapenda.surabaya.go.id',
-          ];
-          return host == parsedBaseHost || allowedHosts.contains(host);
-        }
-
-        // Modifikasi alur pembuatan Socket untuk bypass DNS OS (Provider Seluler)
-        client.connectionFactory =
-            (Uri uri, String? proxyHost, int? proxyPort) async {
-          final originalHost = uri.host;
-          var targetHost = originalHost;
-
-          try {
-            // 1. Tembak DNS Custom (Google/Cloudflare via DoH) dgn budget 8 detik
-            final resolvedIp = await ResilientDnsResolver.resolveIp(
-              originalHost,
-            ).timeout(const Duration(seconds: 8));
-            if (resolvedIp != null) targetHost = resolvedIp;
-          } catch (_) {}
-
-          // 2. TCP Connect (Budget 8 detik untuk mencegah hang di Firewall)
-          final connectTask = await Socket.startConnect(
-            targetHost,
-            uri.port,
-          ).timeout(const Duration(seconds: 8));
-          final rawSocket = await connectTask.socket;
-
-          if (uri.scheme != 'https') {
-            return ConnectionTask.fromSocket(
-              Future.value(rawSocket),
-              () => rawSocket.destroy(),
-            );
-          }
-
-          try {
-            // 3. TLS Handshake (Budget 8 detik)
-            final secureSocket = await SecureSocket.secure(
-              rawSocket,
-              host: originalHost,
-              onBadCertificate: (cert) => isCertBypassAllowed(originalHost),
-            ).timeout(const Duration(seconds: 8));
-
-            return ConnectionTask.fromSocket(
-              Future.value(secureSocket),
-              () => secureSocket.destroy(),
-            );
-          } catch (e) {
-            rawSocket.destroy();
-            rethrow;
-          }
-        };
-
-        return client;
-      },
+      createHttpClient: () => pasangKoneksiBapenda(HttpClient()),
     );
 
     // =========================================================================

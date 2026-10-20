@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
 import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_request_entity.dart';
 import 'package:bapendacore/presentation/shared/widgets/bt_image_compressor.dart';
 import 'package:flutter/foundation.dart';
@@ -17,25 +18,30 @@ class SurveySubmitCubit extends Cubit<bool> {
   // File hasil kompres yang dibuat saat submit. Dihapus setelah selesai.
   final List<String> _temps = [];
 
-  Future<({bool ok, String? error})> submit({
+  /// Kirim ke `simpan-survey`. Hanya sisi yang ada di [results] yang
+  /// dikirim, jadi dipakai juga untuk Simpan Draft (sisi lain tetap memakai
+  /// draft tersimpan di server). Server menyimpan draft lalu langsung
+  /// submit ke penilaian bila semua isian lengkap: lihat
+  /// [SimpanSurveyHasilEntity.terkirim].
+  Future<({SimpanSurveyHasilEntity? hasil, String? error})> submit({
     required Map<String, dynamic> info,
     required List<Map<String, dynamic>> sisiList,
     required Map<int, SurveyResult> results,
   }) async {
-    if (state) return (ok: false, error: null);
+    if (state) return (hasil: null, error: null);
     emit(true);
     try {
       final request = await _build(info, sisiList, results); // <-- await
       final result = await _useCase.submitSurvey(request);
-      return result.fold<({bool ok, String? error})>(
-        (failure) => (ok: false, error: failure.message),
-        (_) => (ok: true, error: null),
+      return result.fold<({SimpanSurveyHasilEntity? hasil, String? error})>(
+        (failure) => (hasil: null, error: failure.message),
+        (hasil) => (hasil: hasil, error: null),
       );
     } on StateError catch (e) {
-      return (ok: false, error: e.message);
+      return (hasil: null, error: e.message);
     } catch (e, st) {
       debugPrint('submit survey error: $e\n$st');
-      return (ok: false, error: 'Gagal menyiapkan data survey.');
+      return (hasil: null, error: 'Gagal menyiapkan data survey.');
     } finally {
       _cleanTemps();
       if (!isClosed) emit(false);
@@ -87,6 +93,24 @@ class SurveySubmitCubit extends Cubit<bool> {
     return n;
   }
 
+  int? _optInt(Map<String, dynamic> m, String k) {
+    final v = m[k];
+    return v is int ? v : int.tryParse('${v ?? ''}');
+  }
+
+  /// Ukuran <= 0 = belum diisi.
+  double? _optUkuran(Map<String, dynamic> m, String k) {
+    final v = m[k];
+    final n = v is num ? v.toDouble() : double.tryParse('${v ?? ''}');
+    return n != null && n > 0 ? n : null;
+  }
+
+  bool _norBaruLengkap(Map nb) =>
+      nb['persilId'] != null &&
+      nb['jenisBangunanId'] != null &&
+      nb['namaJalanId'] != null &&
+      '${nb['noAlamat'] ?? ''}'.trim().isNotEmpty;
+
   /// "-" (hasil autofill yang tidak ketemu) dikirim sebagai kosong.
   String _clean(dynamic v) {
     final s = '${v ?? ''}'.trim();
@@ -106,19 +130,35 @@ class SurveySubmitCubit extends Cubit<bool> {
     List<Map<String, dynamic>> sisiList,
     Map<int, SurveyResult> results,
   ) async {
-    final lat = _reqNum(info, 'latitude').toStringAsFixed(6);
-    final lng = _reqNum(info, 'longitude').toStringAsFixed(6);
+    // Check-in draft tersimpan (survey baru ber-draft): foto & lokasi tidak
+    // dikirim, server memakai check-in tersimpan.
+    final checkinTersimpan = info['checkinTersimpan'] == true;
     final tgl = DateTime.tryParse('${info['tanggalSurvey']}') ?? DateTime.now();
-    final pembantu = info['nipPetugasPembantu'] as String?;
+
+    // PERBAIKAN: Baca sebagai List<String>, bukan String?
+    // Pastikan key-nya sama persis dengan yang dikirim dari _payload di SurveyInfoPage
+    final pembantuList =
+        (info['nipPembantu'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        <String>[];
 
     final sisi = <SisiRequestEntity>[];
     for (final s in sisiList) {
       final r = results[s['seq']];
-      if (r != null) sisi.add(await _sisi(r, s)); // <-- await
+      if (r != null) sisi.add(await _sisi(r, s));
     }
     if (sisi.isEmpty) throw StateError('Belum ada sisi yang disurvey');
 
-    final selfie = await _compress(_req(info, 'selfiePath')); // <-- await
+    final checkin = checkinTersimpan
+        ? CheckinRequestEntity(nipPembantu: pembantuList)
+        : CheckinRequestEntity(
+            fileDataFormFile: await _compress(_req(info, 'selfiePath')),
+            latitude: _reqNum(info, 'latitude').toStringAsFixed(6),
+            longitude: _reqNum(info, 'longitude').toStringAsFixed(6),
+            alamat: '${info['alamat'] ?? '-'}',
+            nipPembantu: pembantuList,
+          );
 
     return SimpanSurveyRequestEntity(
       key: _req(info, 'key'),
@@ -128,16 +168,8 @@ class SurveySubmitCubit extends Cubit<bool> {
       lokBlok: _clean(info['blok']),
       lokRt: _clean(info['rt']),
       lokRw: _clean(info['rw']),
-      latitude: lat,
-      longitude: lng,
       sisiList: sisi,
-      checkin: CheckinRequestEntity(
-        fileDataFormFile: selfie, // File, bukan Future<File>
-        latitude: lat,
-        longitude: lng,
-        alamat: '${info['alamat'] ?? '-'}',
-        nipPembantu: [if (pembantu != null && pembantu.isNotEmpty) pembantu],
-      ),
+      checkin: checkin,
     );
   }
 
@@ -153,30 +185,44 @@ class SurveySubmitCubit extends Cubit<bool> {
     final persilLama = survey is Map ? survey['idPersil']?.toString() : null;
     final idNorLama = survey is Map ? survey['idNor']?.toString() : null;
 
-    // Foto dari server (URL) tidak bisa di-upload sebagai File.
+    final seq = _reqInt(d, 'seq');
+    // Titik reklame = pin di peta (wajib per sisi), bukan lokasi petugas.
+    final lokasi = r.lokasi;
+    if (lokasi == null) {
+      throw StateError('Titik reklame sisi $seq belum dipilih di peta');
+    }
+
+    // Foto dari server (URL) / foto draft tidak di-upload ulang: server
+    // memakai foto tersimpan sisi itu.
     final path = r.foto.path;
-    final File? fotoFile = path.startsWith('http')
+    final File? fotoFile = path.startsWith('http') || isFotoDraft(r.foto)
         ? null
         : await _compress(path); // <-- await
 
     return SisiRequestEntity(
-      seq: _reqInt(d, 'seq'),
+      seq: seq,
+      latitude: lokasi.lat.toStringAsFixed(7),
+      longitude: lokasi.lng.toStringAsFixed(7),
       idNor: d['idNor']?.toString() ?? idNorLama,
       idPersil: persilBaru ?? persilLama,
-      lokasiTertentuId: _reqInt(d, 'lokasiTertentuId'),
-      letakReklame: _reqInt(d, 'letakReklame'),
-      statusTanah: _reqInt(d, 'statusTanah'),
-      lokPenyelenggaraan: d['lokPenyelenggaraan'] as String? ?? '',
-      panjang: _reqNum(d, 'panjang'),
-      lebar: _reqNum(d, 'lebar'),
-      tinggi: _reqNum(d, 'tinggi'),
-      idJenisReklame: _reqInt(d, 'idJenisReklame'),
-      idJenisProduk: _reqInt(d, 'idJenisProduk'),
-      sudutPandang: _reqInt(d, 'sudutPandang'),
+      // Isian boleh kosong (draft); kelengkapan dicek server (kurangLengkap).
+      lokasiTertentuId: _optInt(d, 'lokasiTertentuId'),
+      letakReklame: _optInt(d, 'letakReklame'),
+      statusTanah: _optInt(d, 'statusTanah'),
+      // Kontrak: id master lokasi penyelenggaraan (teks), bukan namanya.
+      lokPenyelenggaraan: d['lokasiPenyelenggaraanId']?.toString() ?? '',
+      panjang: _optUkuran(d, 'panjang'),
+      lebar: _optUkuran(d, 'lebar'),
+      tinggi: _optUkuran(d, 'tinggi'),
+      idJenisReklame: _optInt(d, 'idJenisReklame'),
+      idJenisProduk: _optInt(d, 'idJenisProduk'),
+      sudutPandang: _optInt(d, 'sudutPandang'),
       ketSisi: d['ketSisi'] as String? ?? '',
       materiReklame: d['materiReklame'] as String? ?? '',
       ketSurvey: d['ketSurvey'] as String? ?? '',
-      norBaru: nb is Map
+      // NOR baru dikirim hanya bila lengkap (dipakai server saat submit);
+      // draft cukup menyimpan persilnya lewat idPersil.
+      norBaru: nb is Map && _norBaruLengkap(nb)
           ? NorBaruRequestEntity(
               idPersil: persilBaru,
               jenisBangunanId: nb['jenisBangunanId'] as int?,

@@ -1,7 +1,9 @@
+import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors_new.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import '../../../../core/theme/theme_kit.dart';
 import '../../../../routes/app_routes.dart';
 import '../cubit/va_qris_cubit.dart';
 import '../cubit/va_qris_state.dart';
@@ -10,7 +12,9 @@ import '../widgets/common/va_qris_hero_header.dart';
 import '../widgets/common/va_qris_info_banner.dart';
 import '../widgets/common/va_qris_primary_button.dart';
 import '../widgets/nop/nop_input_card.dart';
+import '../widgets/nop/recent_reference_section.dart';
 import '../widgets/nop/reference_mask_formatter.dart';
+import '../widgets/nop/tax_object_search_sheet.dart';
 
 /// Langkah 1: petugas memilih jenis pajak dan memasukkan No SKPD / NOP.
 class VaQrisNopPage extends StatefulWidget {
@@ -61,6 +65,28 @@ class _VaQrisNopPageState extends State<VaQrisNopPage> {
     cubit.searchBilling(_controller.text.trim());
   }
 
+  /// Dari "Cari objek pajak" / riwayat: isi NOP (tanpa titik) lalu langsung
+  /// cari tagihan.
+  void _pickReference(int taxTypeId, String referenceNumber) {
+    FocusScope.of(context).unfocus();
+    final cubit = context.read<VaQrisCubit>();
+    final type = cubit.state.taxTypes.where((t) => t.id == taxTypeId);
+    _controller.text = type.isEmpty
+        ? referenceNumber
+        : type.first.cleanReference(referenceNumber);
+    cubit.pickReference(taxTypeId: taxTypeId, referenceNumber: referenceNumber);
+  }
+
+  Future<void> _openObjectSearch() async {
+    FocusScope.of(context).unfocus();
+    final pick = await TaxObjectSearchSheet.show(
+      context,
+      recent: context.read<VaQrisCubit>().state.recent,
+    );
+    if (pick == null || !mounted) return;
+    _pickReference(pick.taxTypeId, pick.referenceNumber);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<VaQrisCubit, VaQrisState>(
@@ -73,7 +99,7 @@ class _VaQrisNopPageState extends State<VaQrisNopPage> {
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
-          backgroundColor: AppThemeColors.defaultBackground,
+          backgroundColor: context.palette.surfaceMuted,
           appBar: const VaQrisAppBar(title: 'Create VA & QRIS'),
           body: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -88,7 +114,10 @@ class _VaQrisNopPageState extends State<VaQrisNopPage> {
                   child: BlocBuilder<VaQrisCubit, VaQrisState>(
                     builder: (context, state) {
                       if (state.taxTypes.isEmpty) {
-                        return _TaxTypeLoader(state: state);
+                        return _TaxTypeLoader(
+                          state: state,
+                          controller: _controller,
+                        );
                       }
 
                       final isLoading = state.status == VaQrisStatus.searching;
@@ -108,7 +137,30 @@ class _VaQrisNopPageState extends State<VaQrisNopPage> {
                             enabled: !isLoading,
                             onSubmitted: _search,
                           ),
-                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: isLoading ? null : _openObjectSearch,
+                              style: TextButton.styleFrom(
+                                foregroundColor: context.palette.accent,
+                                visualDensity: VisualDensity.compact,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.manage_search_rounded,
+                                size: 17,
+                              ),
+                              label: const Text(
+                                'Tidak tahu NOP? Cari objek pajak',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
                           const VaQrisInfoBanner(
                             message:
                                 'No SKPD tertera pada SKPD reklame; NOP tertera '
@@ -125,6 +177,19 @@ class _VaQrisNopPageState extends State<VaQrisNopPage> {
                               onPressed: _isValid(state) ? _search : null,
                             ),
                           ),
+                          if (state.recent.isNotEmpty) ...[
+                            const SizedBox(height: 24),
+                            RecentReferenceSection(
+                              items: state.recent.take(5).toList(),
+                              onSelected: isLoading
+                                  ? (_) {}
+                                  : (r) => _pickReference(
+                                      r.taxTypeId,
+                                      r.referenceNumber,
+                                    ),
+                              onClear: context.read<VaQrisCubit>().clearRecent,
+                            ),
+                          ],
                         ],
                       );
                     },
@@ -139,19 +204,33 @@ class _VaQrisNopPageState extends State<VaQrisNopPage> {
   }
 }
 
-/// Saat daftar jenis pajak belum ada: loading, atau gagal + tombol ulang.
+/// Saat daftar jenis pajak belum ada: kartu input bayangan (skeleton), atau
+/// gagal + tombol ulang.
 class _TaxTypeLoader extends StatelessWidget {
-  const _TaxTypeLoader({required this.state});
+  const _TaxTypeLoader({required this.state, required this.controller});
 
   final VaQrisState state;
+  final TextEditingController controller;
+
+  static const _placeholder = TaxTypeEntity(
+    id: 0,
+    name: 'Pajak Placeholder',
+    referenceLabel: 'Nomor referensi',
+    hint: 'Masukkan nomor referensi',
+    digitsOnly: true,
+  );
 
   @override
   Widget build(BuildContext context) {
     if (state.status != VaQrisStatus.failure) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
-        child: Center(
-          child: CircularProgressIndicator(color: AppThemeColors.primary),
+      return Skeletonizer(
+        child: NopInputCard(
+          controller: controller,
+          taxTypes: const [_placeholder],
+          selectedTaxType: _placeholder,
+          onTaxTypeChanged: (_) {},
+          enabled: false,
+          onSubmitted: () {},
         ),
       );
     }

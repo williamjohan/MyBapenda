@@ -1,5 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_selfie_card.dart
 import 'dart:io';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,7 +57,7 @@ class _CheckinCardState extends State<CheckinCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -64,22 +65,18 @@ class _CheckinCardState extends State<CheckinCard> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.face_rounded,
-                size: 18,
-                color: Color(0xFFB8680F),
-              ),
+              Icon(Icons.face_rounded, size: 18, color: context.palette.accent),
               const SizedBox(width: 8),
               Text(
                 widget.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1F2933),
+                  color: context.palette.textPrimary,
                 ),
               ),
               const SizedBox(width: 4),
-              const Text('*', style: TextStyle(color: Color(0xFFC62828))),
+              Text('*', style: TextStyle(color: context.palette.danger)),
             ],
           ),
           const SizedBox(height: 14),
@@ -88,14 +85,14 @@ class _CheckinCardState extends State<CheckinCard> {
               child: Container(
                 width: 88,
                 height: 88,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFF3DC),
+                decoration: BoxDecoration(
+                  color: context.palette.accentSoft,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.person_rounded,
                   size: 44,
-                  color: Color(0xFFB8680F),
+                  color: context.palette.accent,
                 ),
               ),
             ),
@@ -103,10 +100,10 @@ class _CheckinCardState extends State<CheckinCard> {
             Text(
               widget.hint,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.5,
                 height: 1.5,
-                color: const Color(0xFF7B8794),
+                color: context.palette.textSecondary,
               ),
             ),
           ] else

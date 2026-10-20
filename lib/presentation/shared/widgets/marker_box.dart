@@ -1,5 +1,5 @@
 // lib/presentation/shared/widgets/bapenda_marker_box.dart
-import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 enum _Corner { topLeft, topRight, bottomLeft, bottomRight }
@@ -25,7 +25,7 @@ class MarkerBox extends StatefulWidget {
 }
 
 class _MarkerBoxState extends State<MarkerBox> {
-  static const Color _brand = AppThemeColors.primary;
+  Color get _brand => context.palette.accent;
   static const double _handle = 28;
 
   late Rect _rect = widget.initialRect;

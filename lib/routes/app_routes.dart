@@ -3,10 +3,14 @@ class AppRoutes {
 
   static const String onboarding = '/onboarding';
   static const String home = '/home';
+  static const String profile = '/profile';
+  static const String profileKontak = '/profile/kontak';
   static const String camera = '/camera';
   static const String map = '/map';
   static const String detail = '/detail';
   static const String login = '/login';
+  static const String lupaPassword = '/lupa-password';
+  static const String resetPassword = '/reset-password';
   static const String splashscreen = '/splashscreen';
   static const String results = '/reklame-results';
   static const String reklameDashboard = '/reklame-dashboard';
@@ -17,6 +21,8 @@ class AppRoutes {
   static const String surveyData = '/survey-data';
   static const String surveyReview = '/survey-review';
   static const String surveyInfo = '/survey-info';
+  static const String surveyHistory = '/survey-history';
+  static const String surveyHistoryDetail = '/survey-history-detail';
 
   /// Absensi pegawai
   static const String absensi = '/absensi';
@@ -34,7 +40,23 @@ class AppRoutes {
   static const String balaiRwAbsen = '/balai-rw-absen';
   static const String balaiRwLaporan = '/balai-rw-laporan';
 
+  /// Pengiriman Surat
+  static const String pengiriman = '/pengiriman';
+  static const String pengirimanDetail = '/pengiriman/detail';
+  static const String pengirimanLacak = '/pengiriman/pantau';
+  static const String pengirimanLacakDetail = '/pengiriman/lacak';
+  static const String pengirimanScan = '/pengiriman/scan';
+  static const String pengirimanCheckin = '/pengiriman/checkin';
+  static const String pengirimanSerah = '/pengiriman/serah';
+  static const String pengirimanGagal = '/pengiriman/gagal';
+  static const String pengirimanAntrean = '/pengiriman/antrean';
+
+  /// App Link QR surat: `https://{host}:9191/lacak/{noResi}`.
+  static const String lacakDeepLink = '/lacak/:kode';
+
   // MY TASK
+  static const String notifikasi = '/notifikasi';
+
   static const String myTask = '/my-task';
   static const String myTaskDetail = '/my-task/detail';
   static const String myTaskWork = '/my-task/kerjakan';

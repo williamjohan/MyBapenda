@@ -1,5 +1,6 @@
 // lib/presentation/features/reklame/widgets/survey_sisi_tile.dart
 import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 class SurveySisiTile extends StatelessWidget {
@@ -10,6 +11,9 @@ class SurveySisiTile extends StatelessWidget {
   final String masaTayang;
   final bool hasFoto;
   final bool done;
+
+  /// Sisi tersimpan sebagai draft (titik & foto ada, isian belum lengkap).
+  final bool draft;
   final VoidCallback onTap;
 
   const SurveySisiTile({
@@ -21,18 +25,16 @@ class SurveySisiTile extends StatelessWidget {
     required this.masaTayang,
     required this.hasFoto,
     required this.done,
+    this.draft = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final sub = const TextStyle(
-      fontSize: 12,
-      color: const Color(0xFF7B8794),
-    );
+    final sub = TextStyle(fontSize: 12, color: context.palette.textSecondary);
 
     return Material(
-      color: Colors.white,
+      color: context.palette.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -48,15 +50,15 @@ class SurveySisiTile extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: done
-                      ? const Color(0xFFE6F6EC)
-                      : const Color(0xFFFFF3DC),
+                      ? context.palette.successSoft
+                      : context.palette.accentSoft,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   done ? Icons.check_rounded : Icons.photo_camera_rounded,
                   color: done
-                      ? const Color(0xFF1B8A4B)
-                      : const Color(0xFFB8680F),
+                      ? context.palette.success
+                      : context.palette.accent,
                 ),
               ),
               const SizedBox(width: 12),
@@ -68,10 +70,10 @@ class SurveySisiTile extends StatelessWidget {
                       children: [
                         Text(
                           'Sisi $seq',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1F2933),
+                            color: context.palette.textPrimary,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -90,7 +92,7 @@ class SurveySisiTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: sub.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF52606D),
+                        color: context.palette.textSecondary,
                       ),
                     ),
                     Text(lokasi, style: sub),
@@ -102,7 +104,7 @@ class SurveySisiTile extends StatelessWidget {
                           'Foto tersimpan',
                           style: sub.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1B8A4B),
+                            color: context.palette.success,
                           ),
                         ),
                       ),
@@ -112,15 +114,19 @@ class SurveySisiTile extends StatelessWidget {
               Column(
                 children: [
                   StatusChip(
-                    label: done ? 'Selesai' : 'Belum',
+                    label: done
+                        ? 'Selesai'
+                        : draft
+                        ? 'Draft'
+                        : 'Belum',
                     tone: done
                         ? BapendaStatusTone.success
                         : BapendaStatusTone.warning,
                   ),
                   const SizedBox(height: 10),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
-                    color: Color(0xFFB0B7C0),
+                    color: context.palette.borderStrong,
                   ),
                 ],
               ),

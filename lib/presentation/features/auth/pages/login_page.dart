@@ -6,6 +6,8 @@ import 'package:bapendacore/core/storage/app_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../routes/app_routes.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 
@@ -460,47 +462,67 @@ class _LoginCard extends StatelessWidget {
                   : null,
             ),
             const SizedBox(height: 12),
-            InkWell(
-              onTap: () => onRememberMeChanged(!rememberMe),
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: IgnorePointer(
-                        child: Checkbox(
-                          value: rememberMe,
-                          onChanged: (_) {},
-                          activeColor: AppThemeColors.yellow5,
-                          checkColor: Colors.white,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          side: const BorderSide(
-                            color: AppThemeColors.yellow5,
-                            width: 1.5,
+            Row(
+              children: [
+                InkWell(
+                  onTap: () => onRememberMeChanged(!rememberMe),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: IgnorePointer(
+                            child: Checkbox(
+                              value: rememberMe,
+                              onChanged: (_) {},
+                              activeColor: AppThemeColors.yellow5,
+                              checkColor: Colors.white,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              side: const BorderSide(
+                                color: AppThemeColors.yellow5,
+                                width: 1.5,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Ingat saya',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppThemeColors.blackPrimary,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Ingat saya',
+                  ),
+                ),
+                const Spacer(),
+                InkWell(
+                  onTap: () => context.push(AppRoutes.lupaPassword),
+                  borderRadius: BorderRadius.circular(8),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                    child: Text(
+                      'Lupa kata sandi?',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppThemeColors.blackPrimary,
+                        fontWeight: FontWeight.w700,
+                        color: AppThemeColors.yellow5,
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: 14),
             BlocBuilder<AuthCubit, AuthState>(

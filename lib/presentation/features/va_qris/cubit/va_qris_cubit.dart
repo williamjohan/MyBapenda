@@ -4,19 +4,21 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/va_qris_constants.dart';
 import '../../../../domain/entities/va_qris/payment_method.dart';
 import '../../../../domain/entities/va_qris/payment_nominal_check_entity.dart';
 import '../../../../domain/entities/va_qris/payment_session_entity.dart';
+import '../../../../domain/entities/va_qris/recent_reference_entity.dart';
 import '../../../../domain/entities/va_qris/tax_billing_entity.dart';
 import '../../../../domain/entities/va_qris/tax_period_entity.dart';
 import '../../../../domain/entities/va_qris/tax_type_entity.dart';
 import '../../../../domain/usecases/va_qris/va_qris_usecase.dart';
-import '../logic/period_selection_logic.dart';
 import 'va_qris_state.dart';
 
 /// Satu Cubit untuk alur Create VA & QRIS. Tiap route membuat instance sendiri
 /// dan mengisinya dari `extra`:
-/// - layar input: [init] lalu [searchBilling]
+/// - layar input: [init] lalu [searchBilling] / [pickReference] (dari "Cari
+///   objek pajak" atau riwayat), [clearRecent]
 /// - layar tagihan: [loadBilling], [togglePeriod], [checkNominal],
 ///   [confirmPayment]
 /// - layar QRIS/VA: [startSession], [regenerateSession], [markExpired]
@@ -34,8 +36,11 @@ class VaQrisCubit extends Cubit<VaQrisState> {
   // ------------------------------------------------------------ layar input
 
   Future<void> init() async {
+    final recentFuture = _useCase.getRecent();
     final res = await _useCase.getTaxTypes();
+    final recent = await recentFuture;
     if (isClosed) return;
+    emit(state.copyWith(recent: recent));
 
     res.fold(
       (f) => emit(
@@ -79,36 +84,83 @@ class VaQrisCubit extends Cubit<VaQrisState> {
     );
     if (isClosed) return;
 
-    res.fold(
-      (f) => emit(
+    final billing = res.fold((f) {
+      emit(
         state.copyWith(status: VaQrisStatus.failure, errorMessage: f.message),
-      ),
-      (billing) =>
-          emit(state.copyWith(status: VaQrisStatus.loaded, billing: billing)),
-    );
+      );
+      return null;
+    }, (billing) => billing);
+    if (billing == null) return;
+
+    emit(state.copyWith(status: VaQrisStatus.loaded, billing: billing));
+    await _rememberReference(type, billing);
+  }
+
+  /// Pilihan dari "Cari objek pajak" / riwayat: pilih jenis pajaknya lalu
+  /// langsung cari tagihan dengan nomor yang sudah dirapikan
+  /// ([TaxTypeEntity.cleanReference], NOP tanpa titik). Jenis pajak harus ada
+  /// di daftar dari API.
+  Future<void> pickReference({
+    required int taxTypeId,
+    required String referenceNumber,
+  }) async {
+    if (state.status == VaQrisStatus.searching) return;
+
+    final type = state.taxTypes.where((t) => t.id == taxTypeId).firstOrNull;
+    if (type == null) {
+      emit(
+        state.copyWith(
+          status: VaQrisStatus.failure,
+          errorMessage:
+              'Jenis pajak objek ini tidak tersedia untuk pembayaran.',
+        ),
+      );
+      return;
+    }
+
+    selectTaxType(type);
+    await searchBilling(type.cleanReference(referenceNumber));
+  }
+
+  Future<void> clearRecent() async {
+    emit(state.copyWith(recent: const []));
+    await _useCase.clearRecent();
   }
 
   // ---------------------------------------------------------- layar tagihan
 
+  /// Default: masa terlama yang belum dibayar ikut tercentang.
   void loadBilling(TaxBillingEntity billing) {
+    final oldest = billing.unpaidPeriods.firstOrNull?.key;
     emit(
       state.copyWith(
         status: VaQrisStatus.loaded,
         billing: billing,
-        selectedCount: PeriodSelectionLogic.defaultSelectedCount(
-          billing.unpaidPeriods.length,
-        ),
+        selectedKeys: {if (oldest != null) oldest},
       ),
     );
   }
 
-  void togglePeriod(int index) {
+  /// Centang / batal satu masa; masa lain tidak ikut berubah.
+  void togglePeriod(TaxPeriodEntity period) {
+    final key = period.key;
+    if (key == null) return; // tanpa key tidak bisa dibayar
+    final keys = {...state.selectedKeys};
+    if (!keys.remove(key)) keys.add(key);
+    emit(state.copyWith(selectedKeys: keys));
+  }
+
+  /// "Pilih semua" / "Batal semua" masa belum lunas.
+  void toggleAllPeriods() {
+    final unpaid = state.billing?.unpaidPeriods ?? const <TaxPeriodEntity>[];
     emit(
       state.copyWith(
-        selectedCount: PeriodSelectionLogic.toggle(
-          selectedCount: state.selectedCount,
-          index: index,
-        ),
+        selectedKeys: state.allPeriodsSelected
+            ? const {}
+            : {
+                for (final p in unpaid)
+                  if (p.key != null) p.key!,
+              },
       ),
     );
   }
@@ -193,6 +245,26 @@ class VaQrisCubit extends Cubit<VaQrisState> {
   }
 
   // ---------------------------------------------------------------- helpers
+
+  /// Simpan ke riwayat "Terakhir dicari" (Reklame / No SKPD tidak disimpan).
+  Future<void> _rememberReference(
+    TaxTypeEntity type,
+    TaxBillingEntity billing,
+  ) async {
+    if (type.id == kTaxTypeIdReklame) return;
+
+    final objectName = billing.objectName.trim();
+    final recent = await _useCase.saveRecent(
+      RecentReferenceEntity(
+        taxTypeId: type.id,
+        taxTypeName: type.name,
+        referenceNumber: billing.referenceNumber,
+        name: objectName.isNotEmpty ? objectName : billing.taxpayerName.trim(),
+        savedAt: DateTime.now(),
+      ),
+    );
+    if (!isClosed) emit(state.copyWith(recent: recent));
+  }
 
   Future<bool> _createSession({
     required PaymentMethod method,

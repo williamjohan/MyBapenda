@@ -82,6 +82,7 @@ class _LaporanKehadiranPageState extends State<LaporanKehadiranPage> {
             body: CustomScrollView(
               slivers: [
                 const BapendaSliverHeader(
+                  compact: true,
                   title: 'Laporan Kehadiran',
                   showBackButton: true,
                   subtitle: Text('Rekap absensi bulanan (PDF)'),

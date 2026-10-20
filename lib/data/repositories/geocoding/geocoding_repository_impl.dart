@@ -5,7 +5,6 @@ import '../../../../core/errors/failure.dart';
 import '../../../domain/entities/coordinate_entity.dart';
 import '../../../domain/repositories/geocoding/geocoding_repository.dart';
 
-
 @LazySingleton(as: GeocodingRepository)
 class GeocodingRepositoryImpl implements GeocodingRepository {
   @override
@@ -13,17 +12,31 @@ class GeocodingRepositoryImpl implements GeocodingRepository {
     CoordinateEntity coordinate,
   ) async {
     try {
-      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
-        coordinate.latitude,
-        coordinate.longitude,
-      );
+      await geo.setLocaleIdentifier('id_ID');
+      List<geo.Placemark> placemarks = await geo
+          .placemarkFromCoordinates(coordinate.latitude, coordinate.longitude)
+          .timeout(const Duration(seconds: 8));
 
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
-        // Format alamat bisa disesuaikan dengan kebutuhan Bapenda
-        final address =
-            "${place.street}, ${place.subLocality}, ${place.locality}, ${place.subAdministrativeArea}";
-        return Right(address);
+        // Bagian kosong/null dan nama wilayah yang berulang dilewati, supaya
+        // tidak muncul "null, ..." di alamat.
+        final bagian = <String>[];
+        for (final b in [
+          place.street,
+          place.subLocality,
+          place.locality,
+          place.subAdministrativeArea,
+          place.administrativeArea,
+          place.postalCode,
+        ]) {
+          final t = (b ?? '').trim();
+          if (t.isEmpty) continue;
+          if (bagian.any((x) => x.toLowerCase() == t.toLowerCase())) continue;
+          bagian.add(t);
+        }
+        if (bagian.isEmpty) return const Left(LocationNotFoundFailure());
+        return Right(bagian.join(', '));
       } else {
         return const Left(LocationNotFoundFailure());
       }

@@ -25,6 +25,7 @@ PaymentSessionModel _$PaymentSessionModelFromJson(Map<String, dynamic> json) =>
       sisaDetik: (json['sisaDetik'] as num?)?.toInt() ?? 0,
       kodeVa: json['kodeVa'] as String?,
       qrValue: json['qrValue'] as String?,
+      nmid: json['nmid'] as String?,
     );
 
 Map<String, dynamic> _$PaymentSessionModelToJson(
@@ -38,4 +39,5 @@ Map<String, dynamic> _$PaymentSessionModelToJson(
       'sisaDetik': instance.sisaDetik,
       'kodeVa': instance.kodeVa,
       'qrValue': instance.qrValue,
+      'nmid': instance.nmid,
     };

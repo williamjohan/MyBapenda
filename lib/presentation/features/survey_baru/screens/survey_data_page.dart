@@ -11,6 +11,7 @@ import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/p
 import 'package:bapendacore/presentation/shared/master_data/presentation/widgets/master_paged_select_field.dart';
 import 'package:bapendacore/presentation/shared/master_data/presentation/widgets/master_select_field.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
+import 'package:bapendacore/presentation/features/survey_baru/widgets/tombol_simpan_draft.dart';
 import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
 import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:bapendacore/presentation/shared/widgets/paged_select_field.dart';
@@ -106,7 +107,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
     super.dispose();
   }
 
-  void _save() {
+  SurveyDataTexts _teks() {
     final cubit = context.read<SurveyDataCubit>();
 
     // Nama lokasi diambil dari cache master berdasarkan ID yang dipilih.
@@ -118,7 +119,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
               )[lokasiId] ??
               '';
 
-    cubit.save((
+    return (
       noAlamat: _noAlamatCtrl.text,
       lokasi: lokasiNama,
       materi: _materiCtrl.text,
@@ -127,7 +128,17 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
       tinggi: _tCtrl.text,
       ketSisi: _ketSisiCtrl.text,
       ketSurvey: _ketSurveyCtrl.text,
-    ));
+    );
+  }
+
+  void _save() => context.read<SurveyDataCubit>().save(_teks());
+
+  /// Survey baru: boleh simpan sebagai draft walau isian belum lengkap.
+  void _simpanDraft() => context.read<SurveyDataCubit>().simpanDraft(_teks());
+
+  bool get _bolehDraft {
+    final h = widget.sisi['header'];
+    return !(h is Map && h['dikembalikan'] == true);
   }
 
   static const _gap = SizedBox(height: 14);
@@ -257,7 +268,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                     color: Colors.white,
                     padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
                     child: const StepIndicator(
-                      labels: ['Foto', 'Data', 'Review'],
+                      labels: ['Lokasi & Foto', 'Data', 'Review'],
                       currentIndex: 1,
                     ),
                   ),
@@ -407,11 +418,21 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
               child: Container(
                 color: Colors.white,
                 padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-                child: Button(
-                  label: 'Simpan & Lanjutkan',
-                  icon: Icons.arrow_forward_rounded,
-                  iconAtEnd: true,
-                  onPressed: _save,
+                child: Row(
+                  children: [
+                    if (_bolehDraft) ...[
+                      TombolSimpanDraft(onPressed: _simpanDraft),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(
+                      child: Button(
+                        label: _bolehDraft ? 'Lanjutkan' : 'Simpan & Lanjutkan',
+                        icon: Icons.arrow_forward_rounded,
+                        iconAtEnd: true,
+                        onPressed: _save,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

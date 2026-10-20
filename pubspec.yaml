@@ -132,6 +132,11 @@ dependencies:
   device_info_plus: ^12.4.0
   uuid: ^4.6.0
   flutter_ntp: ^0.1.0
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
+  mobile_scanner: ^7.4.2
+  flutter_local_notifications: ^20.1.0
+  flutter_foreground_task: ^9.2.2
 
 dev_dependencies:
   flutter_test:

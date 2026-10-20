@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import '../../../../../core/utils/va_qris_constants.dart';
 
 /// Countdown pembayaran yang tahan background/sleep.
@@ -120,11 +119,12 @@ class _PaymentCountdownTimerState extends State<PaymentCountdownTimer>
     final isWarning =
         !isExpired && _currentDisplayTime.inSeconds <= kCountdownWarningSeconds;
     final isAlert = isExpired || isWarning;
+    final palette = context.palette;
 
     final background = isAlert
-        ? AppThemeColors.dangerSoft
+        ? palette.dangerSoft
         : Colors.white.withValues(alpha: 0.16);
-    final foreground = isAlert ? AppThemeColors.danger : Colors.white;
+    final foreground = isAlert ? palette.danger : Colors.white;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),

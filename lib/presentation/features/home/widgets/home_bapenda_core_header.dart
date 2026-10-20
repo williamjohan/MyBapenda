@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors_new.dart';
 import '../../../../core/constants/design_system/tokens/app_palette.dart';
 import '../../../shared/widgets/theme_toggle_button.dart';
+import '../../notifikasi/widgets/notifikasi_bell_button.dart';
 
 class HomeBapendaCoreHeader extends StatelessWidget {
   const HomeBapendaCoreHeader({
@@ -62,6 +63,8 @@ class HomeBapendaCoreHeader extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                const NotifikasiBellButton(),
+                const SizedBox(width: 8),
                 const ThemeToggleButton(),
                 const SizedBox(width: 8),
                 _menuButton(),

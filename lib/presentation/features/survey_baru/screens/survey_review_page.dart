@@ -13,8 +13,9 @@ import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
+import '../widgets/hasil_simpan_survey.dart';
+import '../widgets/peta_lokasi_reklame.dart';
 import 'survey_foto_page.dart';
 
 class SurveyReviewPage extends StatelessWidget {
@@ -37,7 +38,9 @@ class SurveyReviewPage extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Kirim hasil survey?'),
         content: const Text(
-          'Pastikan foto, kotak penanda, dan data semua sisi sudah benar.',
+          'Pastikan foto, titik reklame, dan data semua sisi sudah benar. '
+          'Bila semua isian lengkap, survey langsung dikirim ke penilaian; '
+          'bila belum, disimpan sebagai draft.',
         ),
         actions: [
           TextButton(
@@ -61,7 +64,8 @@ class SurveyReviewPage extends StatelessWidget {
     );
     if (!context.mounted) return;
 
-    if (!res.ok) {
+    final hasil = res.hasil;
+    if (hasil == null) {
       if (res.error != null) {
         messenger
           ..hideCurrentSnackBar()
@@ -70,10 +74,8 @@ class SurveyReviewPage extends StatelessWidget {
       return;
     }
 
-    context.goNamed(AppRoutes.reklameDashboard);
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Hasil survey berhasil dikirim.')),
-    );
+    // Submit -> ke dashboard; Draft -> tetap di sini dengan daftar kekurangan.
+    await tampilkanHasilSimpanSurvey(context, hasil);
   }
 
   @override
@@ -99,7 +101,7 @@ class SurveyReviewPage extends StatelessWidget {
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
               child: const StepIndicator(
-                labels: ['Foto', 'Data', 'Review'],
+                labels: ['Lokasi & Foto', 'Data', 'Review'],
                 currentIndex: 2,
               ),
             ),
@@ -259,7 +261,10 @@ class SisiReviewCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          PhotoPreview(path: f.path, ratio: f.ratio, box: f.box),
+          if (isFotoDraft(f))
+            const _FotoDraftReview()
+          else
+            PhotoPreview(path: f.path, ratio: f.ratio, box: f.box),
           if (f.keterangan.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -285,7 +290,11 @@ class SisiReviewCard extends StatelessWidget {
                 ],
               ),
             ),
-          const Padding(
+          if (result.lokasi case final lokasi?) ...[
+            const SizedBox(height: 12),
+            PetaLokasiReklame(lokasi: lokasi),
+          ],
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
@@ -381,6 +390,11 @@ class _InfoReviewCard extends StatelessWidget {
     final kec = m.optionsOf(MasterOptionType.kecamatan)[kecId] ?? '-';
     final kel = m.kelurahanOf(kecId)[info['kelurahanId']] ?? '-';
 
+    // Petugas pembantu boleh lebih dari satu (list nama dari halaman info).
+    final pembantu = [
+      for (final n in (info['namaPembantu'] as List? ?? const [])) '$n',
+    ];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -436,6 +450,7 @@ class _InfoReviewCard extends StatelessWidget {
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
+          InfoRow(label: 'Alamat', value: '${info['alamat'] ?? '-'}'),
           InfoRow(label: 'Kecamatan', value: kec),
           InfoRow(label: 'Kelurahan', value: kel),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),
@@ -446,11 +461,40 @@ class _InfoReviewCard extends StatelessWidget {
           ),
           InfoRow(
             label: 'Petugas Pembantu',
-            value: '${info['namaPetugasPembantu'] ?? '-'}',
+            value: pembantu.isEmpty ? '-' : pembantu.join(', '),
           ),
           InfoRow(
             label: 'Tanggal Survey',
             value: tgl == null ? '-' : SurveyOptions.fmtTanggal(tgl),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pengganti preview foto untuk sisi yang memakai foto draft server.
+class _FotoDraftReview extends StatelessWidget {
+  const _FotoDraftReview();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF4E5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.cloud_done_rounded, color: Color(0xFFB8680F)),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Foto reklame memakai foto yang tersimpan di draft.',
+              style: TextStyle(fontSize: 12.5, color: Color(0xFF7A4A0C)),
+            ),
           ),
         ],
       ),

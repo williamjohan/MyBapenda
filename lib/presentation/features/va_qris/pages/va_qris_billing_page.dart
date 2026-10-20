@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_colors_new.dart';
+import '../../../../core/theme/theme_kit.dart';
 import '../../../../domain/entities/va_qris/payment_method.dart';
 import '../../../../routes/app_routes.dart';
 import '../cubit/va_qris_cubit.dart';
@@ -15,7 +15,8 @@ import '../widgets/billing/unpaid_period_list.dart';
 import '../widgets/common/va_qris_app_bar.dart';
 import '../widgets/common/va_qris_hero_header.dart';
 
-/// Langkah 2-4: tagihan, pilih masa pajak (berurutan), konfirmasi.
+/// Langkah 2-4: tagihan, pilih masa pajak (bebas, ada "Pilih semua"),
+/// konfirmasi.
 /// Billing diisi route lewat [VaQrisCubit.loadBilling].
 class VaQrisBillingPage extends StatefulWidget {
   const VaQrisBillingPage({super.key});
@@ -97,7 +98,7 @@ class _VaQrisBillingPageState extends State<VaQrisBillingPage>
           final showTotalBar = _tabController.index == 0 && unpaid.isNotEmpty;
 
           return Scaffold(
-            backgroundColor: AppThemeColors.defaultBackground,
+            backgroundColor: context.palette.surfaceMuted,
             appBar: const VaQrisAppBar(title: 'Tagihan pajak'),
             body: Column(
               children: [
@@ -113,8 +114,11 @@ class _VaQrisBillingPageState extends State<VaQrisBillingPage>
                     children: [
                       UnpaidPeriodList(
                         periods: unpaid,
-                        selectedCount: state.selectedCount,
+                        selectedKeys: state.selectedKeys,
                         onToggle: context.read<VaQrisCubit>().togglePeriod,
+                        onToggleAll: context
+                            .read<VaQrisCubit>()
+                            .toggleAllPeriods,
                       ),
                       PaidPeriodList(periods: billing.paidPeriods),
                     ],

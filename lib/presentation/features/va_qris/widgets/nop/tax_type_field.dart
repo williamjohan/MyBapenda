@@ -1,6 +1,6 @@
 import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/app_colors_new.dart';
+import '../../../../../core/theme/theme_kit.dart';
 import 'tax_type_sheet.dart';
 import 'tax_type_visual.dart';
 
@@ -33,9 +33,10 @@ class TaxTypeField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = selected;
+    final palette = context.palette;
 
     return Material(
-      color: AppThemeColors.defaultBackground,
+      color: palette.surfaceMuted,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: enabled ? () => _open(context) : null,
@@ -44,7 +45,7 @@ class TaxTypeField extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppThemeColors.defaultBorder),
+            border: Border.all(color: palette.borderStrong),
           ),
           child: Row(
             children: [
@@ -52,13 +53,13 @@ class TaxTypeField extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppThemeColors.primarySoft,
+                  color: palette.accentSoft,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   type?.icon ?? Icons.category_outlined,
                   size: 22,
-                  color: AppThemeColors.gold,
+                  color: palette.accent,
                 ),
               ),
               const SizedBox(width: 12),
@@ -75,17 +76,17 @@ class TaxTypeField extends StatelessWidget {
                         height: 1.3,
                         fontWeight: FontWeight.w600,
                         color: type == null
-                            ? AppThemeColors.tertiaryText
-                            : AppThemeColors.primaryText,
+                            ? palette.textTertiary
+                            : palette.textPrimary,
                       ),
                     ),
                     if (type != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         type.inputHint,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppThemeColors.secondaryText,
+                          color: palette.textSecondary,
                         ),
                       ),
                     ],
@@ -95,9 +96,7 @@ class TaxTypeField extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 Icons.expand_more_rounded,
-                color: enabled
-                    ? AppThemeColors.gold
-                    : AppThemeColors.tertiaryText,
+                color: enabled ? palette.accent : palette.textTertiary,
               ),
             ],
           ),
