@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/absensi/riwayat_absensi_entity.dart';
-import 'package:bapendacore/presentation/features/absensi/logic/rekap_harian_logic.dart';
+import 'package:mybapenda/domain/entities/absensi/riwayat_absensi_entity.dart';
+import 'package:mybapenda/presentation/features/absensi/logic/rekap_harian_logic.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 RiwayatAbsensiEntity _scan(DateTime t, {bool valid = true}) =>

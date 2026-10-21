@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../../core/constants/design_system/tokens/app_palette.dart';
-import '../../../../../core/services/geo_location_service.dart';
 import '../../../../shared/widgets/section_label.dart';
 import '../../cubit/aksi/aksi_cubit.dart';
 import '../../cubit/aksi/aksi_state.dart';
@@ -54,9 +52,8 @@ class LokasiCard extends StatelessWidget {
         };
         final akurasiRendah =
             state.lokasiSiap && state.lokasi!.akurasiMeter > 50;
-        final bisaPengaturan =
-            state.lokasiErrorKode == GeoLocationError.serviceDisabled ||
-            state.lokasiErrorKode == GeoLocationError.permissionDeniedForever;
+            
+        final bisaPengaturan = state.requiresLocationSettings;
 
         return SurfaceCard(
           padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),

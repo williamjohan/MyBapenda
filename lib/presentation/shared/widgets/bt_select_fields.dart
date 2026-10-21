@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
 
 @immutable
 class BtSelectData<T> {

@@ -1,6 +1,6 @@
-import 'package:bapendacore/domain/entities/my_task/task_entity.dart';
-import 'package:bapendacore/domain/entities/my_task/task_status.dart';
-import 'package:bapendacore/domain/entities/my_task/task_type.dart';
+import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_status.dart';
+import 'package:mybapenda/domain/entities/my_task/task_type.dart';
 
 enum TaskUrgency { overdue, urgent, soon, normal }
 

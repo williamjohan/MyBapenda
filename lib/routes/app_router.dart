@@ -1,40 +1,41 @@
 import 'dart:async';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
-import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_history_usecase.dart';
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
-import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart';
-import 'package:bapendacore/presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart';
-import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_absen_page.dart';
-import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_laporan_page.dart';
-import 'package:bapendacore/presentation/features/balai_rw/screens/balai_rw_page.dart';
-import 'package:bapendacore/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_history/survey_history_detail_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_history/survey_history_list_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_data_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_history/survey_history_detail_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_history/survey_history_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_info_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_lokasi_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_review_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_sisi_page.dart';
-import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:mybapenda/domain/usecases/auth/auth_usecase.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_history_usecase.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
+import 'package:mybapenda/presentation/features/balai_rw/cubit/balai_rw_form_cubit.dart';
+import 'package:mybapenda/presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart';
+import 'package:mybapenda/presentation/features/balai_rw/screens/balai_rw_absen_page.dart';
+import 'package:mybapenda/presentation/features/balai_rw/screens/balai_rw_laporan_page.dart';
+import 'package:mybapenda/presentation/features/balai_rw/screens/balai_rw_page.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/screens/history_cek_reklame/history_screen.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_history/survey_history_detail_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_history/survey_history_list_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_map/survey_map_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_submit/survey_submit_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_data_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_foto_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_history/survey_history_detail_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_history/survey_history_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_info_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_lokasi_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_review_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_sisi_page.dart';
+import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/di/injection.dart';
+import '../core/services/geo_location/i_geo_location_service.dart';
 import '../domain/entities/my_task/task_entity.dart';
 import '../presentation/features/absensi/cubit/absen/absen_cubit.dart';
 import '../presentation/features/absensi/cubit/absensi/absensi_cubit.dart';
@@ -74,7 +75,7 @@ import '../presentation/features/pengiriman/pages/aksi/serah_page.dart';
 import '../presentation/features/pengiriman/pages/antrean_page.dart';
 import '../presentation/features/pengiriman/cubit/pantau/pantau_cubit.dart';
 import '../presentation/features/splashscreen/cubit/splash_cubit.dart';
-import '../presentation/features/splashscreen/pages/splash_page.dart';
+import '../presentation/features/splashscreen/pages/splash_red_page.dart';
 import '../presentation/features/onboarding/pages/onboarding_page.dart';
 import '../presentation/features/auth/pages/login_page.dart';
 import '../presentation/features/auth/cubit/lupa_password_cubit.dart';
@@ -180,7 +181,7 @@ class AppRouter {
         name: AppRoutes.splashscreen,
         builder: (context, state) => BlocProvider(
           create: (_) => SplashCubit()..start(),
-          child: const SplashScreen(),
+          child: const SplashRedScreen(),
         ),
       ),
 
@@ -406,7 +407,9 @@ class AppRouter {
                   SurveyListCubit(useCase: getIt<SurveyPermohonanUseCase>())
                     ..load(),
             ),
-            BlocProvider(create: (_) => SurveyMapCubit()..start()),
+            BlocProvider(
+              create: (_) => SurveyMapCubit(getIt<IGeoLocationService>())..start(),
+            ),
           ],
           child: const SurveyPermohonanBaruPage(),
         ),
@@ -431,7 +434,8 @@ class AppRouter {
               BlocProvider<SurveyInfoCubit>(
                 create: (_) => SurveyInfoCubit(
                   nomorPelayanan: args.nomor,
-                  masterUseCase: getIt<MasterDataUseCase>(),
+                  geolocationService: getIt<IGeoLocationService>(),
+                  masterDataUseCase: getIt<MasterDataUseCase>(),
                   authUseCase: getIt<AuthUseCase>(),
                 ),
               ),

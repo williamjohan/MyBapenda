@@ -1,10 +1,10 @@
-import 'package:bapendacore/data/models/balai_rw/kategori_pertanyaan_model.dart';
-import 'package:bapendacore/data/models/balai_rw/laporan_payload_model.dart';
-import 'package:bapendacore/data/models/balai_rw/laporan_pegawai_model.dart';
-import 'package:bapendacore/data/models/balai_rw/roster_pegawai_model.dart';
-import 'package:bapendacore/domain/entities/balai_rw/laporan_payload_entity.dart';
-import 'package:bapendacore/domain/entities/balai_rw/laporan_pegawai_entity.dart';
-import 'package:bapendacore/domain/entities/balai_rw/roster_pegawai_entity.dart';
+import 'package:mybapenda/data/models/balai_rw/kategori_pertanyaan_model.dart';
+import 'package:mybapenda/data/models/balai_rw/laporan_payload_model.dart';
+import 'package:mybapenda/data/models/balai_rw/laporan_pegawai_model.dart';
+import 'package:mybapenda/data/models/balai_rw/roster_pegawai_model.dart';
+import 'package:mybapenda/domain/entities/balai_rw/laporan_payload_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/laporan_pegawai_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/roster_pegawai_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../../core/errors/failure.dart';

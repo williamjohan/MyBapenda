@@ -1,6 +1,6 @@
-import 'package:bapendacore/core/constants/app_colors_new.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
-import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
+import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
 import 'package:flutter/material.dart';
 
 class SurveyHeaderCard extends StatelessWidget {

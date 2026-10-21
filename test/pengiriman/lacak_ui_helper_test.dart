@@ -1,7 +1,7 @@
-import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/jejak_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/lacak_entity.dart';
-import 'package:bapendacore/presentation/features/pengiriman/utils/lacak_ui_helper.dart';
+import 'package:mybapenda/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/jejak_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/lacak_entity.dart';
+import 'package:mybapenda/presentation/features/pengiriman/utils/lacak_ui_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _berkas = BerkasEntity(

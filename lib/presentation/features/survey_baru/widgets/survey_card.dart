@@ -1,8 +1,8 @@
 // lib/presentation/features/survey_baru/widgets/survey_card.dart
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
 
 class SurveyCard extends StatefulWidget {

@@ -20,7 +20,7 @@ import 'camera_state.dart';
 @injectable
 class CameraCubit extends Cubit<CameraState> {
   final IPermissionService permissionService;
-  final GeocodingRepository geocodingRepository;
+  final IGeocodingRepository geocodingRepository;
   final CekReklameRepository cekReklameRepository;
 
   CameraController? _controller;

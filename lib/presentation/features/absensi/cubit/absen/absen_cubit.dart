@@ -1,66 +1,72 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-
-import '../../../../../core/services/geo_location_service.dart';
+import '../../../../../core/errors/failure.dart';
+import '../../../../../core/services/geo_location/i_geo_location_service.dart';
+import '../../../../../core/services/permission/i_permission_service.dart';
 import '../../../../../domain/entities/absensi/absen_entity.dart';
 import '../../../../../domain/usecases/absensi/absensi_usecase.dart';
 import 'absen_state.dart';
 
-/// Alur absen: user menahan tombol sampai penuh → GPS → POST /absen.
-/// Tanpa PIN/biometrik HP. Tidak ada absen offline; waktu selalu dari server.
 @injectable
 class AbsenCubit extends Cubit<AbsenState> {
   final AbsensiUseCase _useCase;
-  final GeoLocationService _locationService;
+  final IGeoLocationService _locationService;
+  final IPermissionService _permissionService;
 
-  AbsenCubit(this._useCase, this._locationService) : super(const AbsenIdle());
+  AbsenCubit(
+    this._useCase,
+    this._locationService,
+    this._permissionService,
+  ) : super(const AbsenState.idle()); 
 
   /// Dipanggil setelah tombol ditahan sampai penuh.
   Future<void> submit() async {
-    // Cegah dobel kirim selama proses berjalan.
-    if (state is AbsenInProgress) return;
+    final isProcessing = state.maybeWhen(
+      inProgress: (_) => true,
+      orElse: () => false,
+    );
+    if (isProcessing) return;
 
-    emit(const AbsenInProgress(AbsenStep.locating));
-    final GeoPosition position;
-    try {
-      position = await _locationService.getCurrentPosition();
-    } on GeoLocationException catch (e) {
-      if (isClosed) return;
-      if (e.error == GeoLocationError.timeout) {
-        emit(
-          const AbsenFailure(
-            'Gagal mendapatkan lokasi. Coba lagi di area terbuka.',
+    emit(const AbsenState.inProgress(AbsenStep.locating));
+    
+    final locationResult = await _locationService.getCurrentPosition();
+
+    if (isClosed) return;
+
+    await locationResult.fold(
+      (failure) async {
+        if (failure is PermissionFailure) {
+          emit(AbsenState.locationRequired(failure.message));
+        } else {
+          emit(AbsenState.failure(failure.message));
+        }
+      },
+      (position) async {
+        emit(const AbsenState.inProgress(AbsenStep.submitting));
+        
+        // 3. Kirim ke Server. 
+        final result = await _useCase.absen(
+          AbsenParams(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            akurasiMeter: position.akurasiMeter,
+            isMockLocation: false, 
           ),
         );
-      } else {
-        emit(AbsenLocationRequired(e.error));
-      }
-      return;
-    }
-    if (isClosed) return;
-
-    // Fake GPS tetap dikirim (isMockLocation=true) agar server menolak
-    // & mencatatnya untuk audit.
-    emit(const AbsenInProgress(AbsenStep.submitting));
-    final result = await _useCase.absen(
-      AbsenParams(
-        latitude: position.latitude,
-        longitude: position.longitude,
-        akurasiMeter: position.akurasiMeter,
-        isMockLocation: position.isMocked,
-      ),
-    );
-    if (isClosed) return;
-    result.fold(
-      (failure) => emit(AbsenFailure(failure.message)),
-      (absen) => emit(AbsenSuccess(absen)),
+        
+        if (isClosed) return;
+        
+        result.fold(
+          (failure) => emit(AbsenState.failure(failure.message)),
+          (absen) => emit(AbsenState.success(absen)),
+        );
+      },
     );
   }
 
-  Future<void> openLocationSettings() =>
-      _locationService.openLocationSettings();
+  Future<void> openLocationSettings() => _permissionService.openLocationSettings();
 
-  Future<void> openAppSettings() => _locationService.openAppSettings();
+  Future<void> openAppSettings() => _permissionService.openSettings();
 
-  void reset() => emit(const AbsenIdle());
+  void reset() => emit(const AbsenState.idle());
 }

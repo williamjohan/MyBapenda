@@ -1,5 +1,5 @@
-import 'package:bapendacore/data/models/profile/profile_model.dart';
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
+import 'package:mybapenda/data/models/profile/profile_model.dart';
+import 'package:mybapenda/domain/entities/users/user_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user_model.g.dart';

@@ -116,6 +116,11 @@ class FeatureNotAvailableFailure extends Failure {
     : super(message ?? "Fitur ini tidak tersedia di perangkat Anda.");
 }
 
+class PermissionFailure extends Failure {
+  const PermissionFailure([String? message])
+    : super(message ?? "Izin akses ke fitur perangkat tidak diberikan.");
+}
+
 // ======================
 // Cache / Local Storage
 // ======================
@@ -137,6 +142,11 @@ class GeocodingFailure extends Failure {
 class LocationNotFoundFailure extends Failure {
   const LocationNotFoundFailure([String? message])
     : super(message ?? "Alamat atau nama tempat tidak ditemukan.");
+}
+
+class LocationHardwareFailure extends Failure {
+  const LocationHardwareFailure([String? message])
+    : super(message ?? "Terjadi masalah pada sensor GPS atau perangkat keras lokasi.");
 }
 
 // ======================

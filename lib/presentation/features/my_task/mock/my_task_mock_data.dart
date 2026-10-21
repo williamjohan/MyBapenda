@@ -1,7 +1,7 @@
-import 'package:bapendacore/domain/entities/my_task/task_entity.dart';
-import 'package:bapendacore/domain/entities/my_task/task_status.dart';
-import 'package:bapendacore/domain/entities/my_task/task_submission_entity.dart';
-import 'package:bapendacore/domain/entities/my_task/task_type.dart';
+import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_status.dart';
+import 'package:mybapenda/domain/entities/my_task/task_submission_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_type.dart';
 
 /// TODO(tech-debt): SELURUH FILE INI DUMMY. Hapus setelah repository/usecase
 /// dan Cubit tersedia.

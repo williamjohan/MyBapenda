@@ -1,6 +1,6 @@
 // lib/presentation/features/balai_rw/cubit/balai_rw_form_state.dart
-import 'package:bapendacore/domain/entities/balai_rw/kategori_pertanyaan_entity.dart';
-import 'package:bapendacore/domain/entities/balai_rw/pertanyaan_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/kategori_pertanyaan_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/pertanyaan_entity.dart';
 import 'package:equatable/equatable.dart';
 
 enum BalaiRwFormStatus { initial, loading, success, failure }

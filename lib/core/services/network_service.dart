@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:injectable/injectable.dart';
-import 'package:bapendacore/core/utils/app_logger.dart'; 
+import 'package:mybapenda/core/utils/app_logger.dart'; 
 
 @lazySingleton
 class NetworkService {

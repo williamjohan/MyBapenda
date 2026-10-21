@@ -1,5 +1,5 @@
 // lib/presentation/features/reklame/pages/reklame_dashboard_page.dart
-import 'package:bapendacore/presentation/features/cek_reklame/widgets/reklame_survey_baru_card.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/widgets/reklame_survey_baru_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';

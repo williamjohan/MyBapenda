@@ -1,6 +1,6 @@
-import 'package:bapendacore/core/utils/date_format_id.dart';
-import 'package:bapendacore/domain/entities/my_task/task_entity.dart';
-import 'package:bapendacore/domain/entities/my_task/task_status.dart';
+import 'package:mybapenda/core/utils/date_format_id.dart';
+import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_status.dart';
 
 String _duration(Duration d) {
   final a = d.abs();

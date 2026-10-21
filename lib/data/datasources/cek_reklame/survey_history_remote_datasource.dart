@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_history_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_history_model.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/errors/exception.dart';

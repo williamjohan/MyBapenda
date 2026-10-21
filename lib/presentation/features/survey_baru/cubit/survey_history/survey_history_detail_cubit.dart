@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_history_usecase.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_history_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'survey_history_detail_state.dart';
 

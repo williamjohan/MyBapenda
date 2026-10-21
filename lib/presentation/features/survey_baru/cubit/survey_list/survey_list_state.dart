@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
 
 enum SurveyListStatus { initial, loading, success, failure }
 

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_request_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_detail_model.dart';
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_request_entity.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/simpan_survey_request_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_detail_model.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_request_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,7 +1,6 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
-
-import '../../../../core/services/geo_location_service.dart';
+import '../../../../core/services/geo_location/i_geo_location_service.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../shared/utils/date_util.dart';
 import '../../../shared/utils/foto_stamp_util.dart';

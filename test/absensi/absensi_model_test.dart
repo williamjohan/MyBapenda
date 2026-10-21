@@ -1,8 +1,8 @@
-import 'package:bapendacore/data/models/absensi/absen_model.dart';
-import 'package:bapendacore/data/models/absensi/riwayat_absensi_model.dart';
-import 'package:bapendacore/data/models/absensi/ringkasan_absensi_model.dart';
-import 'package:bapendacore/domain/entities/absensi/absen_entity.dart';
-import 'package:bapendacore/domain/entities/absensi/riwayat_absensi_entity.dart';
+import 'package:mybapenda/data/models/absensi/absen_model.dart';
+import 'package:mybapenda/data/models/absensi/riwayat_absensi_model.dart';
+import 'package:mybapenda/data/models/absensi/ringkasan_absensi_model.dart';
+import 'package:mybapenda/domain/entities/absensi/absen_entity.dart';
+import 'package:mybapenda/domain/entities/absensi/riwayat_absensi_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

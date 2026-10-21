@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'survey_history_model.g.dart';

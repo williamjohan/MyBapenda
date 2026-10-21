@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_period_entity.dart';
 import 'package:flutter/material.dart';
 
 import '../common/billing_empty_state.dart';

@@ -1,8 +1,8 @@
-import 'package:bapendacore/domain/entities/va_qris/payment_nominal_check_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_status_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_nominal_check_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_status_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_period_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_type_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // Entity dibuat lewat fungsi (bukan const) agar instance berbeda dan

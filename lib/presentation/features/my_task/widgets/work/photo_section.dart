@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/my_task/task_photo_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_photo_entity.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/task_photo_slot.dart';

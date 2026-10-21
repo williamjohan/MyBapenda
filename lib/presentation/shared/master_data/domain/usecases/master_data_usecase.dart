@@ -1,7 +1,7 @@
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/paged_master_entities.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/repositories/i_master_repository.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/paged_master_entities.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/repositories/i_master_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 

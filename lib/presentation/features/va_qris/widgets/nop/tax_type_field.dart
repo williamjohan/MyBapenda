@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_type_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/theme_kit.dart';
 import 'tax_type_sheet.dart';

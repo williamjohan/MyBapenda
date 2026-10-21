@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/my_task/task_entity.dart';
-import 'package:bapendacore/domain/entities/my_task/task_status.dart';
+import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_status.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../../logic/task_priority_logic.dart';

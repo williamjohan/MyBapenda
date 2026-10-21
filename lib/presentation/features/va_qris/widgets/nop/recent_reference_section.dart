@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/va_qris/recent_reference_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/recent_reference_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/theme_kit.dart';
 import 'reference_option_tile.dart';

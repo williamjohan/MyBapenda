@@ -1,6 +1,6 @@
-// import 'package:bapendacore/core/constants/app_colors.dart';
-// import 'package:bapendacore/core/services/update_service.dart';
-// import 'package:bapendacore/presentation/features/update/widget/update_progress_dialog_widget.dart';
+// import 'package:mybapenda/core/constants/app_colors.dart';
+// import 'package:mybapenda/core/services/update_service.dart';
+// import 'package:mybapenda/presentation/features/update/widget/update_progress_dialog_widget.dart';
 // import 'package:flutter/material.dart';
 
 // class UpdateAvailableDialog extends StatelessWidget {
