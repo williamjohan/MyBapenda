@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../core/services/geo_location_service.dart';
 import '../../../../../domain/entities/coordinate_entity.dart';
 import '../../../../../domain/repositories/geocoding/geocoding_repository.dart';
+import '../../../../../domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import 'survey_lokasi_state.dart';
 
 /// Pinpoint lokasi reklame: posisi petugas (GPS), pin yang bisa digeser,
@@ -12,18 +15,42 @@ import 'survey_lokasi_state.dart';
 class SurveyLokasiCubit extends Cubit<SurveyLokasiState> {
   final GeoLocationService _lokasi;
   final GeocodingRepository _geocoding;
+  final SurveyPermohonanUseCase _survey;
+  StreamSubscription<int>? _radiusBerubah;
+  bool _radiusDariPush = false;
 
   // Hasil reverse geocoding lama dibuang bila pin sudah digeser lagi.
   int _permintaanAlamat = 0;
 
-  SurveyLokasiCubit(this._lokasi, this._geocoding)
+  SurveyLokasiCubit(this._lokasi, this._geocoding, this._survey)
     : super(const SurveyLokasiState());
 
   /// [awal] = hasil sebelumnya (buka ulang sisi): pin & alamat dipulihkan,
   /// posisi petugas tetap diambil ulang.
   /// [awal] = hasil sisi ini sebelumnya di app; [pinDraft] = titik reklame
-  /// dari draft server (alamatnya dimuat ulang).
-  Future<void> mulai({SurveyLokasiHasil? awal, TitikPeta? pinDraft}) async {
+  /// dari draft server (alamatnya dimuat ulang). [jarakMaksMeter] = radius
+  /// dari `survey-form`; kosong = setting `pengaturan-radius-survey`.
+  Future<void> mulai({
+    SurveyLokasiHasil? awal,
+    TitikPeta? pinDraft,
+    int? jarakMaksMeter,
+  }) async {
+    // Setting berubah (push SignalR) saat halaman terbuka: langsung dipakai.
+    _radiusBerubah ??= _survey.radiusBerubah.listen((m) {
+      _radiusDariPush = true;
+      if (!isClosed) emit(state.copyWith(jarakMaksMeter: m));
+    });
+    // Nilai survey-form langsung dipasang; setting cadangan dimuat bersamaan
+    // dengan GPS dan tidak menimpa push yang datang lebih dulu.
+    final dariForm = jarakMaksMeter != null && jarakMaksMeter > 0;
+    if (dariForm) emit(state.copyWith(jarakMaksMeter: jarakMaksMeter));
+    final radius = dariForm
+        ? Future<void>.value()
+        : _survey.radiusSurvey().then((m) {
+            if (!isClosed && !_radiusDariPush) {
+              emit(state.copyWith(jarakMaksMeter: m));
+            }
+          });
     if (awal != null) {
       emit(
         state.copyWith(
@@ -35,6 +62,7 @@ class SurveyLokasiCubit extends Cubit<SurveyLokasiState> {
       emit(state.copyWith(pin: pinDraft));
     }
     await perbaruiPosisiPetugas();
+    await radius;
   }
 
   /// Ambil posisi HP. Pin awal = posisi petugas bila belum ada pin.
@@ -130,6 +158,7 @@ class SurveyLokasiCubit extends Cubit<SurveyLokasiState> {
   @override
   Future<void> close() {
     _permintaanAlamat++;
+    _radiusBerubah?.cancel();
     return super.close();
   }
 }

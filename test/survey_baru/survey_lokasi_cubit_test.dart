@@ -4,6 +4,8 @@ import 'package:bapendacore/core/errors/failure.dart';
 import 'package:bapendacore/core/services/geo_location_service.dart';
 import 'package:bapendacore/domain/entities/coordinate_entity.dart';
 import 'package:bapendacore/domain/repositories/geocoding/geocoding_repository.dart';
+import 'package:bapendacore/domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart';
+import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
 import 'package:bapendacore/presentation/features/survey_baru/utils/survey_lokasi_ui_helper.dart';
@@ -44,6 +46,27 @@ class _FakeGeocoding implements GeocodingRepository {
   ) => throw UnimplementedError();
 }
 
+/// Hanya radius yang dipakai cubit lokasi.
+class _FakeSurveyRepo implements ISurveyPermohonanRepository {
+  Either<Failure, int> radius = const Left(ServerFailure('gagal'));
+  int panggil = 0;
+  final berubah = StreamController<int>.broadcast();
+
+  @override
+  Stream<int> get radiusBerubah => berubah.stream;
+
+  @override
+  Future<Either<Failure, int>> getRadiusSurvey({
+    bool forceRefresh = false,
+  }) async {
+    panggil++;
+    return radius;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
 const _posisi = GeoPosition(
   latitude: -7.3300,
   longitude: 112.7000,
@@ -54,12 +77,18 @@ const _posisi = GeoPosition(
 void main() {
   late _FakeLokasi lokasi;
   late _FakeGeocoding geocoding;
+  late _FakeSurveyRepo surveyRepo;
   late SurveyLokasiCubit cubit;
 
   setUp(() {
     lokasi = _FakeLokasi()..posisi = _posisi;
     geocoding = _FakeGeocoding();
-    cubit = SurveyLokasiCubit(lokasi, geocoding);
+    surveyRepo = _FakeSurveyRepo();
+    cubit = SurveyLokasiCubit(
+      lokasi,
+      geocoding,
+      SurveyPermohonanUseCase(surveyRepo),
+    );
   });
 
   tearDown(() => cubit.close());
@@ -179,6 +208,37 @@ void main() {
     expect(cubit.state.terlaluJauh, isTrue);
     expect(cubit.state.lokasiSiap, isFalse);
     expect(cubit.state.hasil, isNull);
+  });
+
+  test('radius dari survey-form dipakai, setting tidak dipanggil', () async {
+    await cubit.mulai(jarakMaksMeter: 30);
+
+    expect(cubit.state.jarakMaksMeter, 30);
+    expect(surveyRepo.panggil, 0);
+    // ±0.0002 derajat ≈ 22 m: masih di dalam 30 m.
+    cubit.geserPin(-7.3302, 112.7);
+    await cubit.pinBerhenti();
+    expect(cubit.state.terlaluJauh, isFalse);
+  });
+
+  test('survey-form kosong: radius dari pengaturan-radius-survey', () async {
+    surveyRepo.radius = const Right(50);
+    await cubit.mulai();
+
+    expect(cubit.state.jarakMaksMeter, 50);
+    expect(surveyRepo.panggil, 1);
+  });
+
+  test('push radius baru saat halaman terbuka: langsung dipakai', () async {
+    await cubit.mulai(jarakMaksMeter: 20);
+    surveyRepo.berubah.add(40);
+    await Future<void>.delayed(Duration.zero);
+    expect(cubit.state.jarakMaksMeter, 40);
+  });
+
+  test('setting gagal & belum ada cache: radius bawaan 20 m', () async {
+    await cubit.mulai();
+    expect(cubit.state.jarakMaksMeter, 20);
   });
 
   group('SurveyLokasiUiHelper', () {

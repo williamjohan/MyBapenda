@@ -128,6 +128,8 @@ import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
 import '../../presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart'
     as _i5;
+import '../../presentation/features/survey_baru/cubit/survey_radius/survey_radius_cubit.dart'
+    as _i904;
 import '../../presentation/features/va_qris/cubit/tax_object_search_cubit.dart'
     as _i410;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
@@ -161,6 +163,7 @@ import '../storage/app_preference.dart' as _i594;
 import '../storage/app_secure_storage.dart' as _i233;
 import '../storage/pengiriman_cache_storage.dart' as _i148;
 import '../storage/pengiriman_queue_storage.dart' as _i877;
+import '../storage/survey_radius_storage.dart' as _i403;
 import '../theme/theme_mode_cubit.dart' as _i947;
 import 'register_module.dart' as _i291;
 
@@ -198,6 +201,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i148.PengirimanCacheStorage(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i877.PengirimanQueueStorage>(
         () => _i877.PengirimanQueueStorage(gh<_i460.SharedPreferences>()));
+    gh.lazySingleton<_i403.SurveyRadiusStorage>(
+        () => _i403.SurveyRadiusStorage(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i869.GeoLocationService>(
         () => _i869.GeoLocationServiceImpl());
     gh.lazySingleton<_i569.IRuteRemoteDataSource>(
@@ -227,10 +232,6 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i817.DioAuthInterceptor>(
         () => _i817.DioAuthInterceptor(gh<_i233.AppSecureStorage>()));
-    gh.factory<_i5.SurveyLokasiCubit>(() => _i5.SurveyLokasiCubit(
-          gh<_i869.GeoLocationService>(),
-          gh<_i904.GeocodingRepository>(),
-        ));
     gh.lazySingleton<_i361.Dio>(() => registerModule.getDio(
           gh<_i817.DioAuthInterceptor>(),
           gh<_i370.HmacKantorInterceptor>(),
@@ -317,6 +318,11 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i233.AppSecureStorage>(),
               gh<_i569.IRuteRemoteDataSource>(),
             ));
+    gh.lazySingleton<_i114.ISurveyPermohonanRepository>(
+        () => _i874.SurveyPermohonanRepositoryImpl(
+              gh<_i215.ISurveyPermohonanRemoteDataSource>(),
+              gh<_i403.SurveyRadiusStorage>(),
+            ));
     gh.factory<_i239.ProfileCubit>(() => _i239.ProfileCubit(
           gh<_i826.AuthUseCase>(),
           gh<_i839.ProfileUseCase>(),
@@ -327,9 +333,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i406.UbahKontakCubit(gh<_i839.ProfileUseCase>()));
     gh.lazySingleton<_i266.BalaiRwUseCase>(
         () => _i266.BalaiRwUseCase(gh<_i899.IBalaiRwRepository>()));
-    gh.lazySingleton<_i114.ISurveyPermohonanRepository>(() =>
-        _i874.SurveyPermohonanRepositoryImpl(
-            gh<_i215.ISurveyPermohonanRemoteDataSource>()));
     gh.lazySingleton<_i1023.HistoryUseCase>(
         () => _i1023.HistoryUseCase(gh<_i169.HistoryRepository>()));
     gh.lazySingleton<_i563.INotifikasiRepository>(
@@ -370,20 +373,23 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i475.HistoryCubit>(
         () => _i475.HistoryCubit(gh<_i1023.HistoryUseCase>()));
+    gh.factory<_i5.SurveyLokasiCubit>(() => _i5.SurveyLokasiCubit(
+          gh<_i869.GeoLocationService>(),
+          gh<_i904.GeocodingRepository>(),
+          gh<_i11.SurveyPermohonanUseCase>(),
+        ));
     gh.lazySingleton<_i813.NotifikasiUseCase>(
         () => _i813.NotifikasiUseCase(gh<_i563.INotifikasiRepository>()));
     gh.factory<_i176.NotifikasiBadgeCubit>(
         () => _i176.NotifikasiBadgeCubit(gh<_i813.NotifikasiUseCase>()));
-    gh.lazySingleton<_i870.NotifikasiService>(() => _i870.NotifikasiService(
-          gh<_i147.NotifikasiSinyal>(),
-          gh<_i813.NotifikasiUseCase>(),
-        ));
     gh.lazySingleton<_i627.AntreanPengirimanCubit>(
         () => _i627.AntreanPengirimanCubit(
               gh<_i578.PengirimanUseCase>(),
               gh<_i224.AuthCubit>(),
               gh<_i11.NetworkCubit>(),
             ));
+    gh.factory<_i904.SurveyRadiusCubit>(
+        () => _i904.SurveyRadiusCubit(gh<_i11.SurveyPermohonanUseCase>()));
     gh.factory<_i572.AksiCubit>(() => _i572.AksiCubit(
           gh<_i578.PengirimanUseCase>(),
           gh<_i869.GeoLocationService>(),
@@ -397,6 +403,11 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i554.LacakCubit(gh<_i578.PengirimanUseCase>()));
     gh.factory<_i493.PantauCubit>(
         () => _i493.PantauCubit(gh<_i578.PengirimanUseCase>()));
+    gh.lazySingleton<_i870.NotifikasiService>(() => _i870.NotifikasiService(
+          gh<_i147.NotifikasiSinyal>(),
+          gh<_i813.NotifikasiUseCase>(),
+          gh<_i11.SurveyPermohonanUseCase>(),
+        ));
     gh.factory<_i333.NotifikasiCubit>(
         () => _i333.NotifikasiCubit(gh<_i813.NotifikasiUseCase>()));
     return this;

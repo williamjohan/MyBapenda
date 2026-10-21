@@ -4,9 +4,13 @@ import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_req
 import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
 import 'package:bapendacore/data/models/survey_permohonan_baru/survey_detail_model.dart';
 import 'package:bapendacore/data/models/survey_permohonan_baru/survey_permohonan_model.dart';
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../core/errors/exception.dart';
+import '../../../core/storage/survey_radius_storage.dart';
 import '../../../../core/network/safe_api_call.dart';
 import '../../../domain/entities/cek_reklames/survey_permohonan_baru/cari_nor_entity.dart';
 import '../../../domain/entities/cek_reklames/survey_permohonan_baru/detail_survey_entity.dart';
@@ -18,9 +22,17 @@ import '../../datasources/cek_reklame/survey_remote_datasource.dart';
 
 @LazySingleton(as: ISurveyPermohonanRepository)
 class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
-  final ISurveyPermohonanRemoteDataSource _remoteDataSource;
+  static const Duration _ttlRadius = Duration(hours: 24);
 
-  SurveyPermohonanRepositoryImpl(this._remoteDataSource);
+  final ISurveyPermohonanRemoteDataSource _remoteDataSource;
+  final SurveyRadiusStorage _radiusStorage;
+
+  SurveyPermohonanRepositoryImpl(this._remoteDataSource, this._radiusStorage);
+
+  // Cache memori radius (sesi app); disk lewat [SurveyRadiusStorage].
+  int? _radius;
+  Future<Either<Failure, int>>? _radiusInFlight;
+  final _radiusBerubah = StreamController<int>.broadcast();
 
   // ===========================================================================
   // 1. GET LIST HEADER (Map List<Model> -> List<Entity>)
@@ -40,6 +52,9 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({required String key}) {
     return executeSafeApiCall<SurveyDetailEntity>(() async {
       final model = await _remoteDataSource.getSurveyDetail(key: key);
+      // Radius dari survey-form = nilai terbaru, ikut memperbarui cache.
+      final radius = model.jarakMaksMeter;
+      if (radius != null && radius > 0) await _simpanRadius(radius);
       return model.toEntity();
     });
   }
@@ -66,5 +81,59 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
       final models = await _remoteDataSource.cariNor(nor: nor);
       return models.map((model) => model.toEntity()).toList();
     });
+  }
+
+  // ===========================================================================
+  // 5. PENGATURAN RADIUS SURVEY (cache memori + disk, TTL)
+  // ===========================================================================
+  @override
+  Future<Either<Failure, int>> getRadiusSurvey({bool forceRefresh = false}) {
+    final memori = _radius;
+    if (!forceRefresh && memori != null) return Future.value(Right(memori));
+
+    return _radiusInFlight ??= _muatRadius(forceRefresh).whenComplete(() {
+      _radiusInFlight = null;
+    });
+  }
+
+  Future<Either<Failure, int>> _muatRadius(bool force) {
+    return executeSafeApiCall<int>(() async {
+      final cached = _radiusStorage.baca();
+      final baru =
+          cached != null && DateTime.now().difference(cached.tgl) < _ttlRadius;
+      if (!force && baru) return _radius = cached.meter;
+
+      try {
+        final meter = await _remoteDataSource.getRadiusSurvey();
+        if (meter != null && meter > 0) {
+          await _simpanRadius(meter);
+          return meter;
+        }
+        if (cached != null) return _radius = cached.meter;
+        throw const ServerException(
+          404,
+          'Pengaturan radius survey belum tersedia.',
+        );
+      } catch (_) {
+        // API gagal: pakai salinan lama walau sudah kedaluwarsa.
+        if (cached != null) return _radius = cached.meter;
+        rethrow;
+      }
+    });
+  }
+
+  @override
+  Stream<int> get radiusBerubah => _radiusBerubah.stream;
+
+  @override
+  Future<void> perbaruiRadius(int meter) async {
+    if (meter > 0) await _simpanRadius(meter);
+  }
+
+  Future<void> _simpanRadius(int meter) async {
+    final berubah = _radius != meter;
+    _radius = meter;
+    if (berubah) _radiusBerubah.add(meter);
+    await _radiusStorage.simpan(meter);
   }
 }

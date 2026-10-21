@@ -14,6 +14,9 @@ class SurveySisiTile extends StatelessWidget {
 
   /// Sisi tersimpan sebagai draft (titik & foto ada, isian belum lengkap).
   final bool draft;
+
+  /// Pesan merah di bawah sisi (mis. titik reklame di luar radius).
+  final String? peringatan;
   final VoidCallback onTap;
 
   const SurveySisiTile({
@@ -26,6 +29,7 @@ class SurveySisiTile extends StatelessWidget {
     required this.hasFoto,
     required this.done,
     this.draft = false,
+    this.peringatan,
     required this.onTap,
   });
 
@@ -106,6 +110,30 @@ class SurveySisiTile extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             color: context.palette.success,
                           ),
+                        ),
+                      ),
+                    if (peringatan != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.wrong_location_rounded,
+                              size: 14,
+                              color: context.palette.statusGagal,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                peringatan!,
+                                style: sub.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: context.palette.statusGagal,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                   ],

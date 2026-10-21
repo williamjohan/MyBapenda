@@ -51,6 +51,8 @@ class BapendaDialog {
     BapendaDialogTone tone = BapendaDialogTone.info,
     IconData? icon,
     String buttonLabel = 'Mengerti',
+    Widget? content,
+    bool dismissible = true,
   }) async {
     await _show<bool>(
       context,
@@ -61,8 +63,9 @@ class BapendaDialog {
         icon: icon,
         confirmLabel: buttonLabel,
         cancelLabel: null,
+        content: content,
       ),
-      dismissible: true,
+      dismissible: dismissible,
     );
   }
 

@@ -115,6 +115,23 @@ TitikPeta? titikDraftOf(Map<String, dynamic> sisi) {
   return (lat: lat.toDouble(), lng: lng.toDouble());
 }
 
+/// Radius maksimal pin dari `survey-form` (meter); null = server belum
+/// mengirim.
+int? jarakMaksOf(Map<String, dynamic> sisi) {
+  final h = sisi['header'];
+  final v = h is Map ? h['jarakMaksMeter'] : null;
+  return v is int && v > 0 ? v : null;
+}
+
+/// Sisi untuk "sisi ke-N" di pesan server: seq N, atau urutan ke-N bila
+/// tidak ada seq itu.
+Map<String, dynamic>? sisiKe(List<Map<String, dynamic>> sisiList, int n) {
+  for (final s in sisiList) {
+    if (s['seq'] == n) return s;
+  }
+  return n >= 1 && n <= sisiList.length ? sisiList[n - 1] : null;
+}
+
 /// Isian sisi dari server (draft tersimpan / survey lama yang dikembalikan)
 /// dalam bentuk [SurveyData] halaman Data. Null bila belum ada isian.
 /// Ditandai draft: petugas tetap harus melewati halaman Data sebelum kirim.

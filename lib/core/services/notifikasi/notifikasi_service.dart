@@ -5,6 +5,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../domain/usecases/notifikasi/notifikasi_usecase.dart';
+import '../../../domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import '../../../routes/app_router.dart';
 import '../../../routes/app_routes.dart';
 import '../../utils/app_logger.dart';
@@ -22,8 +23,9 @@ import 'notifikasi_task_handler.dart';
 class NotifikasiService {
   final NotifikasiSinyal _sinyal;
   final NotifikasiUseCase _useCase;
+  final SurveyPermohonanUseCase _survey;
 
-  NotifikasiService(this._sinyal, this._useCase);
+  NotifikasiService(this._sinyal, this._useCase, this._survey);
 
   static const _kunciTanyaBaterai = 'notif_tanya_baterai';
 
@@ -47,11 +49,17 @@ class NotifikasiService {
       ),
       iosNotificationOptions: const IOSNotificationOptions(),
       foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.repeat(60000),
+        // Hemat baterai: hanya jaring pengaman sambung ulang (lihat
+        // NotifikasiTaskHandler.onRepeatEvent).
+        eventAction: ForegroundTaskEventAction.repeat(15 * 60 * 1000),
         autoRunOnBoot: true,
         autoRunOnMyPackageReplaced: true,
-        allowWakeLock: true,
-        allowWifiLock: true,
+        // Tanpa wake lock / WiFi lock permanen: CPU & WiFi boleh tidur.
+        // Data masuk dari socket tetap membangunkan HP, dan app sudah
+        // dikecualikan dari optimasi baterai (Doze tetap mengizinkan
+        // jaringan).
+        allowWakeLock: false,
+        allowWifiLock: false,
       ),
     );
     await NotifikasiLokal.init(onTap: buka);
@@ -141,5 +149,7 @@ class NotifikasiService {
     if (data is! Map) return;
     final jumlah = data[kunciJumlahBelumDibaca];
     if (jumlah is int) _sinyal.terima(jumlahBelumDibaca: jumlah);
+    final radius = data[kunciJarakMaksMeter];
+    if (radius is int) _survey.perbaruiRadius(radius);
   }
 }

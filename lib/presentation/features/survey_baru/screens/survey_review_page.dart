@@ -56,7 +56,6 @@ class SurveyReviewPage extends StatelessWidget {
     );
     if (ok != true || !context.mounted) return;
 
-    final messenger = ScaffoldMessenger.of(context);
     final res = await context.read<SurveySubmitCubit>().submit(
       info: info,
       sisiList: sisiList,
@@ -66,11 +65,13 @@ class SurveyReviewPage extends StatelessWidget {
 
     final hasil = res.hasil;
     if (hasil == null) {
-      if (res.error != null) {
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(res.error!)));
-      }
+      final error = res.error;
+      if (error == null) return;
+      // Titik sisi ditolak server (jarak): kembali ke daftar sisi lalu buka
+      // halaman Lokasi sisi itu (mekanisme sama dengan tombol Edit).
+      final n = await tampilkanGagalSimpanSurvey(context, error);
+      final sisi = n == null ? null : sisiKe(sisiList, n);
+      if (sisi != null && context.mounted) context.pop<int>(sisi['seq'] as int);
       return;
     }
 

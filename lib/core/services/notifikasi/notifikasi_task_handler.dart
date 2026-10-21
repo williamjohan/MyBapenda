@@ -25,6 +25,10 @@ void mulaiTaskNotifikasi() {
 /// Kunci data yang dikirim ke isolate utama lewat `sendDataToMain`.
 const kunciJumlahBelumDibaca = 'jumlahBelumDibaca';
 
+/// Radius maksimal pin survey reklame (meter) dari event
+/// [NotifikasiTaskHandler.eventPengaturanSurvey].
+const kunciJarakMaksMeter = 'jarakMaksMeter';
+
 /// Perintah isolate utama → task: kirim ulang nilai badge terakhir (app
 /// dibuka lagi saat service sudah jalan, tanpa event baru).
 const perintahMintaStatus = 'minta_status';
@@ -46,8 +50,20 @@ class NotifikasiTaskHandler extends TaskHandler {
   Timer? _ulang;
   int _percobaanUlang = 0;
 
-  /// Backoff sambung ulang setelah koneksi tertutup permanen (kontrak).
-  static const _backoffDetik = [5, 15, 30, 60];
+  /// Event hub: setting survey reklame berubah, payload
+  /// `{ "jarakMaksMeter": 20 }`. Juga dikirim server saat connect/reconnect.
+  static const eventPengaturanSurvey = 'PENGATURAN_SURVEY';
+
+  /// Backoff sambung ulang setelah koneksi tertutup permanen (kontrak),
+  /// dibatasi 5 menit supaya server mati lama tidak menguras baterai.
+  static const _backoffDetik = [5, 15, 30, 60, 120, 300];
+
+  /// Ping client → server. WebSocket/SSE: 15 dtk (default SignalR, harus <
+  /// `ClientTimeoutInterval` server 30 dtk). LongPolling: server tidak
+  /// memeriksa ping (koneksi hidup lewat request poll), padahal tiap ping =
+  /// satu request HTTP yang membangunkan radio, jadi dibuat sangat jarang.
+  static const _pingWebSocketMs = 15000;
+  static const _pingLongPollingMs = 10 * 60 * 1000;
 
   /// null = negosiasi memilih (WebSocket). LongPolling dipakai bila
   /// WebSocket/SSE tersambung tapi tidak ada pesan sampai (nginx tanpa
@@ -80,7 +96,8 @@ class NotifikasiTaskHandler extends TaskHandler {
 
   bool get _tersambung => _hub?.state == HubConnectionState.Connected;
 
-  /// Tiap 60 detik: jaring pengaman bila semua percobaan lain terlewat.
+  /// Tiap 15 menit: jaring pengaman bila semua percobaan lain terlewat
+  /// (perubahan jaringan, backoff, dan app dibuka sudah memicu sambung).
   @override
   void onRepeatEvent(DateTime timestamp) {
     if (!_tersambung && _ulang == null) _sambung();
@@ -88,9 +105,15 @@ class NotifikasiTaskHandler extends TaskHandler {
 
   @override
   void onReceiveData(Object data) {
-    if (data == perintahMintaStatus && _jumlahTerakhir != null) {
-      _kirimKeMain(_jumlahTerakhir!);
+    if (data != perintahMintaStatus) return;
+    // App dibuka: saat yang tepat menyambung ulang tanpa menunggu timer
+    // yang tertunda selama HP tidur.
+    if (!_tersambung) {
+      _ulang?.cancel();
+      _ulang = null;
+      _sambung();
     }
+    if (_jumlahTerakhir != null) _kirimKeMain(_jumlahTerakhir!);
   }
 
   @override
@@ -128,7 +151,12 @@ class NotifikasiTaskHandler extends TaskHandler {
           )
           .withAutomaticReconnect(retryDelays: [0, 2000, 10000, 30000])
           .build();
+      hub.keepAliveIntervalInMilliseconds =
+          _transport == HttpTransportType.LongPolling
+          ? _pingLongPollingMs
+          : _pingWebSocketMs;
       hub.on('NOTIF', _terima);
+      hub.on(eventPengaturanSurvey, _terimaPengaturanSurvey);
       // Reconnect otomatis menyerah → coba start lagi dengan backoff.
       hub.onclose(({error}) => _jadwalUlang());
       await hub.start();
@@ -182,6 +210,14 @@ class NotifikasiTaskHandler extends TaskHandler {
 
   void _kirimKeMain(int jumlah) =>
       FlutterForegroundTask.sendDataToMain({kunciJumlahBelumDibaca: jumlah});
+
+  void _terimaPengaturanSurvey(List<Object?>? args) {
+    final raw = args?.isNotEmpty == true ? args!.first : null;
+    final v = raw is Map ? raw[kunciJarakMaksMeter] : null;
+    final meter = v is num ? v.toInt() : int.tryParse('${v ?? ''}'.trim());
+    if (meter == null || meter <= 0) return;
+    FlutterForegroundTask.sendDataToMain({kunciJarakMaksMeter: meter});
+  }
 
   Future<void> _terima(List<Object?>? args) async {
     final raw = args?.isNotEmpty == true ? args!.first : null;
