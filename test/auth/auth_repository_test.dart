@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/core/storage/app_secure_storage.dart';
-import 'package:bapendacore/data/datasources/auth/auth_remote_datasource.dart';
-import 'package:bapendacore/data/models/auth/auth_model.dart';
-import 'package:bapendacore/data/models/users/user_model.dart';
-import 'package:bapendacore/data/repositories/auth/auth_repository_impl.dart';
-import 'package:bapendacore/domain/entities/auth/lupa_password_metode.dart';
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/core/storage/app_secure_storage.dart';
+import 'package:mybapenda/data/datasources/auth/auth_remote_datasource.dart';
+import 'package:mybapenda/data/models/auth/auth_model.dart';
+import 'package:mybapenda/data/models/users/user_model.dart';
+import 'package:mybapenda/data/repositories/auth/auth_repository_impl.dart';
+import 'package:mybapenda/domain/entities/auth/lupa_password_metode.dart';
+import 'package:mybapenda/domain/entities/users/user_entity.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 

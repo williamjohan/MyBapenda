@@ -1,4 +1,4 @@
-import 'package:bapendacore/core/utils/currency_formatter.dart';
+import 'package:mybapenda/core/utils/currency_formatter.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/theme_kit.dart';
 import '../common/va_qris_primary_button.dart';

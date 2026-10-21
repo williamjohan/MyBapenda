@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'survey_deadline.dart';
 import 'survey_map_point.dart';

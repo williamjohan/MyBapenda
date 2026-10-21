@@ -16,15 +16,3 @@ CariNorModel _$CariNorModelFromJson(Map<String, dynamic> json) => CariNorModel(
       namaJalan: json['namaJalan'] as String,
       noAlamat: json['noAlamat'] as String,
     );
-
-Map<String, dynamic> _$CariNorModelToJson(CariNorModel instance) =>
-    <String, dynamic>{
-      'idNor': instance.idNor,
-      'idPersil': instance.idPersil,
-      'nopPbb': instance.nopPbb,
-      'idJenisBangunan': instance.idJenisBangunan,
-      'jenisBangunan': instance.jenisBangunan,
-      'idJalan': instance.idJalan,
-      'namaJalan': instance.namaJalan,
-      'noAlamat': instance.noAlamat,
-    };

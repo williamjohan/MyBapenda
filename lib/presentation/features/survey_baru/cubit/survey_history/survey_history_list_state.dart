@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart' show DateTimeRange;
 

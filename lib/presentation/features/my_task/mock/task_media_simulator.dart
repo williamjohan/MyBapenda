@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/my_task/task_location_entity.dart';
-import 'package:bapendacore/domain/entities/my_task/task_photo_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_location_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_photo_entity.dart';
 
 /// TODO(tech-debt): SIMULASI. Ganti dengan:
 /// - foto  -> AppFilePickerUtils.pickImage() (sudah kompres via

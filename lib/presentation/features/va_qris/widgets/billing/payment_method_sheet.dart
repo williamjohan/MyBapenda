@@ -1,6 +1,6 @@
-import 'package:bapendacore/core/utils/currency_formatter.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_nominal_check_entity.dart';
+import 'package:mybapenda/core/utils/currency_formatter.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_method.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_nominal_check_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/theme_kit.dart';
 import 'payment_method_option_tile.dart';

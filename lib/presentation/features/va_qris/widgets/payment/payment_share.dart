@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:bapendacore/core/utils/app_logger.dart';
-import 'package:bapendacore/core/utils/app_share_utils.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/core/utils/app_logger.dart';
+import 'package:mybapenda/core/utils/app_share_utils.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_method.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';

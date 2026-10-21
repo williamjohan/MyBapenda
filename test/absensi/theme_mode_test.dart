@@ -1,10 +1,10 @@
-import 'package:bapendacore/core/storage/app_preference.dart';
-import 'package:bapendacore/core/storage/app_secure_storage.dart';
-import 'package:bapendacore/core/theme/theme_kit.dart';
-import 'package:bapendacore/domain/repositories/notifikasi/i_notifikasi_repository.dart';
-import 'package:bapendacore/domain/usecases/notifikasi/notifikasi_usecase.dart';
-import 'package:bapendacore/presentation/features/home/widgets/home_bapenda_core_header.dart';
-import 'package:bapendacore/presentation/features/notifikasi/cubit/notifikasi_badge_cubit.dart';
+import 'package:mybapenda/core/storage/app_preference.dart';
+import 'package:mybapenda/core/storage/app_secure_storage.dart';
+import 'package:mybapenda/core/theme/theme_kit.dart';
+import 'package:mybapenda/domain/repositories/notifikasi/i_notifikasi_repository.dart';
+import 'package:mybapenda/domain/usecases/notifikasi/notifikasi_usecase.dart';
+import 'package:mybapenda/presentation/features/home/widgets/home_bapenda_core_header.dart';
+import 'package:mybapenda/presentation/features/notifikasi/cubit/notifikasi_badge_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

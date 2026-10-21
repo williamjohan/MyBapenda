@@ -1,9 +1,9 @@
-import 'package:bapendacore/data/models/survey_permohonan_baru/cari_nor_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_request_model.dart';
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_detail_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_permohonan_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/cari_nor_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/simpan_survey_request_model.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_detail_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_permohonan_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failure.dart';

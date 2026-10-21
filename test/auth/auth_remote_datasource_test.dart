@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/network/api_endpoints.dart';
-import 'package:bapendacore/data/datasources/auth/auth_remote_datasource.dart';
-import 'package:bapendacore/data/models/auth/auth_model.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/network/api_endpoints.dart';
+import 'package:mybapenda/data/datasources/auth/auth_remote_datasource.dart';
+import 'package:mybapenda/data/models/auth/auth_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:bapendacore/core/errors/failure.dart';
+import 'package:mybapenda/core/errors/failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';

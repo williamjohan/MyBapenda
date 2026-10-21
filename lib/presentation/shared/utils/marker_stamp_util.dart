@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

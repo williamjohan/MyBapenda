@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:bapendacore/core/constants/app_colors_new.dart';
-import 'package:bapendacore/core/di/injection.dart';
-import 'package:bapendacore/core/storage/app_secure_storage.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/core/storage/app_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

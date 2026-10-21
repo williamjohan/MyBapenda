@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_history_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_history_model.dart';
 import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';

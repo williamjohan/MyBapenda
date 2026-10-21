@@ -1,6 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_image.dart
 import 'dart:io';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';

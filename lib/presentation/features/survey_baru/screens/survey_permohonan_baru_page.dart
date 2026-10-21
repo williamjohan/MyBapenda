@@ -1,12 +1,12 @@
 // lib/presentation/features/survey_baru/screens/survey_permohonan_page.dart
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/survey_list_state.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_card.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_card.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_list/survey_list_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_list/survey_list_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_map/survey_map_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_card.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_map/survey_map_card.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
@@ -33,8 +33,8 @@ class SurveyPermohonanBaruPage extends StatelessWidget {
             RefreshIndicator(
               onRefresh: () async {
                 await cubit.load();
-                if (context.mounted)
-                  context.read<SurveyMapCubit>().locate();
+                if (context.mounted){
+                  context.read<SurveyMapCubit>().locate();}
               },
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(

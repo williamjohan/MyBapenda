@@ -1,5 +1,4 @@
-/// TODO(tech-debt): PLACEHOLDER. Konfirmasi redaksi final bersama tim
-/// Bapenda / Bank Jatim sebelum rilis.
+
 abstract final class PaymentGuideSteps {
   static const List<String> qris = [
     'Tunjukkan layar ini kepada wajib pajak.',

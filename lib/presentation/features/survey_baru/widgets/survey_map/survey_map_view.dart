@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

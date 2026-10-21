@@ -1,12 +1,12 @@
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/storage/pengiriman_queue_storage.dart';
-import 'package:bapendacore/data/models/pengiriman/pengiriman_payload_model.dart';
-import 'package:bapendacore/data/repositories/pengiriman/pengiriman_antrean_overlay.dart';
-import 'package:bapendacore/data/repositories/pengiriman/pengiriman_repository_impl.dart';
-import 'package:bapendacore/domain/entities/pengiriman/antrean_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/master_pengiriman_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/pengiriman_payload_entity.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/storage/pengiriman_queue_storage.dart';
+import 'package:mybapenda/data/models/pengiriman/pengiriman_payload_model.dart';
+import 'package:mybapenda/data/repositories/pengiriman/pengiriman_antrean_overlay.dart';
+import 'package:mybapenda/data/repositories/pengiriman/pengiriman_repository_impl.dart';
+import 'package:mybapenda/domain/entities/pengiriman/antrean_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/master_pengiriman_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 

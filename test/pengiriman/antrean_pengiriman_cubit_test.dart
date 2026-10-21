@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:bapendacore/core/network/network_cubit.dart';
-import 'package:bapendacore/domain/entities/pengiriman/antrean_entity.dart';
-import 'package:bapendacore/domain/repositories/pengiriman/i_pengiriman_repository.dart';
-import 'package:bapendacore/domain/usecases/pengiriman/pengiriman_usecase.dart';
-import 'package:bapendacore/presentation/features/auth/cubit/auth_state.dart';
-import 'package:bapendacore/presentation/features/pengiriman/cubit/antrean/antrean_pengiriman_cubit.dart';
+import 'package:mybapenda/core/network/network_cubit.dart';
+import 'package:mybapenda/domain/entities/pengiriman/antrean_entity.dart';
+import 'package:mybapenda/domain/repositories/pengiriman/i_pengiriman_repository.dart';
+import 'package:mybapenda/domain/usecases/pengiriman/pengiriman_usecase.dart';
+import 'package:mybapenda/presentation/features/auth/cubit/auth_state.dart';
+import 'package:mybapenda/presentation/features/pengiriman/cubit/antrean/antrean_pengiriman_cubit.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,5 +1,5 @@
 // lib/presentation/features/home/bloc/home_action.dart
-import 'package:bapendacore/core/services/update_service.dart';
+import 'package:mybapenda/core/services/update_service.dart';
 
 sealed class HomeAction {
   const HomeAction();

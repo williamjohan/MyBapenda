@@ -1,16 +1,19 @@
 // lib/presentation/features/balai_rw/pages/balai_rw_absen_page.dart
 import 'dart:async';
-import 'package:bapendacore/core/constants/app_colors_new.dart';
-import 'package:bapendacore/presentation/shared/utils/date_util.dart';
-import 'package:bapendacore/presentation/shared/utils/foto_stamp_util.dart';
-import 'package:bapendacore/presentation/shared/utils/location_util.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
-import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/core/services/geo_location/i_geo_location_service.dart';
+import 'package:mybapenda/core/services/permission/i_permission_service.dart';
+import 'package:mybapenda/core/enums/app_permission_enum.dart'; 
+import 'package:mybapenda/presentation/shared/utils/date_util.dart';
+import 'package:mybapenda/presentation/shared/utils/foto_stamp_util.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 
@@ -37,9 +40,12 @@ class BalaiRwAbsenPage extends StatefulWidget {
 }
 
 class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
-  static const _brand = AppThemeColors.primary;
+  // static const _brand = AppThemeColors.primary;
 
   final _picker = ImagePicker();
+  
+  late final IGeoLocationService _locationService;
+  late final IPermissionService _permissionService;
 
   String? _rawPath;
   String? _stampedPath;
@@ -72,6 +78,10 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
   @override
   void initState() {
     super.initState();
+    // 🚀 REFACTOR: Inisialisasi Service
+    _locationService = getIt<IGeoLocationService>();
+    _permissionService = getIt<IPermissionService>();
+
     final i = widget.initial;
     if (i == null) return;
     _rawPath = i['rawPath'] as String?;
@@ -117,7 +127,20 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
-      if (_useLocation) await LocationUtil.ensureReady();
+      if (_useLocation) {
+        // 🚀 REFACTOR: Early permission check (menggantikan LocationUtil.ensureReady)
+        final permCamera = await _permissionService.requestPermission(AppPermissionType.camera);
+        if (permCamera != AppPermissionStatus.granted) {
+          _snack('Izin kamera ditolak. Buka pengaturan aplikasi untuk memberikan izin.');
+          return;
+        }
+        
+        final permLocation = await _permissionService.requestPermission(AppPermissionType.location);
+        if (permLocation != AppPermissionStatus.granted) {
+          _snack('Izin lokasi ditolak. Buka pengaturan aplikasi untuk memberikan izin.');
+          return;
+        }
+      }
 
       final shot = await _picker.pickImage(
         source: ImageSource.camera,
@@ -127,22 +150,42 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
       );
       if (shot == null) return;
 
-      final loc = _useLocation ? await LocationUtil.current() : null;
-      final address = loc == null
+      // 🚀 REFACTOR: Ambil lokasi via Service Baru (Gaya Either / Pattern Matching)
+      GeoPosition? locResult;
+      
+      if (_useLocation) {
+        final locationEither = await _locationService.getCurrentPosition();
+        
+        // Cek kegagalan lokasi
+        final isFailed = locationEither.fold(
+          (failure) {
+            _snack(failure.message);
+            return true;
+          },
+          (position) {
+            locResult = position;
+            return false;
+          }
+        );
+        
+        if (isFailed) return; // Hentikan proses jika gagal (Akurasi buruk, timeout, dll)
+      }
+
+      final address = locResult == null
           ? null
-          : await _lookupAddress(loc.lat, loc.lng);
+          : await _lookupAddress(locResult!.latitude, locResult!.longitude);
 
       if (!mounted) return;
       setState(() {
         _rawPath = shot.path;
         _stampedPath = null;
-        _loc = loc == null ? null : (lat: loc.lat, lng: loc.lng);
-        _acc = loc?.accuracy;
-        _gpsTime = loc?.time;
+        _loc = locResult == null ? null : (lat: locResult!.latitude, lng: locResult!.longitude);
+        _acc = locResult?.akurasiMeter;
+        _gpsTime = locResult?.time;
         _address = address;
         _time = _isIn
             ? null
-            : TimeOfDay.fromDateTime(loc?.time ?? DateTime.now());
+            : TimeOfDay.fromDateTime(locResult?.time ?? DateTime.now());
       });
 
       if (_isIn) {
@@ -150,16 +193,17 @@ class _BalaiRwAbsenPageState extends State<BalaiRwAbsenPage> {
       } else {
         await _restamp();
       }
-    } on LocationException catch (e) {
-      _snack(e.message);
-    } on TimeoutException {
-      _snack('Sinyal GPS lemah, coba lagi di area yang lebih terbuka.');
     } catch (e) {
+      // Catch generik hanya untuk kesalahan di luar kendali GPS (misal error ImagePicker)
       _snack('Gagal mengambil foto: $e');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
+
+  // ===========================================================================
+  // SISA KODE (TIDAK ADA YANG BERUBAH)
+  // ===========================================================================
 
   Future<void> _pickTime() async {
     final t = await showTimePicker(

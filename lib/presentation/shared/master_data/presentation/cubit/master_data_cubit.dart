@@ -1,5 +1,5 @@
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';

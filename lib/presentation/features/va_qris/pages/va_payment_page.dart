@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import '../widgets/payment/payment_guide_steps.dart';
 import '../widgets/payment/payment_page_layout.dart';

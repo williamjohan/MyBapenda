@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:bapendacore/core/services/update_version_service.dart';
-import 'package:bapendacore/core/utils/app_logger.dart';
+import 'package:mybapenda/core/services/update_version_service.dart';
+import 'package:mybapenda/core/utils/app_logger.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';

@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 typedef _Bounds = ({double south, double north, double west, double east});

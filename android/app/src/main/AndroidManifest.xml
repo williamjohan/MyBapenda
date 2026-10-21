@@ -96,8 +96,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-      <provider
-            android:name="com.bapenda.cekreklame.OtaFileProvider"
+        <provider
+            android:name=".OtaFileProvider"
             android:authorities="${applicationId}.ota_update_provider"
             android:exported="false"
             android:grantUriPermissions="true">

@@ -1,16 +1,16 @@
 // lib/presentation/features/survey_baru/screens/survey_foto_page.dart
 import 'dart:io';
 
-import 'package:bapendacore/core/theme/theme_kit.dart';
-import 'package:bapendacore/core/utils/app_file_picker_utils.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
-import 'package:bapendacore/presentation/shared/widgets/marker_box.dart';
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'package:mybapenda/core/theme/theme_kit.dart';
+import 'package:mybapenda/core/utils/app_file_picker_utils.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_header_card.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/marker_box.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
-import 'package:bapendacore/presentation/shared/widgets/theme_toggle_button.dart';
+import 'package:mybapenda/presentation/shared/widgets/theme_toggle_button.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 

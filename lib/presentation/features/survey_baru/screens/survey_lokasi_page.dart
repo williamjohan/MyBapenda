@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import '../../../../core/services/geo_location_service.dart';
 import '../../../../core/theme/theme_kit.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/utils/marker_stamp_util.dart';
@@ -804,8 +801,7 @@ class _StatusAwal extends StatelessWidget {
     final cubit = context.read<SurveyLokasiCubit>();
     final gagal = state.status == SurveyLokasiStatus.gagal;
     final bisaPengaturan =
-        state.kodeError == GeoLocationError.serviceDisabled ||
-        state.kodeError == GeoLocationError.permissionDeniedForever;
+        state.requiresLocationSettings;
 
     return ColoredBox(
       color: palette.surfaceMuted,

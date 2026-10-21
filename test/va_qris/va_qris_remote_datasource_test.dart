@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/network/api_endpoints.dart';
-import 'package:bapendacore/data/datasources/va_qris/va_qris_remote_datasource.dart';
-import 'package:bapendacore/data/models/va_qris/payment_session_model.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/network/api_endpoints.dart';
+import 'package:mybapenda/data/datasources/va_qris/va_qris_remote_datasource.dart';
+import 'package:mybapenda/data/models/va_qris/payment_session_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 

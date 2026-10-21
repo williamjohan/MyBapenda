@@ -1,19 +1,19 @@
 import 'dart:async';
 
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_nominal_check_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_status_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/recent_reference_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_billing_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_object_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
-import 'package:bapendacore/domain/repositories/va_qris/i_va_qris_repository.dart';
-import 'package:bapendacore/domain/usecases/va_qris/va_qris_usecase.dart';
-import 'package:bapendacore/presentation/features/va_qris/cubit/va_qris_cubit.dart';
-import 'package:bapendacore/presentation/features/va_qris/cubit/va_qris_state.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_method.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_nominal_check_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_status_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/recent_reference_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_billing_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_object_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_period_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_type_entity.dart';
+import 'package:mybapenda/domain/repositories/va_qris/i_va_qris_repository.dart';
+import 'package:mybapenda/domain/usecases/va_qris/va_qris_usecase.dart';
+import 'package:mybapenda/presentation/features/va_qris/cubit/va_qris_cubit.dart';
+import 'package:mybapenda/presentation/features/va_qris/cubit/va_qris_state.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 

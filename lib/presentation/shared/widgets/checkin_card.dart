@@ -1,7 +1,7 @@
 // lib/presentation/shared/widgets/bapenda_selfie_card.dart
 import 'dart:io';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 

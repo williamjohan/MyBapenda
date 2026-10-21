@@ -1,6 +1,6 @@
-import 'package:bapendacore/core/constants/design_system/tokens/app_theme.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
-import 'package:bapendacore/presentation/features/va_qris/widgets/billing/unpaid_period_list.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_theme.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_period_entity.dart';
+import 'package:mybapenda/presentation/features/va_qris/widgets/billing/unpaid_period_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

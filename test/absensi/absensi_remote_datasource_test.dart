@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/data/datasources/absensi/absensi_remote_datasource.dart';
-import 'package:bapendacore/data/models/absensi/absen_model.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/data/datasources/absensi/absensi_remote_datasource.dart';
+import 'package:mybapenda/data/models/absensi/absen_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 

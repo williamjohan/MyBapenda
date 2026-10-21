@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/network/api_endpoints.dart';
-import 'package:bapendacore/data/datasources/profile/profile_remote_datasource.dart';
-import 'package:bapendacore/data/models/profile/profile_model.dart';
-import 'package:bapendacore/data/models/users/user_model.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/network/api_endpoints.dart';
+import 'package:mybapenda/data/datasources/profile/profile_remote_datasource.dart';
+import 'package:mybapenda/data/models/profile/profile_model.dart';
+import 'package:mybapenda/data/models/users/user_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 

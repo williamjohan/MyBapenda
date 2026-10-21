@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_option_type.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 

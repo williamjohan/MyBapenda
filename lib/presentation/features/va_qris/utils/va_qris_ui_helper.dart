@@ -1,7 +1,7 @@
-import 'package:bapendacore/core/utils/currency_formatter.dart';
-import 'package:bapendacore/core/utils/date_format_id.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/core/utils/currency_formatter.dart';
+import 'package:mybapenda/core/utils/date_format_id.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_method.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
 
 /// Helper tampilan teks VA & QRIS.
 class VaQrisUiHelper {

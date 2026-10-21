@@ -1,5 +1,5 @@
-import 'package:bapendacore/core/utils/app_logger.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/core/utils/app_logger.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -47,9 +47,6 @@ class PaymentPageLayout extends StatelessWidget {
   final List<String> guideSteps;
   final String shareLabel;
 
-  // TODO(tech-debt): naikkan kecerahan layar & tahan layar tetap menyala
-  // selama QR/VA tampil (screen_brightness + wakelock_plus), lalu pulihkan
-  // saat keluar.
 
   Future<bool> _confirmExit(BuildContext context) async {
     final leave = await showDialog<bool>(

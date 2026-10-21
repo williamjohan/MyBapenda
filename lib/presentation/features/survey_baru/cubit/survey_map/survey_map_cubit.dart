@@ -1,20 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_route.dart';
-import 'package:bapendacore/presentation/shared/utils/location_util.dart';
+import 'package:injectable/injectable.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_map/survey_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
-    show LatLng; // [UBAH] dulu latlong2
+    show LatLng; 
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../../core/services/geo_location/i_geo_location_service.dart';
 import 'survey_map_state.dart';
 
+@injectable
 class SurveyMapCubit extends Cubit<SurveyMapState> {
-  SurveyMapCubit()
+  final IGeoLocationService _geolocationService;
+  
+ SurveyMapCubit(this._geolocationService)
     : super(
         SurveyMapState(),
-      ); // [UBAH] tanpa const (lihat survey_map_state.dart)
+      ); 
 
   static const _prefix = 'survey_map_';
 
@@ -45,24 +49,37 @@ class SurveyMapCubit extends Cubit<SurveyMapState> {
   Future<void> locate() async {
     if (state.locating) return;
     emit(state.copyWith(locating: true));
-    try {
-      final fix = await LocationUtil.current().timeout(
-        const Duration(seconds: 10),
-      );
-      if (isClosed) return;
-      emit(
-        state.copyWith(
-          gps: LatLng(fix.lat, fix.lng),
-          accuracy: fix.accuracy.toDouble(),
-          locDenied: false,
-        ),
-      );
-      _refreshRoute();
-    } catch (_) {
-      if (isClosed) return;
-      emit(state.copyWith(locDenied: state.gps == null));
-    } finally {
-      if (!isClosed) emit(state.copyWith(locating: false));
+
+    final locationResult = await _geolocationService.getCurrentPosition();
+
+    if (isClosed) return;
+
+    locationResult.fold(
+      // =======================================================================
+      // KONDISI GAGAL (Left: Failure)
+      // =======================================================================
+      (failure) {
+        // Jika gagal mendapatkan lokasi, tandai locDenied jika GPS awal memang belum ada
+        emit(state.copyWith(locDenied: state.gps == null));
+      },
+
+      // =======================================================================
+      // KONDISI SUKSES (Right: GeoPosition)
+      // =======================================================================
+      (fix) {
+        emit(
+          state.copyWith(
+            gps: LatLng(fix.latitude, fix.longitude),
+            accuracy: fix.akurasiMeter.toDouble(),
+            locDenied: false,
+          ),
+        );
+        _refreshRoute();
+      },
+    );
+
+    if (!isClosed) {
+      emit(state.copyWith(locating: false));
     }
   }
 

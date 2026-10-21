@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
     show LatLng; // [UBAH] dulu latlong2
 import 'survey_deadline.dart';

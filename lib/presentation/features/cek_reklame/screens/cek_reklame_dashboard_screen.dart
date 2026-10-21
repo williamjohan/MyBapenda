@@ -1,8 +1,8 @@
 // lib/presentation/features/reklame/pages/reklame_dashboard_page.dart
-import 'package:bapendacore/core/di/injection.dart';
-import 'package:bapendacore/presentation/features/cek_reklame/cubit/survey_permohonan_baru/survey_summary_cubit.dart';
-import 'package:bapendacore/presentation/features/cek_reklame/cubit/survey_permohonan_baru/survey_summary_state.dart';
-import 'package:bapendacore/presentation/features/cek_reklame/widgets/reklame_survey_baru_card.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/cubit/survey_permohonan_baru/survey_summary_cubit.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/cubit/survey_permohonan_baru/survey_summary_state.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/widgets/reklame_survey_baru_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

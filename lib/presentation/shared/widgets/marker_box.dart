@@ -1,5 +1,5 @@
 // lib/presentation/shared/widgets/bapenda_marker_box.dart
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 enum _Corner { topLeft, topRight, bottomLeft, bottomRight }

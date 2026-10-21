@@ -1,6 +1,6 @@
-import 'package:bapendacore/presentation/features/splashscreen/cubit/splash_cubit.dart';
-import 'package:bapendacore/presentation/features/splashscreen/cubit/splash_state.dart';
-import 'package:bapendacore/routes/app_routes.dart';
+import 'package:mybapenda/presentation/features/splashscreen/cubit/splash_cubit.dart';
+import 'package:mybapenda/presentation/features/splashscreen/cubit/splash_state.dart';
+import 'package:mybapenda/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
       begin: const Offset(0, 0.1),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
+  
     context.read<SplashCubit>().start();
   }
 

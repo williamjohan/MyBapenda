@@ -1,5 +1,5 @@
 // lib/presentation/features/auth/widgets/auth_form_widgets.dart
-import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
 import 'package:flutter/material.dart';
 
 /// Warna latar halaman auth (sama dengan halaman login).
