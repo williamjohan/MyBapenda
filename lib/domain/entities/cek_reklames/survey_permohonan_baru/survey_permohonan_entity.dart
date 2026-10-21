@@ -83,3 +83,14 @@ class SurveyBadgeEntity extends Equatable {
   @override
   List<Object?> get props => [text, color];
 }
+
+class SurveySummaryEntity extends Equatable {
+  final int? total;
+  final int? baru;
+  final int? dikembalikanPenilaian;
+
+  const SurveySummaryEntity ({ this.total, this.baru, this.dikembalikanPenilaian});
+
+  @override
+  List<Object?> get props => [total, baru, dikembalikanPenilaian];
+}

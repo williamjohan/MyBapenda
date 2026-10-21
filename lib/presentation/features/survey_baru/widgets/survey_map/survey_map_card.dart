@@ -58,7 +58,7 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
 
   @override
   void dispose() {
-    SurveyPinIcons.clear(); // [UBAH] lepas cache gambar pin
+    SurveyPinIcons.clear(); 
     super.dispose();
   }
 

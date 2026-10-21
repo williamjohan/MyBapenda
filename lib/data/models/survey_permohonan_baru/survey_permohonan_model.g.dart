@@ -49,3 +49,10 @@ SurveyBadgeColorModel _$SurveyBadgeColorModelFromJson(
     SurveyBadgeColorModel(
       description: json['description'] as String? ?? '',
     );
+
+SurveySummaryModel _$SurveySummaryModelFromJson(Map<String, dynamic> json) =>
+    SurveySummaryModel(
+      total: (json['total'] as num?)?.toInt(),
+      baru: (json['baru'] as num?)?.toInt(),
+      dikembalikanPenilaian: (json['dikembalikanPenilaian'] as num?)?.toInt(),
+    );

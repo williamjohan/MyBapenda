@@ -20,15 +20,17 @@ class SurveyPermohonanUseCase {
 
   SurveyPermohonanUseCase(this._repository);
 
-
   // 1. GET LIST HEADER SURVEY
-  Future<Either<Failure, List<SurveyPermohonanEntity>>> getSurveyPermohonanHeader() {
+  Future<Either<Failure, List<SurveyPermohonanEntity>>>
+  getSurveyPermohonanHeader() {
     return _repository.getSurveyPermohonanHeader();
   }
 
   // 2. GET DETAIL SURVEY
   /// Mengambil rincian detail dari satu tugas survey berdasarkan [key]
-  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({required String key}) {
+  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({
+    required String key,
+  }) {
     return _repository.getSurveyDetail(key: key);
   }
 
@@ -42,5 +44,10 @@ class SurveyPermohonanUseCase {
   // 4. CARI NOR (Nomor Objek Reklame)
   Future<Either<Failure, List<CariNorEntity>>> cariNor({required String nor}) {
     return _repository.cariNor(nor: nor);
+  }
+
+  // 5. GET SUMMARY
+  Future<Either<Failure, SurveySummaryEntity>> getSurveySummary() {
+    return _repository.getSurveySummary();
   }
 }

@@ -8,6 +8,7 @@ import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/mas
 import 'package:mybapenda/presentation/shared/widgets/bapenda_image.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_dialog.dart';
 import 'package:mybapenda/presentation/shared/widgets/photo_preview.dart';
 import 'package:mybapenda/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ import '../widgets/hasil_simpan_survey.dart';
 import '../widgets/peta_lokasi_reklame.dart';
 import 'survey_foto_page.dart';
 
-class SurveyReviewPage extends StatelessWidget {
+class SurveyReviewPage extends StatefulWidget {
   final String nomorPelayanan;
   final List<Map<String, dynamic>> sisiList;
   final Map<int, SurveyResult> results;
@@ -32,49 +33,80 @@ class SurveyReviewPage extends StatelessWidget {
     required this.info,
   });
 
+  @override
+  State<SurveyReviewPage> createState() => _SurveyReviewPageState();
+}
+
+class _SurveyReviewPageState extends State<SurveyReviewPage> {
+  bool _agreementAccepted = false;
+
+  String _formatTanggalSurvey(Object? value) {
+    if (value == null) return '-';
+
+    final raw = value.toString().trim();
+    if (raw.isEmpty) return '-';
+
+    final tanggal = DateTime.tryParse(raw);
+    return tanggal == null ? raw : SurveyOptions.fmtTanggal(tanggal);
+  }
+
   Future<void> _submit(BuildContext context) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Kirim hasil survey?'),
-        content: const Text(
+    if (!_agreementAccepted) {
+      await BapendaDialog.showWarning(
+        context,
+        title: 'Persetujuan Belum Dicentang',
+        message: 'Centang pernyataan petugas survey sebelum mengirim hasil.',
+        primaryLabel: 'Mengerti',
+      );
+      return;
+    }
+
+    final ok = await BapendaDialog.showConfirm(
+      context,
+      title: 'Kirim hasil survey?',
+      message:
           'Pastikan foto, titik reklame, dan data semua sisi sudah benar. '
           'Bila semua isian lengkap, survey langsung dikirim ke penilaian; '
           'bila belum, disimpan sebagai draft.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cek Lagi'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Kirim'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Kirim',
+      cancelLabel: 'Cek Lagi',
+      icon: Icons.send_rounded,
     );
-    if (ok != true || !context.mounted) return;
+    if (!ok || !context.mounted) return;
 
-    final messenger = ScaffoldMessenger.of(context);
-    final res = await context.read<SurveySubmitCubit>().submit(
-      info: info,
-      sisiList: sisiList,
-      results: results,
+    await _kirim(context);
+  }
+
+  Future<void> _kirim(BuildContext context) async {
+    final cubit = context.read<SurveySubmitCubit>();
+
+    final res = await BapendaDialog.runWithLoading(
+      context,
+      (_) => cubit.submit(
+        info: widget.info,
+        sisiList: widget.sisiList,
+        results: widget.results,
+      ),
+      title: 'Mengirim Hasil Survey',
+      message: 'Mohon tunggu, jangan tutup aplikasi.',
     );
     if (!context.mounted) return;
 
     final hasil = res.hasil;
     if (hasil == null) {
-      if (res.error != null) {
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(res.error!)));
+      final error = res.error;
+      if (error != null) {
+        final ulang = await BapendaDialog.showError(
+          context,
+          title: 'Gagal Mengirim Survey',
+          message: error,
+          retryLabel: 'Coba Lagi',
+        );
+        if (ulang && context.mounted) await _kirim(context);
       }
       return;
     }
 
-    // Submit -> ke dashboard; Draft -> tetap di sini dengan daftar kekurangan.
     await tampilkanHasilSimpanSurvey(context, hasil);
   }
 
@@ -89,7 +121,7 @@ class SurveyReviewPage extends StatelessWidget {
             title: 'Survey Permohonan Baru',
             showBackButton: true,
             subtitle: Text(
-              nomorPelayanan,
+              widget.nomorPelayanan,
               style: TextStyle(
                 fontSize: 12.5,
                 color: Colors.white.withValues(alpha: 0.85),
@@ -106,12 +138,12 @@ class SurveyReviewPage extends StatelessWidget {
               ),
             ),
           ),
-          if (sisiList.isNotEmpty)
+          if (widget.sisiList.isNotEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
                 child: SurveyHeaderCard(
-                  sisi: sisiList.first,
+                  sisi: widget.sisiList.first,
                   initiallyExpanded: false,
                 ),
               ),
@@ -132,18 +164,18 @@ class SurveyReviewPage extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(18, 8, 18, 6),
-              child: _InfoReviewCard(info: info),
+              child: _InfoReviewCard(info: widget.info),
             ),
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
             sliver: SliverList.separated(
-              itemCount: sisiList.length,
+              itemCount: widget.sisiList.length,
               separatorBuilder: (_, __) => const SizedBox(height: 14),
               itemBuilder: (context, i) {
-                final s = sisiList[i];
+                final s = widget.sisiList[i];
                 final seq = s['seq'] as int;
-                final r = results[seq];
+                final r = widget.results[seq];
                 if (r == null) return const SizedBox.shrink();
                 return SisiReviewCard(
                   sisi: s,
@@ -152,6 +184,22 @@ class SurveyReviewPage extends StatelessWidget {
                   onEdit: () => context.pop<int>(seq),
                 );
               },
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
+              child: _SurveyAgreementCard(
+                namaPetugas: widget.info['namaPetugas'] as String?,
+                nipPetugas: widget.info['nipPetugas'] as String?,
+                tanggalSurvey: _formatTanggalSurvey(
+                  widget.info['tanggalSurvey'],
+                ),
+                accepted: _agreementAccepted,
+                onChanged: (value) {
+                  setState(() => _agreementAccepted = value ?? false);
+                },
+              ),
             ),
           ),
         ],
@@ -165,11 +213,164 @@ class SurveyReviewPage extends StatelessWidget {
               label: 'Kirim Hasil Survey',
               icon: Icons.send_rounded,
               isLoading: sending,
-              onPressed: sending ? null : () => _submit(context),
+              onPressed: sending || !_agreementAccepted
+                  ? null
+                  : () => _submit(context),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Pernyataan dan persetujuan petugas sebelum hasil survey dikirim.
+class _SurveyAgreementCard extends StatelessWidget {
+  final String? namaPetugas;
+  final String? nipPetugas;
+  final String tanggalSurvey;
+  final bool accepted;
+  final ValueChanged<bool?> onChanged;
+
+  const _SurveyAgreementCard({
+    required this.namaPetugas,
+    required this.nipPetugas,
+    required this.tanggalSurvey,
+    required this.accepted,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final nama = (namaPetugas ?? '').trim();
+    final nip = (nipPetugas ?? '').trim();
+    final identitas = [
+      if (nama.isNotEmpty) nama else 'Nama petugas belum tersedia',
+      if (nip.isNotEmpty) '($nip)',
+    ].join(' ');
+
+    const headingStyle = TextStyle(
+      fontSize: 13,
+      fontWeight: FontWeight.w700,
+      color: Color(0xFF1F2933),
+    );
+    const bodyStyle = TextStyle(
+      fontSize: 12.5,
+      height: 1.45,
+      color: Color(0xFF52606D),
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE8EBEF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.fact_check_outlined,
+                size: 20,
+                color: Color(0xFFB8680F),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text('Pernyataan Petugas Survey', style: headingStyle),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Dengan ini saya, $identitas, menyatakan bahwa:',
+            style: bodyStyle.copyWith(color: const Color(0xFF1F2933)),
+          ),
+          const SizedBox(height: 10),
+          _AgreementStatement(
+            text:
+                'Survey telah saya laksanakan secara langsung di lokasi reklame pada tanggal $tanggalSurvey.',
+          ),
+          const SizedBox(height: 9),
+          const _AgreementStatement(
+            text:
+                'Seluruh data, ukuran, titik lokasi, dan foto yang saya input adalah benar, lengkap, dan sesuai dengan kondisi sebenarnya di lapangan.',
+          ),
+          const SizedBox(height: 9),
+          const _AgreementStatement(
+            text:
+                'Hasil survey ini dapat dipertanggungjawabkan dan akan digunakan sebagai dasar penilaian serta penetapan pajak reklame.',
+          ),
+          const SizedBox(height: 9),
+          const _AgreementStatement(
+            text:
+                'Apabila di kemudian hari ditemukan ketidaksesuaian atau data yang tidak benar, saya bersedia bertanggung jawab sesuai dengan ketentuan peraturan perundang-undangan yang berlaku.',
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 14),
+            child: Divider(height: 1, color: Color(0xFFEEF0F3)),
+          ),
+          CheckboxListTile(
+            value: accepted,
+            onChanged: onChanged,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            visualDensity: VisualDensity.compact,
+            activeColor: const Color(0xFFB8680F),
+            title: const Text(
+              'Saya telah membaca, memahami, dan menyetujui pernyataan di atas.',
+              style: TextStyle(
+                fontSize: 12.5,
+                height: 1.4,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1F2933),
+              ),
+            ),
+          ),
+          if (!accepted)
+            const Padding(
+              padding: EdgeInsets.only(left: 48, top: 2),
+              child: Text(
+                'Centang persetujuan untuk mengaktifkan tombol kirim.',
+                style: TextStyle(fontSize: 11.5, color: Color(0xFF7B8794)),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AgreementStatement extends StatelessWidget {
+  final String text;
+
+  const _AgreementStatement({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 5),
+          child: Icon(Icons.circle, size: 5, color: Color(0xFFB8680F)),
+        ),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12.5,
+              height: 1.45,
+              color: Color(0xFF52606D),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -259,8 +460,13 @@ class SisiReviewCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
-
+          const SizedBox(height: 14),
+          const _ReviewSectionLabel(
+            icon: Icons.photo_library_outlined,
+            title: 'Dokumentasi Foto Sisi',
+            subtitle: 'Foto reklame pada sisi yang sedang disurvei',
+          ),
+          const SizedBox(height: 10),
           if (isFotoDraft(f))
             const _FotoDraftReview()
           else
@@ -291,7 +497,13 @@ class SisiReviewCard extends StatelessWidget {
               ),
             ),
           if (result.lokasi case final lokasi?) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            const _ReviewSectionLabel(
+              icon: Icons.map_outlined,
+              title: 'Lokasi Reklame',
+              subtitle: 'Titik lokasi sisi reklame pada peta',
+            ),
+            const SizedBox(height: 10),
             PetaLokasiReklame(lokasi: lokasi),
           ],
           Padding(
@@ -373,12 +585,77 @@ class SisiReviewCard extends StatelessWidget {
   }
 }
 
-class _InfoReviewCard extends StatelessWidget {
+class _InfoReviewCard extends StatefulWidget {
   final Map<String, dynamic> info;
   const _InfoReviewCard({required this.info});
 
   @override
+  State<_InfoReviewCard> createState() => _InfoReviewCardState();
+}
+
+class _InfoReviewCardState extends State<_InfoReviewCard> {
+  Future<void> _editAlamat() async {
+    final controller = TextEditingController(
+      text: '${widget.info['alamat'] ?? ''}',
+    );
+    final formKey = GlobalKey<FormState>();
+
+    final alamatBaru = await BapendaDialog.show<String>(
+      context,
+      tone: BapendaDialogTone.info,
+      icon: Icons.edit_location_alt_outlined,
+      title: 'Ubah Alamat',
+      message: 'Alamat ini ikut terkirim bersama hasil survey.',
+      barrierDismissible: false, 
+      content: Form(
+        key: formKey,
+        child: TextFormField(
+          controller: controller,
+          autofocus: true,
+          minLines: 2,
+          maxLines: 3,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(
+            labelText: 'Alamat',
+            hintText: 'Masukkan alamat lokasi survei',
+            alignLabelWithHint: true,
+            border: OutlineInputBorder(),
+          ),
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Alamat tidak boleh kosong'
+              : null,
+        ),
+      ),
+      actions: [
+        BapendaDialogAction<String>.primary(
+          label: 'Simpan',
+          icon: Icons.check_rounded,
+          closeOnPressed: false, 
+          onPressed: () {
+            if (formKey.currentState?.validate() ?? false) {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pop(controller.text.trim());
+            }
+          },
+        ),
+        const BapendaDialogAction<String>.secondary(label: 'Batal'),
+      ],
+    );
+
+    Future.delayed(const Duration(milliseconds: 350), controller.dispose);
+
+    if (alamatBaru == null || !mounted) return;
+
+    setState(() {
+      widget.info['alamat'] = alamatBaru;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final info = widget.info;
     final m = getIt<MasterDataCubit>().state;
 
     final selfie = info['selfiePath'] as String?;
@@ -450,7 +727,33 @@ class _InfoReviewCard extends StatelessWidget {
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
-          InfoRow(label: 'Alamat', value: '${info['alamat'] ?? '-'}'),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: InfoRow(
+                  label: 'Alamat',
+                  value: '${info['alamat'] ?? '-'}',
+                ),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: 'Ubah alamat',
+                onPressed: _editAlamat,
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                style: IconButton.styleFrom(
+                  foregroundColor: const Color(0xFFB8680F),
+                  backgroundColor: const Color(0xFFFFF3E7),
+                  minimumSize: const Size(36, 36),
+                  padding: EdgeInsets.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          ),
           InfoRow(label: 'Kecamatan', value: kec),
           InfoRow(label: 'Kelurahan', value: kel),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),
@@ -498,6 +801,62 @@ class _FotoDraftReview extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Label bagian untuk memisahkan dokumentasi foto dan lokasi pada halaman review.
+class _ReviewSectionLabel extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _ReviewSectionLabel({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF3E7),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Icon(icon, size: 20, color: const Color(0xFFB8680F)),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1F2933),
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  height: 1.3,
+                  color: Color(0xFF667085),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

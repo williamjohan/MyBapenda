@@ -100,6 +100,8 @@ import '../../presentation/features/balai_rw/cubit/balai_rw_hub_cubit.dart'
 import '../../presentation/features/camera/cubit/camera_cubit.dart' as _i755;
 import '../../presentation/features/cek_reklame/cubit/history_cek_reklame/history_cubit.dart'
     as _i475;
+import '../../presentation/features/cek_reklame/cubit/survey_permohonan_baru/survey_summary_cubit.dart'
+    as _i686;
 import '../../presentation/features/home/cubit/home_cubit.dart' as _i900;
 import '../../presentation/features/laporan_kehadiran/cubit/laporan_cubit.dart'
     as _i233;

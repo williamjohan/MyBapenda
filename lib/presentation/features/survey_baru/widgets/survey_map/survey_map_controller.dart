@@ -60,7 +60,11 @@ class SurveyMapController {
 
   // ---- Bagian dalam ----
 
-  Future<void> _run(CameraUpdate update, {bool animate = true}) async {
+  Future<void> _run(
+    CameraUpdate update, {
+    bool animate = true,
+    bool retry = true,
+  }) async {
     final map = _map;
     if (map == null) return;
     try {
@@ -70,7 +74,9 @@ class SurveyMapController {
         await map.moveCamera(update);
       }
     } catch (_) {
-      // Peta belum selesai di-layout atau sudah dilepas: abaikan.
+      if (!retry) return;
+      await Future.delayed(const Duration(milliseconds: 500));
+      await _run(update, animate: animate, retry: false);
     }
   }
 

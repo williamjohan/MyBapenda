@@ -54,8 +54,6 @@ class SurveySisiReviewPage extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.all(18),
             sliver: SliverToBoxAdapter(
-              // onEdit null -> tombol Edit di kartu tidak muncul,
-              // ubah data lewat tombol di bawah
               child: SisiReviewCard(sisi: sisi, result: result),
             ),
           ),

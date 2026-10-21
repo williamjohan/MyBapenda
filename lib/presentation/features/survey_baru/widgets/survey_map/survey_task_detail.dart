@@ -38,66 +38,115 @@ class SurveyTaskDetail extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: boxBg,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                skipped ? '–' : '$number',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: boxFg,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    point.nomor,
-                    style: const TextStyle(
-                      fontSize: 14,
+            // Baris pertama: nomor urut, nomor pelayanan, dan tenggat.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: boxBg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    skipped ? '–' : '$number',
+                    style: TextStyle(
+                      fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1F2933),
+                      color: boxFg,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${point.lokasi} · ${point.jumlahSisi} sisi',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF7B8794),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      point.nomor,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1F2933),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: st.bg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    st.text,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: st.fg,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Baris kedua: alamat menggunakan ruang lebih lebar.
+            const SizedBox(height: 9),
+            Padding(
+              padding: const EdgeInsets.only(left: 38),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: Color(0xFF7B8794),
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Text(
+                      point.lokasi,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        height: 1.4,
+                        color: Color(0xFF52606D),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: st.bg,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                st.text,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w800,
-                  color: st.fg,
-                ),
+
+            // Baris ketiga: jumlah sisi sebagai informasi pendukung.
+            Padding(
+              padding: const EdgeInsets.only(left: 38, top: 5),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.layers_outlined,
+                    size: 14,
+                    color: Color(0xFF7B8794),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    '${point.jumlahSisi} sisi reklame',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF7B8794),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -6,13 +6,15 @@ import '../../entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_e
 import '../../entities/cek_reklames/survey_permohonan_baru/simpan_survey_request_entity.dart';
 import '../../entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
 
-
 abstract class ISurveyPermohonanRepository {
   /// Mendapatkan daftar header survey permohonan baru
-  Future<Either<Failure, List<SurveyPermohonanEntity>>> getSurveyPermohonanHeader();
+  Future<Either<Failure, List<SurveyPermohonanEntity>>>
+  getSurveyPermohonanHeader();
 
   /// Mendapatkan detail spesifik dari sebuah permohonan survey
-  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({required String key});
+  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({
+    required String key,
+  });
 
   /// Mengirim (submit) data laporan survey ke server
   Future<Either<Failure, SimpanSurveyHasilEntity>> submitSurvey(
@@ -20,5 +22,7 @@ abstract class ISurveyPermohonanRepository {
   );
 
   /// Mencari nomor registrasi (NOR) dalam sistem
-  Future<Either<Failure, List<CariNorEntity>>> cariNor({required String nor});  
+  Future<Either<Failure, List<CariNorEntity>>> cariNor({required String nor});
+
+  Future<Either<Failure, SurveySummaryEntity>> getSurveySummary();
 }
