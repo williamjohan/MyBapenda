@@ -117,7 +117,7 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   clipBehavior:
-                      Clip.hardEdge, 
+                      Clip.hardEdge, // [UBAH] lebih ringan dari antiAlias
                   child: SizedBox(
                     width: double.infinity,
                     height: widget.mapHeight,
