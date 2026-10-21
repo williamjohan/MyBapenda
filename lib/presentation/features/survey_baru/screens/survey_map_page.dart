@@ -4,13 +4,14 @@ import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_list/
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_cubit.dart';
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_deadline.dart';
+import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_controller.dart'; // [BARU]
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_view.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_route.dart';
 import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_task_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
+// [HAPUS] import 'package:flutter_map/flutter_map.dart';
 import 'survey_start.dart';
 
 class SurveyMapPage extends StatefulWidget {
@@ -44,15 +45,15 @@ class _SurveyMapPageState extends State<SurveyMapPage> {
   static const _ink = Color(0xFF1F2933);
   static const _accent = Color(0xFFB8680F);
 
-  final _map = MapController();
+  final _map = SurveyMapController(); // [UBAH] dulu MapController()
   final _sheet = DraggableScrollableController();
   String? _selectedId;
   bool _showRoute = true;
 
   @override
   void dispose() {
-    _map.dispose();
-    _sheet.dispose();
+    _sheet
+        .dispose(); // [UBAH] _map.dispose() dihapus; peta Google melepas dirinya sendiri
     super.dispose();
   }
 
@@ -67,11 +68,8 @@ class _SurveyMapPageState extends State<SurveyMapPage> {
           .points
           .where((e) => e.id == id)
           .firstOrNull;
-      if (p != null) {
-        try {
-          _map.move(p.position, math.max(_map.camera.zoom, 15));
-        } catch (_) {}
-      }
+      // [UBAH] zoom minimal 15 sudah diurus SurveyMapController.focus()
+      if (p != null) _map.focus(p.position);
     }
     // Pastikan kartu detail terlihat.
     if (_sheet.isAttached && _sheet.size < 0.3) {
@@ -88,9 +86,7 @@ class _SurveyMapPageState extends State<SurveyMapPage> {
     await cubit.locate();
     if (!mounted) return;
     final from = cubit.state.plan.from;
-    try {
-      if (from != null) _map.move(from, 16);
-    } catch (_) {}
+    if (from != null) await _map.moveTo(from, 16); // [UBAH]
   }
 
   @override
@@ -108,15 +104,13 @@ class _SurveyMapPageState extends State<SurveyMapPage> {
               ? null
               : data.points.where((p) => p.id == _selectedId).firstOrNull;
 
-          final fitPadding = EdgeInsets.fromLTRB(
-            48,
-            top + 72,
-            48,
-            math.min(
-              size.height * (widget.initialSheet - _minSheet) + 32,
-              size.height * 0.4,
-            ),
+          // [UBAH] Dulu `fitPadding` untuk CameraFit. Sekarang jadi padding
+          // peta Google: bagian atas = top bar, bawah = sheet yang menutupi.
+          final sheetInset = math.min(
+            size.height * (widget.initialSheet - _minSheet) + 32,
+            size.height * 0.4,
           );
+          final mapPadding = EdgeInsets.only(top: top + 64, bottom: sheetInset);
 
           return Stack(
             children: [
@@ -129,14 +123,11 @@ class _SurveyMapPageState extends State<SurveyMapPage> {
                   selectedId: sel?.id,
                   onSelect: (id) => _select(id),
                   showRoute: _showRoute,
-                  initialFit: surveyFit(data, padding: fitPadding),
-                  onFit: () {
-                    try {
-                      _map.fitCamera(surveyFit(data, padding: fitPadding));
-                    } catch (_) {}
-                  },
+                  // [UBAH] initialFit dihapus; kamera awal diatur view sendiri
+                  onFit: () => _map.fit(data),
                   onLocate: _locate,
                   topInset: top + 56,
+                  mapPadding: mapPadding, // [BARU]
                 ),
               ),
 
@@ -343,9 +334,8 @@ class _SurveyMapPageState extends State<SurveyMapPage> {
                 pinned: plan.isPinned(sel.id),
                 skipped: plan.isSkipped(sel.id),
                 isFirst: plan.numberOf(sel.id) == 1,
-                onStart: sel.source == null
-                    ? null
-                    : () => startSurvey(context, sel.source!),
+                // [UBAH] source selalu ada (tidak ada data contoh lagi)
+                onStart: () => startSurvey(context, sel.source),
                 onFirst: () => cubit.doFirst(sel.id),
                 onSkip: () {
                   cubit.skip(sel.id);

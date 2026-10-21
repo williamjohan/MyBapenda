@@ -31,6 +31,8 @@ SurveyPermohonanModel _$SurveyPermohonanModelFromJson(
       badge: json['badge'] == null
           ? null
           : SurveyBadgeModel.fromJson(json['badge'] as Map<String, dynamic>),
+      latitude: _doubleFromJson(json['latitude']),
+      longitude: _doubleFromJson(json['longitude']),
     );
 
 SurveyBadgeModel _$SurveyBadgeModelFromJson(Map<String, dynamic> json) =>
