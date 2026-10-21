@@ -5,8 +5,8 @@ import '../../../../core/errors/failure.dart';
 import '../../../domain/entities/coordinate_entity.dart';
 import '../../../domain/repositories/geocoding/geocoding_repository.dart';
 
-@LazySingleton(as: GeocodingRepository)
-class GeocodingRepositoryImpl implements GeocodingRepository {
+@LazySingleton(as: IGeocodingRepository)
+class GeocodingRepositoryImpl implements IGeocodingRepository {
   @override
   Future<Either<Failure, String>> getAddressFromCoordinate(
     CoordinateEntity coordinate,

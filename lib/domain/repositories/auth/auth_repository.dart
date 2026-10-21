@@ -1,11 +1,10 @@
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
+import 'package:mybapenda/domain/entities/users/user_entity.dart';
 import 'package:dartz/dartz.dart';
-
 import '../../../core/errors/failure.dart';
 import '../../entities/auth/auth_entity.dart';
 import '../../entities/auth/lupa_password_metode.dart';
 
-abstract class AuthRepository {
+abstract class IAuthRepository {
   Future<AuthResponseEntity> login({
     required String nip,
     required String password,

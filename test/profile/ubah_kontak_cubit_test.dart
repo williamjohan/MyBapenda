@@ -1,11 +1,11 @@
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/domain/entities/profile/foto_profil_entity.dart';
-import 'package:bapendacore/domain/entities/profile/jenis_kontak.dart';
-import 'package:bapendacore/domain/entities/profile/kontak_profil_entity.dart';
-import 'package:bapendacore/domain/repositories/profile/i_profile_repository.dart';
-import 'package:bapendacore/domain/usecases/profile/profile_usecase.dart';
-import 'package:bapendacore/presentation/features/profile/cubit/ubah_kontak_cubit.dart';
-import 'package:bapendacore/presentation/features/profile/cubit/ubah_kontak_state.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/domain/entities/profile/foto_profil_entity.dart';
+import 'package:mybapenda/domain/entities/profile/jenis_kontak.dart';
+import 'package:mybapenda/domain/entities/profile/kontak_profil_entity.dart';
+import 'package:mybapenda/domain/repositories/profile/i_profile_repository.dart';
+import 'package:mybapenda/domain/usecases/profile/profile_usecase.dart';
+import 'package:mybapenda/presentation/features/profile/cubit/ubah_kontak_cubit.dart';
+import 'package:mybapenda/presentation/features/profile/cubit/ubah_kontak_state.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 

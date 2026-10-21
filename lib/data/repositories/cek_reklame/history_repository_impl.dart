@@ -1,5 +1,5 @@
-import 'package:bapendacore/data/models/history/history_model.dart';
-import 'package:bapendacore/domain/repositories/history/history_repository.dart';
+import 'package:mybapenda/data/models/history/history_model.dart';
+import 'package:mybapenda/domain/repositories/history/history_repository.dart';
 import 'package:injectable/injectable.dart';
 import '../../datasources/cek_reklame/history_remote_datasource.dart';
 

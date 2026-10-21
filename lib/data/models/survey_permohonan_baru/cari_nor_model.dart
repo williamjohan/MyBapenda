@@ -4,7 +4,7 @@ import '../../../domain/entities/cek_reklames/survey_permohonan_baru/cari_nor_en
 
 part 'cari_nor_model.g.dart';
 
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable(createToJson: false)
 class CariNorModel {
   @JsonKey(name : 'idNor')
   final String idNor;

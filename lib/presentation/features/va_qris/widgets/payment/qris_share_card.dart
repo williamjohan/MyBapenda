@@ -1,5 +1,5 @@
-import 'package:bapendacore/core/utils/currency_formatter.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/core/utils/currency_formatter.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 

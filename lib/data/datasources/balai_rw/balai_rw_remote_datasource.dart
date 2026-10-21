@@ -1,4 +1,4 @@
-import 'package:bapendacore/data/models/balai_rw/laporan_payload_model.dart';
+import 'package:mybapenda/data/models/balai_rw/laporan_payload_model.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../../core/errors/exception.dart';

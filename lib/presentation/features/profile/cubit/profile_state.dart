@@ -1,5 +1,5 @@
 // lib/presentation/features/profile/cubit/profile_state.dart
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
+import 'package:mybapenda/domain/entities/users/user_entity.dart';
 import 'package:equatable/equatable.dart';
 
 enum ProfileStatus { loading, ready, failure }

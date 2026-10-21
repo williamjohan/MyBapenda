@@ -1,5 +1,5 @@
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_foto_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const SurveyDataTexts _kosong = (

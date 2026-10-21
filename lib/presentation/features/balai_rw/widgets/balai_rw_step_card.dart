@@ -1,6 +1,6 @@
 // lib/presentation/features/balai_rw/widgets/balai_rw_step_card.dart
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 

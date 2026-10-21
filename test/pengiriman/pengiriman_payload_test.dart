@@ -1,5 +1,5 @@
-import 'package:bapendacore/data/models/pengiriman/pengiriman_payload_model.dart';
-import 'package:bapendacore/domain/entities/pengiriman/pengiriman_payload_entity.dart';
+import 'package:mybapenda/data/models/pengiriman/pengiriman_payload_model.dart';
+import 'package:mybapenda/domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

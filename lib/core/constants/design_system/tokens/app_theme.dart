@@ -1,8 +1,8 @@
-import 'package:bapendacore/core/constants/app_colors_new.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_radius.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_spacing.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_typography.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_radius.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_spacing.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
 
 /// Main App Theme

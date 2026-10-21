@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_object_entity.dart';
-import 'package:bapendacore/domain/repositories/va_qris/i_va_qris_repository.dart';
-import 'package:bapendacore/domain/usecases/va_qris/va_qris_usecase.dart';
-import 'package:bapendacore/presentation/features/va_qris/cubit/tax_object_search_cubit.dart';
-import 'package:bapendacore/presentation/features/va_qris/cubit/tax_object_search_state.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/paged_master_entities.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_object_entity.dart';
+import 'package:mybapenda/domain/repositories/va_qris/i_va_qris_repository.dart';
+import 'package:mybapenda/domain/usecases/va_qris/va_qris_usecase.dart';
+import 'package:mybapenda/presentation/features/va_qris/cubit/tax_object_search_cubit.dart';
+import 'package:mybapenda/presentation/features/va_qris/cubit/tax_object_search_state.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/paged_master_entities.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 

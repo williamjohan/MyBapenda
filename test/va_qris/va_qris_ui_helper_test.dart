@@ -1,7 +1,7 @@
-import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
-import 'package:bapendacore/presentation/features/va_qris/utils/va_qris_ui_helper.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_method.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_period_entity.dart';
+import 'package:mybapenda/presentation/features/va_qris/utils/va_qris_ui_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 TaxPeriodEntity _masa(int month, {int year = 2026}) => TaxPeriodEntity(

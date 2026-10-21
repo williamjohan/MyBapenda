@@ -1,5 +1,5 @@
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_map/survey_route.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_map/survey_map_point.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_map/survey_route.dart';
 import 'package:equatable/equatable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
     show LatLng; // [UBAH] dulu latlong2

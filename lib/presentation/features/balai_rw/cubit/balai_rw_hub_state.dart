@@ -1,7 +1,7 @@
 // lib/presentation/features/balai_rw/cubit/balai_rw_hub_state.dart
-import 'package:bapendacore/domain/entities/balai_rw/laporan_pegawai_entity.dart';
-import 'package:bapendacore/domain/entities/balai_rw/roster_pegawai_entity.dart';
-import 'package:bapendacore/presentation/shared/utils/date_util.dart';
+import 'package:mybapenda/domain/entities/balai_rw/laporan_pegawai_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/roster_pegawai_entity.dart';
+import 'package:mybapenda/presentation/shared/utils/date_util.dart';
 import 'package:equatable/equatable.dart';
 
 enum BalaiRwHubStatus { loading, ready, failure }

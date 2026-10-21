@@ -1,6 +1,6 @@
-import 'package:bapendacore/presentation/features/home/cubit/nearby_cubit.dart';
-import 'package:bapendacore/presentation/features/home/cubit/nearby_state.dart';
-import 'package:bapendacore/presentation/shared/widgets/custom_modal_widget.dart';
+import 'package:mybapenda/presentation/features/home/cubit/nearby_cubit.dart';
+import 'package:mybapenda/presentation/features/home/cubit/nearby_state.dart';
+import 'package:mybapenda/presentation/shared/widgets/custom_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

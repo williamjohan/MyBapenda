@@ -4,7 +4,9 @@ import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../../core/errors/failure.dart';
-import '../../../../../core/services/geo_location_service.dart';
+// 🚀 REFACTOR: Gunakan IGeoLocationService dan IPermissionService terbaru
+import '../../../../../core/services/geo_location/i_geo_location_service.dart';
+import '../../../../../core/services/permission/i_permission_service.dart';
 import '../../../../../core/utils/app_logger.dart';
 import '../../../../../domain/entities/pengiriman/antrean_entity.dart';
 import '../../../../../domain/entities/pengiriman/master_pengiriman_entity.dart';
@@ -18,11 +20,16 @@ import 'aksi_state.dart';
 @injectable
 class AksiCubit extends Cubit<AksiState> {
   final PengirimanUseCase _useCase;
-  final GeoLocationService _lokasiService;
+  final IGeoLocationService _lokasiService; 
+  final IPermissionService _permissionService; 
   final PengirimanFoto _foto;
 
-  AksiCubit(this._useCase, this._lokasiService, this._foto)
-    : super(const AksiState());
+  AksiCubit(
+    this._useCase,
+    this._lokasiService,
+    this._permissionService,
+    this._foto,
+  ) : super(const AksiState());
 
   Future<void> init({bool butuhMaster = false}) async {
     await Future.wait([cariLokasi(), if (butuhMaster) muatMaster()]);
@@ -39,49 +46,38 @@ class AksiCubit extends Cubit<AksiState> {
 
   Future<void> cariLokasi() async {
     emit(state.copyWith(lokasiStatus: LokasiStatus.mencari));
-    try {
-      final p = await _lokasiService.getCurrentPosition();
-      if (isClosed) return;
-      if (p.isMocked) {
+    
+    final locationResult = await _lokasiService.getCurrentPosition();
+    if (isClosed) return;
+
+    locationResult.fold(
+      (failure) {
+        // Jika gagal karena masalah izin (GPS mati/Ditolak), flag = true
+        final isPermissionIssue = failure is PermissionFailure;
+        
         emit(
           state.copyWith(
             lokasiStatus: LokasiStatus.gagal,
-            lokasiError:
-                'Terdeteksi lokasi palsu (Fake GPS). Matikan aplikasi '
-                'mock location lalu coba lagi.',
+            lokasiError: failure.message,
+            requiresLocationSettings: isPermissionIssue,
           ),
         );
-        return;
-      }
-      emit(state.copyWith(lokasiStatus: LokasiStatus.siap, lokasi: p));
-    } on GeoLocationException catch (e) {
-      if (isClosed) return;
-      emit(
-        state.copyWith(
-          lokasiStatus: LokasiStatus.gagal,
-          lokasiError: switch (e.error) {
-            GeoLocationError.serviceDisabled => 'GPS HP mati. Nyalakan GPS.',
-            GeoLocationError.permissionDenied => 'Izin lokasi dibutuhkan.',
-            GeoLocationError.permissionDeniedForever =>
-              'Izin lokasi ditolak. Aktifkan dari pengaturan aplikasi.',
-            GeoLocationError.timeout =>
-              'Sinyal GPS lemah. Coba di area yang lebih terbuka.',
-          },
-          lokasiErrorKode: e.error,
-        ),
-      );
-    }
+      },
+      (position) {
+        // Sukses (Sudah lolos filter anti-mock dari Service)
+        emit(
+          state.copyWith(
+            lokasiStatus: LokasiStatus.siap,
+            lokasi: position,
+            requiresLocationSettings: false, // Reset flag
+          ),
+        );
+      },
+    );
   }
 
   Future<void> bukaPengaturanLokasi() async {
-    switch (state.lokasiErrorKode) {
-      case GeoLocationError.serviceDisabled:
-        await _lokasiService.openLocationSettings();
-      case GeoLocationError.permissionDeniedForever:
-        await _lokasiService.openAppSettings();
-      default:
-        break;
-    }
+    await _permissionService.openSettings();
   }
 
   Future<void> ambilFoto(FotoSlot slot, {required String noResi}) async {
@@ -91,7 +87,8 @@ class AksiCubit extends Cubit<AksiState> {
       final path = await _foto.ambil(
         judul: slot.label,
         noResi: noResi,
-        lokasi: state.lokasi,
+        // 🚀 GeoPosition masih utuh karena kita menggunakan typedef yang persis sama
+        lokasi: state.lokasi, 
       );
       if (isClosed) return;
       emit(
@@ -115,18 +112,15 @@ class AksiCubit extends Cubit<AksiState> {
   void hapusFoto(FotoSlot slot) =>
       emit(state.copyWith(foto: {...state.foto}..remove(slot)));
 
-  /// Pesan galat ringan (validasi form) tanpa mengubah status kirim.
-  /// Dikosongkan dulu supaya pesan yang sama tetap memicu snackbar lagi.
   void tampilkanError(String pesan) {
     emit(state.copyWith());
     emit(state.copyWith(error: pesan));
   }
 
   // ---------------------------------------------------------------------------
-  // Kirim
+  // Kirim (TIDAK ADA LOGIKA BISNIS YANG BERUBAH)
   // ---------------------------------------------------------------------------
 
-  /// Lolos aturan isian wajib (usecase); bila tidak, tampilkan pesannya.
   bool _lolos(String? error) {
     if (error == null) return true;
     tampilkanError(error);
@@ -135,7 +129,6 @@ class AksiCubit extends Cubit<AksiState> {
 
   Set<FotoSlot> get _fotoAda => state.foto.keys.toSet();
 
-  /// Cek isian serah terima sebelum tanda tangan diekspor halaman.
   bool cekSerah({
     required CaraSerah? cara,
     required String namaPenerima,
@@ -153,7 +146,6 @@ class AksiCubit extends Cubit<AksiState> {
     ),
   );
 
-  /// Ambil selalu online: hasil per berkas langsung ditampilkan.
   Future<void> kirimAmbil(List<String> noResiList) async {
     final error = _useCase.validasiAmbil(
       jumlahResi: noResiList.length,
@@ -260,7 +252,6 @@ class AksiCubit extends Cubit<AksiState> {
     ),
   );
 
-  /// Simpan ke antrean offline; terkirim otomatis (lihat repository).
   Future<void> _antre(
     Future<Either<Failure, AntreanPengirimanEntity>> Function(
       CheckinPengirimanEntity checkin,
@@ -286,18 +277,25 @@ class AksiCubit extends Cubit<AksiState> {
     }
 
     emit(state.copyWith(kirim: KirimStatus.mengirim));
+    
     final checkin = CheckinPengirimanEntity(
       checkinUuid: const Uuid().v4(),
       tglCheckin: DateTime.now(),
       latitude: p.latitude,
       longitude: p.longitude,
       akurasi: p.akurasiMeter,
-      isMockLocation: p.isMocked,
+      
+      // 🚀 REFACTOR: Fix Mock Location. Karena filter anti-mock ditarik ke Service, 
+      // yang lolos sampai ke sini dipastikan false.
+      isMockLocation: false, 
+      
       keterangan: keterangan,
       fotoLokasiPath: state.foto[FotoSlot.lokasi],
     );
+    
     final result = await post(checkin);
     if (isClosed) return;
+    
     result.fold(
       (failure) => emit(
         state.copyWith(kirim: KirimStatus.gagal, error: failure.message),

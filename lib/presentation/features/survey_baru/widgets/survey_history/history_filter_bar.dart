@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_history/survey_history_list_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_history/survey_history_list_state.dart';
 import 'package:flutter/material.dart';
 import 'history_format.dart';
 

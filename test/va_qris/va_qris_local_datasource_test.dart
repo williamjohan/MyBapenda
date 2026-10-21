@@ -1,6 +1,6 @@
-import 'package:bapendacore/core/storage/app_secure_storage.dart';
-import 'package:bapendacore/data/datasources/va_qris/va_qris_local_datasource.dart';
-import 'package:bapendacore/data/models/va_qris/recent_reference_model.dart';
+import 'package:mybapenda/core/storage/app_secure_storage.dart';
+import 'package:mybapenda/data/datasources/va_qris/va_qris_local_datasource.dart';
+import 'package:mybapenda/data/models/va_qris/recent_reference_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

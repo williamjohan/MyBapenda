@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failure.dart';
 import '../../entities/coordinate_entity.dart';
 
-abstract class GeocodingRepository {
+abstract class IGeocodingRepository {
   /// Mengubah koordinat menjadi teks alamat
   Future<Either<Failure, String>> getAddressFromCoordinate(
     CoordinateEntity coordinate,

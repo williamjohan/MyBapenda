@@ -1,14 +1,14 @@
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/domain/entities/auth/auth_entity.dart';
-import 'package:bapendacore/domain/entities/auth/lupa_password_metode.dart';
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
-import 'package:bapendacore/domain/repositories/auth/auth_repository.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/domain/entities/auth/auth_entity.dart';
+import 'package:mybapenda/domain/entities/auth/lupa_password_metode.dart';
+import 'package:mybapenda/domain/entities/users/user_entity.dart';
+import 'package:mybapenda/domain/repositories/auth/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class AuthUseCase {
-  final AuthRepository repository;
+  final IAuthRepository repository;
   AuthUseCase(this.repository);
 
   Future<AuthResponseEntity> login({

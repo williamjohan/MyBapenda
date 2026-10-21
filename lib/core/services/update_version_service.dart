@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:bapendacore/core/utils/app_logger.dart';
+import 'package:mybapenda/core/utils/app_logger.dart';
 
 @lazySingleton
 class UpdateVersionService {

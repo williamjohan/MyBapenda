@@ -126,8 +126,12 @@ import '../../presentation/features/profile/cubit/ubah_kontak_cubit.dart'
     as _i406;
 import '../../presentation/features/splashscreen/cubit/splash_cubit.dart'
     as _i679;
+import '../../presentation/features/survey_baru/cubit/survey_info/survey_info_cubit.dart'
+    as _i188;
 import '../../presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart'
     as _i5;
+import '../../presentation/features/survey_baru/cubit/survey_map/survey_map_cubit.dart'
+    as _i197;
 import '../../presentation/features/va_qris/cubit/tax_object_search_cubit.dart'
     as _i410;
 import '../../presentation/features/va_qris/cubit/va_qris_cubit.dart' as _i197;
@@ -148,7 +152,8 @@ import '../network/hmac_kantor_interceptor.dart' as _i370;
 import '../network/network_cubit.dart' as _i11;
 import '../services/app_integrity_service.dart' as _i30;
 import '../services/device_identity_service.dart' as _i218;
-import '../services/geo_location_service.dart' as _i869;
+import '../services/geo_location/geo_location_service_impl.dart' as _i247;
+import '../services/geo_location/i_geo_location_service.dart' as _i778;
 import '../services/map_service.dart' as _i569;
 import '../services/network_service.dart' as _i463;
 import '../services/notifikasi/notifikasi_service.dart' as _i870;
@@ -190,125 +195,116 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i438.UpdateVersionService>(
         () => _i438.UpdateVersionService());
     gh.lazySingleton<_i798.PengirimanFoto>(() => _i798.PengirimanFoto());
-    gh.lazySingleton<_i164.IPermissionService>(
-        () => _i1018.PermissionServiceImpl());
     gh.lazySingleton<_i594.AppPreferences>(
         () => _i594.AppPreferences(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i148.PengirimanCacheStorage>(
         () => _i148.PengirimanCacheStorage(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i877.PengirimanQueueStorage>(
         () => _i877.PengirimanQueueStorage(gh<_i460.SharedPreferences>()));
-    gh.lazySingleton<_i869.GeoLocationService>(
-        () => _i869.GeoLocationServiceImpl());
     gh.lazySingleton<_i569.IRuteRemoteDataSource>(
         () => _i569.RuteRemoteDataSourceImpl());
-    gh.lazySingleton<_i30.AppIntegrityService>(
-        () => _i30.AppIntegrityServiceImpl());
-    gh.lazySingleton<_i30.IMasterLocalDataSource>(
-        () => _i30.MasterLocalDataSourceImpl(gh<_i460.SharedPreferences>()));
+    gh.lazySingleton<_i904.IGeocodingRepository>(
+        () => _i793.GeocodingRepositoryImpl());
+    gh.lazySingleton<_i164.IPermissionService>(
+        () => _i1018.PermissionServiceImpl());
     gh.lazySingleton<_i233.AppSecureStorage>(
         () => _i233.AppSecureStorage(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i30.AppIntegrityService>(
+        () => _i30.AppIntegrityServiceImpl());
     gh.lazySingleton<_i218.DeviceIdentityService>(
         () => _i218.DeviceIdentityServiceImpl(gh<_i233.AppSecureStorage>()));
-    gh.lazySingleton<_i904.GeocodingRepository>(
-        () => _i793.GeocodingRepositoryImpl());
+    gh.lazySingleton<_i30.IMasterLocalDataSource>(
+        () => _i30.MasterLocalDataSourceImpl(gh<_i460.SharedPreferences>()));
+    gh.lazySingleton<_i947.ThemeModeCubit>(() => _i947.ThemeModeCubit(
+          gh<_i594.AppPreferences>(),
+          gh<_i233.AppSecureStorage>(),
+        ));
+    gh.lazySingleton<_i11.NetworkCubit>(
+        () => _i11.NetworkCubit(gh<_i895.Connectivity>()));
+    gh.lazySingleton<_i778.IGeoLocationService>(
+        () => _i247.GeoLocationServiceImpl(gh<_i164.IPermissionService>()));
+    gh.lazySingleton<_i817.DioAuthInterceptor>(
+        () => _i817.DioAuthInterceptor(gh<_i233.AppSecureStorage>()));
+    gh.lazySingleton<_i370.HmacKantorInterceptor>(
+        () => _i370.HmacKantorInterceptor(gh<_i30.AppIntegrityService>()));
     gh.lazySingleton<_i537.IVaQrisLocalDataSource>(
         () => _i537.VaQrisLocalDataSourceImpl(
               gh<_i460.SharedPreferences>(),
               gh<_i233.AppSecureStorage>(),
             ));
-    gh.lazySingleton<_i11.NetworkCubit>(
-        () => _i11.NetworkCubit(gh<_i895.Connectivity>()));
-    gh.lazySingleton<_i370.HmacKantorInterceptor>(
-        () => _i370.HmacKantorInterceptor(gh<_i30.AppIntegrityService>()));
-    gh.lazySingleton<_i947.ThemeModeCubit>(() => _i947.ThemeModeCubit(
-          gh<_i594.AppPreferences>(),
-          gh<_i233.AppSecureStorage>(),
-        ));
-    gh.lazySingleton<_i817.DioAuthInterceptor>(
-        () => _i817.DioAuthInterceptor(gh<_i233.AppSecureStorage>()));
-    gh.factory<_i5.SurveyLokasiCubit>(() => _i5.SurveyLokasiCubit(
-          gh<_i869.GeoLocationService>(),
-          gh<_i904.GeocodingRepository>(),
-        ));
+    gh.factory<_i197.SurveyMapCubit>(
+        () => _i197.SurveyMapCubit(gh<_i778.IGeoLocationService>()));
     gh.lazySingleton<_i361.Dio>(() => registerModule.getDio(
           gh<_i817.DioAuthInterceptor>(),
           gh<_i370.HmacKantorInterceptor>(),
         ));
-    gh.lazySingleton<_i615.IMasterRemoteDataSource>(
-        () => _i615.MasterRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.factory<_i5.SurveyLokasiCubit>(() => _i5.SurveyLokasiCubit(
+          gh<_i778.IGeoLocationService>(),
+          gh<_i164.IPermissionService>(),
+          gh<_i904.IGeocodingRepository>(),
+        ));
+    gh.lazySingleton<_i705.IVaQrisRemoteDataSource>(
+        () => _i705.VaQrisRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i710.INotifikasiRemoteDataSource>(
+        () => _i710.NotifikasiRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i753.AbsensiRemoteDataSource>(
         () => _i753.AbsensiRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i1023.IMasterRepository>(() => _i21.MasterRepositoryImpl(
-          gh<_i615.IMasterRemoteDataSource>(),
-          gh<_i30.IMasterLocalDataSource>(),
-        ));
     gh.lazySingleton<_i49.IProfileRemoteDataSource>(
         () => _i49.ProfileRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i451.HistoryRemoteDataSource>(
         () => _i451.HistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i60.AuthRemoteDataSource>(
-        () => _i60.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i705.IVaQrisRemoteDataSource>(
-        () => _i705.VaQrisRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i766.ICekReklameRemoteDataSource>(
-        () => _i766.CekReklameRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i870.ISurveyHistoryRemoteDataSource>(
-        () => _i870.SurveyHistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i60.MasterDataUseCase>(
-        () => _i60.MasterDataUseCase(gh<_i1023.IMasterRepository>()));
-    gh.lazySingleton<_i348.IBalaiRwRemoteDataSource>(
-        () => _i348.BalaiRwRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i294.IPengirimanRemoteDataSource>(
-        () => _i294.PengirimanRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i919.UpdateService>(() => _i919.UpdateService(
-          gh<_i361.Dio>(),
-          gh<_i438.UpdateVersionService>(),
-        ));
+    gh.lazySingleton<_i215.ISurveyPermohonanRemoteDataSource>(
+        () => _i215.SurveyPermohonanRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i615.IMasterRemoteDataSource>(
+        () => _i615.MasterRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i173.AbsensiRepository>(() => _i242.AbsensiRepositoryImpl(
           gh<_i753.AbsensiRemoteDataSource>(),
           gh<_i218.DeviceIdentityService>(),
           gh<_i233.AppSecureStorage>(),
         ));
+    gh.lazySingleton<_i294.IPengirimanRemoteDataSource>(
+        () => _i294.PengirimanRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i766.ICekReklameRemoteDataSource>(
+        () => _i766.CekReklameRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i919.UpdateService>(() => _i919.UpdateService(
+          gh<_i361.Dio>(),
+          gh<_i438.UpdateVersionService>(),
+        ));
+    gh.lazySingleton<_i870.ISurveyHistoryRemoteDataSource>(
+        () => _i870.SurveyHistoryRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i563.INotifikasiRepository>(
+        () => _i535.NotifikasiRepositoryImpl(
+              gh<_i710.INotifikasiRemoteDataSource>(),
+              gh<_i147.NotifikasiSinyal>(),
+            ));
     gh.lazySingleton<_i101.ISurveyHistoryRepository>(() =>
         _i319.SurveyHistoryRepositoryImpl(
             gh<_i870.ISurveyHistoryRemoteDataSource>()));
-    gh.lazySingleton<_i899.IBalaiRwRepository>(() =>
-        _i518.BalaiRwRepositoryImpl(gh<_i348.IBalaiRwRemoteDataSource>()));
+    gh.lazySingleton<_i127.CekReklameRepository>(() =>
+        _i470.CekReklameRepositoryImpl(
+            gh<_i766.ICekReklameRemoteDataSource>()));
     gh.lazySingleton<_i956.IVaQrisRepository>(() => _i562.VaQrisRepositoryImpl(
           gh<_i705.IVaQrisRemoteDataSource>(),
           gh<_i537.IVaQrisLocalDataSource>(),
         ));
-    gh.lazySingleton<_i127.CekReklameRepository>(() =>
-        _i470.CekReklameRepositoryImpl(
-            gh<_i766.ICekReklameRemoteDataSource>()));
-    gh.lazySingleton<_i640.IProfileRepository>(
-        () => _i770.ProfileRepositoryImpl(gh<_i49.IProfileRemoteDataSource>()));
-    gh.lazySingleton<_i169.HistoryRepository>(
-        () => _i535.HistoryRepositoryImpl(gh<_i451.HistoryRemoteDataSource>()));
-    gh.lazySingleton<_i660.AuthRepository>(() => _i24.AuthRepositoryImpl(
-          gh<_i60.AuthRemoteDataSource>(),
-          gh<_i233.AppSecureStorage>(),
+    gh.lazySingleton<_i1023.IMasterRepository>(() => _i21.MasterRepositoryImpl(
+          gh<_i615.IMasterRemoteDataSource>(),
+          gh<_i30.IMasterLocalDataSource>(),
         ));
-    gh.lazySingleton<_i839.ProfileUseCase>(
-        () => _i839.ProfileUseCase(gh<_i640.IProfileRepository>()));
-    gh.lazySingleton<_i710.INotifikasiRemoteDataSource>(
-        () => _i710.NotifikasiRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i215.ISurveyPermohonanRemoteDataSource>(
-        () => _i215.SurveyPermohonanRemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i801.MasterDataCubit>(
-        () => _i801.MasterDataCubit(gh<_i60.MasterDataUseCase>()));
-    gh.lazySingleton<_i446.SurveyHistoryUseCase>(
-        () => _i446.SurveyHistoryUseCase(gh<_i101.ISurveyHistoryRepository>()));
+    gh.lazySingleton<_i348.IBalaiRwRemoteDataSource>(
+        () => _i348.BalaiRwRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i60.AuthRemoteDataSource>(
+        () => _i60.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.factory<_i755.CameraCubit>(() => _i755.CameraCubit(
           gh<_i164.IPermissionService>(),
-          gh<_i904.GeocodingRepository>(),
+          gh<_i904.IGeocodingRepository>(),
           gh<_i127.CekReklameRepository>(),
         ));
-    gh.lazySingleton<_i930.VaQrisUseCase>(
-        () => _i930.VaQrisUseCase(gh<_i956.IVaQrisRepository>()));
-    gh.lazySingleton<_i826.AuthUseCase>(
-        () => _i826.AuthUseCase(gh<_i660.AuthRepository>()));
+    gh.lazySingleton<_i114.ISurveyPermohonanRepository>(() =>
+        _i874.SurveyPermohonanRepositoryImpl(
+            gh<_i215.ISurveyPermohonanRemoteDataSource>()));
+    gh.lazySingleton<_i813.NotifikasiUseCase>(
+        () => _i813.NotifikasiUseCase(gh<_i563.INotifikasiRepository>()));
     gh.lazySingleton<_i969.IPengirimanRepository>(
         () => _i673.PengirimanRepositoryImpl(
               gh<_i294.IPengirimanRemoteDataSource>(),
@@ -317,78 +313,74 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i233.AppSecureStorage>(),
               gh<_i569.IRuteRemoteDataSource>(),
             ));
-    gh.factory<_i239.ProfileCubit>(() => _i239.ProfileCubit(
-          gh<_i826.AuthUseCase>(),
-          gh<_i839.ProfileUseCase>(),
-        ));
+    gh.lazySingleton<_i169.HistoryRepository>(
+        () => _i535.HistoryRepositoryImpl(gh<_i451.HistoryRemoteDataSource>()));
+    gh.lazySingleton<_i60.MasterDataUseCase>(
+        () => _i60.MasterDataUseCase(gh<_i1023.IMasterRepository>()));
+    gh.lazySingleton<_i446.SurveyHistoryUseCase>(
+        () => _i446.SurveyHistoryUseCase(gh<_i101.ISurveyHistoryRepository>()));
     gh.lazySingleton<_i248.AbsensiUseCase>(
         () => _i248.AbsensiUseCase(gh<_i173.AbsensiRepository>()));
-    gh.factory<_i406.UbahKontakCubit>(
-        () => _i406.UbahKontakCubit(gh<_i839.ProfileUseCase>()));
-    gh.lazySingleton<_i266.BalaiRwUseCase>(
-        () => _i266.BalaiRwUseCase(gh<_i899.IBalaiRwRepository>()));
-    gh.lazySingleton<_i114.ISurveyPermohonanRepository>(() =>
-        _i874.SurveyPermohonanRepositoryImpl(
-            gh<_i215.ISurveyPermohonanRemoteDataSource>()));
+    gh.lazySingleton<_i870.NotifikasiService>(() => _i870.NotifikasiService(
+          gh<_i147.NotifikasiSinyal>(),
+          gh<_i813.NotifikasiUseCase>(),
+        ));
+    gh.lazySingleton<_i11.SurveyPermohonanUseCase>(() =>
+        _i11.SurveyPermohonanUseCase(gh<_i114.ISurveyPermohonanRepository>()));
+    gh.lazySingleton<_i660.IAuthRepository>(() => _i24.AuthRepositoryImpl(
+          gh<_i60.AuthRemoteDataSource>(),
+          gh<_i233.AppSecureStorage>(),
+        ));
+    gh.lazySingleton<_i640.IProfileRepository>(
+        () => _i770.ProfileRepositoryImpl(gh<_i49.IProfileRemoteDataSource>()));
+    gh.lazySingleton<_i578.PengirimanUseCase>(
+        () => _i578.PengirimanUseCase(gh<_i969.IPengirimanRepository>()));
     gh.lazySingleton<_i1023.HistoryUseCase>(
         () => _i1023.HistoryUseCase(gh<_i169.HistoryRepository>()));
-    gh.lazySingleton<_i563.INotifikasiRepository>(
-        () => _i535.NotifikasiRepositoryImpl(
-              gh<_i710.INotifikasiRemoteDataSource>(),
-              gh<_i147.NotifikasiSinyal>(),
-            ));
+    gh.factory<_i333.NotifikasiCubit>(
+        () => _i333.NotifikasiCubit(gh<_i813.NotifikasiUseCase>()));
+    gh.factory<_i572.AksiCubit>(() => _i572.AksiCubit(
+          gh<_i578.PengirimanUseCase>(),
+          gh<_i778.IGeoLocationService>(),
+          gh<_i164.IPermissionService>(),
+          gh<_i798.PengirimanFoto>(),
+        ));
+    gh.lazySingleton<_i930.VaQrisUseCase>(
+        () => _i930.VaQrisUseCase(gh<_i956.IVaQrisRepository>()));
+    gh.factory<_i1039.AbsenCubit>(() => _i1039.AbsenCubit(
+          gh<_i248.AbsensiUseCase>(),
+          gh<_i778.IGeoLocationService>(),
+          gh<_i164.IPermissionService>(),
+        ));
+    gh.lazySingleton<_i826.AuthUseCase>(
+        () => _i826.AuthUseCase(gh<_i660.IAuthRepository>()));
+    gh.lazySingleton<_i899.IBalaiRwRepository>(() =>
+        _i518.BalaiRwRepositoryImpl(gh<_i348.IBalaiRwRemoteDataSource>()));
+    gh.factory<_i410.TaxObjectSearchCubit>(
+        () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
+    gh.factory<_i197.VaQrisCubit>(
+        () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
+    gh.lazySingleton<_i801.MasterDataCubit>(
+        () => _i801.MasterDataCubit(gh<_i60.MasterDataUseCase>()));
+    gh.lazySingleton<_i839.ProfileUseCase>(
+        () => _i839.ProfileUseCase(gh<_i640.IProfileRepository>()));
+    gh.factory<_i475.HistoryCubit>(
+        () => _i475.HistoryCubit(gh<_i1023.HistoryUseCase>()));
+    gh.lazySingleton<_i224.AuthCubit>(
+        () => _i224.AuthCubit(authUseCase: gh<_i826.AuthUseCase>()));
+    gh.factory<_i176.NotifikasiBadgeCubit>(
+        () => _i176.NotifikasiBadgeCubit(gh<_i813.NotifikasiUseCase>()));
+    gh.factory<_i406.UbahKontakCubit>(
+        () => _i406.UbahKontakCubit(gh<_i839.ProfileUseCase>()));
     gh.factory<_i900.HomeCubit>(() => _i900.HomeCubit(
           updateService: gh<_i919.UpdateService>(),
           permissionService: gh<_i164.IPermissionService>(),
           authUseCase: gh<_i826.AuthUseCase>(),
         ));
-    gh.factory<_i410.TaxObjectSearchCubit>(
-        () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
-    gh.factory<_i197.VaQrisCubit>(
-        () => _i197.VaQrisCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i662.AbsensiCubit>(
         () => _i662.AbsensiCubit(gh<_i248.AbsensiUseCase>()));
     gh.factory<_i233.LaporanCubit>(
         () => _i233.LaporanCubit(gh<_i248.AbsensiUseCase>()));
-    gh.lazySingleton<_i11.SurveyPermohonanUseCase>(() =>
-        _i11.SurveyPermohonanUseCase(gh<_i114.ISurveyPermohonanRepository>()));
-    gh.lazySingleton<_i224.AuthCubit>(
-        () => _i224.AuthCubit(authUseCase: gh<_i826.AuthUseCase>()));
-    gh.lazySingleton<_i578.PengirimanUseCase>(
-        () => _i578.PengirimanUseCase(gh<_i969.IPengirimanRepository>()));
-    gh.factory<_i720.BalaiRwFormCubit>(
-        () => _i720.BalaiRwFormCubit(gh<_i266.BalaiRwUseCase>()));
-    gh.factory<_i149.BalaiRwHubCubit>(
-        () => _i149.BalaiRwHubCubit(gh<_i266.BalaiRwUseCase>()));
-    gh.factory<_i405.LupaPasswordCubit>(
-        () => _i405.LupaPasswordCubit(gh<_i826.AuthUseCase>()));
-    gh.factory<_i216.ResetPasswordCubit>(
-        () => _i216.ResetPasswordCubit(gh<_i826.AuthUseCase>()));
-    gh.factory<_i1039.AbsenCubit>(() => _i1039.AbsenCubit(
-          gh<_i248.AbsensiUseCase>(),
-          gh<_i869.GeoLocationService>(),
-        ));
-    gh.factory<_i475.HistoryCubit>(
-        () => _i475.HistoryCubit(gh<_i1023.HistoryUseCase>()));
-    gh.lazySingleton<_i813.NotifikasiUseCase>(
-        () => _i813.NotifikasiUseCase(gh<_i563.INotifikasiRepository>()));
-    gh.factory<_i176.NotifikasiBadgeCubit>(
-        () => _i176.NotifikasiBadgeCubit(gh<_i813.NotifikasiUseCase>()));
-    gh.lazySingleton<_i870.NotifikasiService>(() => _i870.NotifikasiService(
-          gh<_i147.NotifikasiSinyal>(),
-          gh<_i813.NotifikasiUseCase>(),
-        ));
-    gh.lazySingleton<_i627.AntreanPengirimanCubit>(
-        () => _i627.AntreanPengirimanCubit(
-              gh<_i578.PengirimanUseCase>(),
-              gh<_i224.AuthCubit>(),
-              gh<_i11.NetworkCubit>(),
-            ));
-    gh.factory<_i572.AksiCubit>(() => _i572.AksiCubit(
-          gh<_i578.PengirimanUseCase>(),
-          gh<_i869.GeoLocationService>(),
-          gh<_i798.PengirimanFoto>(),
-        ));
     gh.factory<_i379.DaftarTugasCubit>(
         () => _i379.DaftarTugasCubit(gh<_i578.PengirimanUseCase>()));
     gh.factory<_i374.DetailBerkasCubit>(
@@ -397,8 +389,36 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i554.LacakCubit(gh<_i578.PengirimanUseCase>()));
     gh.factory<_i493.PantauCubit>(
         () => _i493.PantauCubit(gh<_i578.PengirimanUseCase>()));
-    gh.factory<_i333.NotifikasiCubit>(
-        () => _i333.NotifikasiCubit(gh<_i813.NotifikasiUseCase>()));
+    gh.lazySingleton<_i266.BalaiRwUseCase>(
+        () => _i266.BalaiRwUseCase(gh<_i899.IBalaiRwRepository>()));
+    gh.factory<_i405.LupaPasswordCubit>(
+        () => _i405.LupaPasswordCubit(gh<_i826.AuthUseCase>()));
+    gh.factory<_i216.ResetPasswordCubit>(
+        () => _i216.ResetPasswordCubit(gh<_i826.AuthUseCase>()));
+    gh.factoryParam<_i188.SurveyInfoCubit, String, dynamic>((
+      nomorPelayanan,
+      _,
+    ) =>
+        _i188.SurveyInfoCubit(
+          nomorPelayanan: nomorPelayanan,
+          geolocationService: gh<_i778.IGeoLocationService>(),
+          masterDataUseCase: gh<_i60.MasterDataUseCase>(),
+          authUseCase: gh<_i826.AuthUseCase>(),
+        ));
+    gh.lazySingleton<_i627.AntreanPengirimanCubit>(
+        () => _i627.AntreanPengirimanCubit(
+              gh<_i578.PengirimanUseCase>(),
+              gh<_i224.AuthCubit>(),
+              gh<_i11.NetworkCubit>(),
+            ));
+    gh.factory<_i239.ProfileCubit>(() => _i239.ProfileCubit(
+          gh<_i826.AuthUseCase>(),
+          gh<_i839.ProfileUseCase>(),
+        ));
+    gh.factory<_i720.BalaiRwFormCubit>(
+        () => _i720.BalaiRwFormCubit(gh<_i266.BalaiRwUseCase>()));
+    gh.factory<_i149.BalaiRwHubCubit>(
+        () => _i149.BalaiRwHubCubit(gh<_i266.BalaiRwUseCase>()));
     return this;
   }
 }

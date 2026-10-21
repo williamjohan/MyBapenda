@@ -1,8 +1,8 @@
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/network/api_endpoints.dart';
-import 'package:bapendacore/core/network/base_api/base_api_response_model.dart';
-import 'package:bapendacore/data/models/auth/auth_model.dart';
-import 'package:bapendacore/data/models/users/user_model.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/network/api_endpoints.dart';
+import 'package:mybapenda/core/network/base_api/base_api_response_model.dart';
+import 'package:mybapenda/data/models/auth/auth_model.dart';
+import 'package:mybapenda/data/models/users/user_model.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 

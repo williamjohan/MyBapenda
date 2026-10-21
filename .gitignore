@@ -52,7 +52,9 @@ app.*.map.json
 
 #Secret files
 /android/app/upload-keystore.jks
+/android/app/dikominfo.jks
 key.properties
+playstore.properties
 
 
 # Firebase

@@ -10,7 +10,7 @@ import 'theme_mode_cubit.dart';
 /// [ThemeModeCubit]). Contoh pemakaian di modul baru:
 ///
 /// ```dart
-/// import 'package:bapendacore/core/theme/theme_kit.dart';
+/// import 'package:mybapenda/core/theme/theme_kit.dart';
 ///
 /// // 1. Bungkus halaman di route agar ikut light/dark:
 /// builder: (_, __) => const AdaptiveThemeScope(child: MyPage()),

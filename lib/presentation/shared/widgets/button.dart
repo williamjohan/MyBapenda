@@ -1,6 +1,6 @@
 // lib/presentation/shared/widgets/bapenda_button.dart
 import 'package:flutter/material.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
 
 enum BapendaButtonVariant { primary, outlined }
 

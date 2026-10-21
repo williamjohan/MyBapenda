@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
 import 'history_format.dart';
 

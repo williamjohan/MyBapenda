@@ -1,19 +1,19 @@
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/domain/entities/auth/auth_entity.dart';
-import 'package:bapendacore/domain/entities/auth/lupa_password_metode.dart';
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
-import 'package:bapendacore/domain/repositories/auth/auth_repository.dart';
-import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
-import 'package:bapendacore/presentation/features/auth/cubit/auth_cubit.dart';
-import 'package:bapendacore/presentation/features/auth/cubit/auth_state.dart';
-import 'package:bapendacore/presentation/features/auth/cubit/lupa_password_cubit.dart';
-import 'package:bapendacore/presentation/features/auth/cubit/lupa_password_state.dart';
-import 'package:bapendacore/presentation/features/auth/cubit/reset_password_cubit.dart';
-import 'package:bapendacore/presentation/features/auth/cubit/reset_password_state.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/domain/entities/auth/auth_entity.dart';
+import 'package:mybapenda/domain/entities/auth/lupa_password_metode.dart';
+import 'package:mybapenda/domain/entities/users/user_entity.dart';
+import 'package:mybapenda/domain/repositories/auth/auth_repository.dart';
+import 'package:mybapenda/domain/usecases/auth/auth_usecase.dart';
+import 'package:mybapenda/presentation/features/auth/cubit/auth_cubit.dart';
+import 'package:mybapenda/presentation/features/auth/cubit/auth_state.dart';
+import 'package:mybapenda/presentation/features/auth/cubit/lupa_password_cubit.dart';
+import 'package:mybapenda/presentation/features/auth/cubit/lupa_password_state.dart';
+import 'package:mybapenda/presentation/features/auth/cubit/reset_password_cubit.dart';
+import 'package:mybapenda/presentation/features/auth/cubit/reset_password_state.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FakeRepository implements AuthRepository {
+class _FakeRepository implements IAuthRepository {
   Either<Failure, bool> lupaResult = const Right(true);
   Either<Failure, bool> resetResult = const Right(true);
   bool loginIsReset = false;

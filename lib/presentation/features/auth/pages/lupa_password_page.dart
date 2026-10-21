@@ -1,5 +1,5 @@
 // lib/presentation/features/auth/pages/lupa_password_page.dart
-import 'package:bapendacore/core/constants/app_colors_new.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

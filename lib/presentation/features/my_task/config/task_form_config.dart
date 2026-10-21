@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/my_task/task_entity.dart';
-import 'package:bapendacore/domain/entities/my_task/task_type.dart';
+import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_type.dart';
 
 import 'task_extra_field.dart';
 import 'task_photo_slot.dart';

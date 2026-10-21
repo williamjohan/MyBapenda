@@ -1,16 +1,16 @@
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/domain/entities/auth/auth_entity.dart';
-import 'package:bapendacore/domain/entities/auth/lupa_password_metode.dart';
-import 'package:bapendacore/domain/entities/profile/foto_profil_entity.dart';
-import 'package:bapendacore/domain/entities/profile/jenis_kontak.dart';
-import 'package:bapendacore/domain/entities/profile/kontak_profil_entity.dart';
-import 'package:bapendacore/domain/entities/users/user_entity.dart';
-import 'package:bapendacore/domain/repositories/auth/auth_repository.dart';
-import 'package:bapendacore/domain/repositories/profile/i_profile_repository.dart';
-import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
-import 'package:bapendacore/domain/usecases/profile/profile_usecase.dart';
-import 'package:bapendacore/presentation/features/profile/cubit/profile_cubit.dart';
-import 'package:bapendacore/presentation/features/profile/cubit/profile_state.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/domain/entities/auth/auth_entity.dart';
+import 'package:mybapenda/domain/entities/auth/lupa_password_metode.dart';
+import 'package:mybapenda/domain/entities/profile/foto_profil_entity.dart';
+import 'package:mybapenda/domain/entities/profile/jenis_kontak.dart';
+import 'package:mybapenda/domain/entities/profile/kontak_profil_entity.dart';
+import 'package:mybapenda/domain/entities/users/user_entity.dart';
+import 'package:mybapenda/domain/repositories/auth/auth_repository.dart';
+import 'package:mybapenda/domain/repositories/profile/i_profile_repository.dart';
+import 'package:mybapenda/domain/usecases/auth/auth_usecase.dart';
+import 'package:mybapenda/domain/usecases/profile/profile_usecase.dart';
+import 'package:mybapenda/presentation/features/profile/cubit/profile_cubit.dart';
+import 'package:mybapenda/presentation/features/profile/cubit/profile_state.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,7 +28,7 @@ UserEntity _user({String jabatan = 'IT BAPENDA'}) => UserEntity(
   golongan: 'NON PNS',
 );
 
-class _FakeRepository implements AuthRepository {
+class _FakeRepository implements IAuthRepository {
   UserEntity? cached;
   Either<Failure, UserEntity> remote = Right(_user(jabatan: 'JABATAN BARU'));
   int remoteCalls = 0;

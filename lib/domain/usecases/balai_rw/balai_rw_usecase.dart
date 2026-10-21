@@ -1,5 +1,5 @@
-import 'package:bapendacore/domain/entities/balai_rw/laporan_payload_entity.dart';
-import 'package:bapendacore/domain/entities/balai_rw/laporan_pegawai_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/laporan_payload_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/laporan_pegawai_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/errors/failure.dart';

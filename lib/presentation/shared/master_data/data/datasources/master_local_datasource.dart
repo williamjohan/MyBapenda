@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:bapendacore/presentation/shared/master_data/data/models/master_option_model.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:mybapenda/presentation/shared/master_data/data/models/master_option_model.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_option_type.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,5 +1,5 @@
 
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_history_usecase.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_history_usecase.dart';
 import 'package:flutter/material.dart' show DateTimeRange;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'survey_history_list_state.dart';

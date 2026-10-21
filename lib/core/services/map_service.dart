@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:bapendacore/core/utils/app_logger.dart';
+import 'package:mybapenda/core/utils/app_logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 @lazySingleton

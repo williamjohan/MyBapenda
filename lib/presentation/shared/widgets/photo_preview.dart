@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/shared/widgets/bapenda_image.dart';
+import 'package:mybapenda/presentation/shared/widgets/bapenda_image.dart';
 import 'package:flutter/material.dart';
 
 class PhotoPreview extends StatelessWidget {

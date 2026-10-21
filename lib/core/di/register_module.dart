@@ -35,7 +35,6 @@ abstract class RegisterModule {
     final dio = Dio(
       BaseOptions(
         baseUrl: EnvConfig.baseUrl, 
-        // 🚀 REFAKTOR: Timeout dipangkas menjadi taktis (mencegah loading muter abadi)
         connectTimeout: const Duration(seconds: 25),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 45),
