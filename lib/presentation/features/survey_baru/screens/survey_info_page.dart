@@ -462,14 +462,11 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
                                 BapendaTextField(
                                   label: 'Alamat',
                                   controller: _alamatCtrl,
-                                  readOnly: true,
                                   maxLines: 2,
                                   hint: '-',
                                 ),
                                 _gap,
                                 BtSelectField<String>(
-                                  // Key ikut jumlah item & nilai supaya field
-                                  // ter-refresh saat selesai dimuat / autofill.
                                   key: ValueKey(
                                     'kec-${kecItems.length}-$kecId',
                                   ),

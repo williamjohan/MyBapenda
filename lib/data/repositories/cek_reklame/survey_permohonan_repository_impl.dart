@@ -15,7 +15,6 @@ import '../../../domain/entities/cek_reklames/survey_permohonan_baru/survey_perm
 import '../../../domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart';
 import '../../datasources/cek_reklame/survey_remote_datasource.dart';
 
-
 @LazySingleton(as: ISurveyPermohonanRepository)
 class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   final ISurveyPermohonanRemoteDataSource _remoteDataSource;
@@ -26,7 +25,8 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   // 1. GET LIST HEADER (Map List<Model> -> List<Entity>)
   // ===========================================================================
   @override
-  Future<Either<Failure, List<SurveyPermohonanEntity>>> getSurveyPermohonanHeader() {
+  Future<Either<Failure, List<SurveyPermohonanEntity>>>
+  getSurveyPermohonanHeader() {
     return executeSafeApiCall<List<SurveyPermohonanEntity>>(() async {
       final models = await _remoteDataSource.getSurveyPermohonanHeader();
       return models.map((model) => model.toEntity()).toList();
@@ -37,7 +37,9 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   // 2. GET DETAIL SURVEY (Map Model -> Entity)
   // ===========================================================================
   @override
-  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({required String key}) {
+  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({
+    required String key,
+  }) {
     return executeSafeApiCall<SurveyDetailEntity>(() async {
       final model = await _remoteDataSource.getSurveyDetail(key: key);
       return model.toEntity();
@@ -57,7 +59,7 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
     });
   }
 
- // ===========================================================================
+  // ===========================================================================
   // 4. CARI NOR
   // ===========================================================================
   @override
@@ -65,6 +67,17 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
     return executeSafeApiCall<List<CariNorEntity>>(() async {
       final models = await _remoteDataSource.cariNor(nor: nor);
       return models.map((model) => model.toEntity()).toList();
+    });
+  }
+
+  // ===========================================================================
+  // 5. GET SUMMARY
+  // ===========================================================================
+  @override
+  Future<Either<Failure, SurveySummaryEntity>> getSurveySummary() {
+    return executeSafeApiCall<SurveySummaryEntity>(() async {
+      final model = await _remoteDataSource.getSurveySummary();
+      return model.toEntity();
     });
   }
 }

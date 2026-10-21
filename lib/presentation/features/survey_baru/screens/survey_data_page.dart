@@ -332,33 +332,47 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                             onChanged: cubit.setLokasi,
                           ),
                           _gap,
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: BapendaTextField(
-                                  label: 'Panjang (P)',
-                                  suffixText: 'm',
-                                  controller: _pCtrl,
-                                  keyboardType: TextInputType.number,
+                              const Text(
+                                'Ukuran Reklame',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1F2933),
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: BapendaTextField(
-                                  label: 'Lebar (L)',
-                                  suffixText: 'm',
-                                  controller: _lCtrl,
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: BapendaTextField(
-                                  label: 'Tinggi (T)',
-                                  suffixText: 'm',
-                                  controller: _tCtrl,
-                                  keyboardType: TextInputType.number,
-                                ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: BapendaTextField(
+                                      label: 'Panjang (P)',
+                                      suffixText: 'm',
+                                      controller: _pCtrl,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: BapendaTextField(
+                                      label: 'Lebar (L)',
+                                      suffixText: 'm',
+                                      controller: _lCtrl,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: BapendaTextField(
+                                      label: 'Tinggi (T)',
+                                      suffixText: 'm',
+                                      controller: _tCtrl,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

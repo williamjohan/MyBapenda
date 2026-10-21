@@ -58,7 +58,7 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
 
   @override
   void dispose() {
-    SurveyPinIcons.clear(); // [UBAH] lepas cache gambar pin
+    SurveyPinIcons.clear(); 
     super.dispose();
   }
 
@@ -117,7 +117,7 @@ class _SurveyMapCardState extends State<SurveyMapCard> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   clipBehavior:
-                      Clip.hardEdge, // [UBAH] lebih ringan dari antiAlias
+                      Clip.hardEdge, 
                   child: SizedBox(
                     width: double.infinity,
                     height: widget.mapHeight,

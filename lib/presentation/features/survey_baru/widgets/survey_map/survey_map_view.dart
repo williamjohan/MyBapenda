@@ -1,10 +1,3 @@
-// [UBAH TOTAL] flutter_map (OpenStreetMap)  ->  Google Maps.
-//
-// Yang hilang dari versi lama:
-//  - _Pin, _PinPainter  -> diganti gambar pin di survey_pin_icons.dart
-//  - _UserDot           -> diganti titik biru bawaan Google (tanpa animasi,
-//                          jadi tidak ada animasi 60 fps yang memberatkan HP)
-//  - lingkaran akurasi & atribusi OSM -> sudah ditangani Google
 import 'dart:math' as math;
 
 import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_map/survey_map_state.dart';
@@ -30,17 +23,8 @@ class SurveyMapView extends StatefulWidget {
   final bool showRoute;
   final VoidCallback onFit;
   final VoidCallback onLocate;
-
-  /// Jarak dari atas untuk chip & tombol (layar penuh punya top bar).
   final double topInset;
-
-  /// [BARU] Bagian peta yang tertutup sesuatu (top bar / sheet). Kamera dan
-  /// logo Google akan menghindarinya. Pengganti `padding` di CameraFit lama.
   final EdgeInsets mapPadding;
-
-  /// [BARU] false = peta tidak bisa digeser/di-zoom (ketuk pin tetap bisa).
-  /// Dipakai di kartu mini supaya scroll halaman tidak "tersangkut" di peta
-  /// dan peta tidak perlu memproses gestur.
   final bool interactive;
 
   const SurveyMapView({
@@ -62,8 +46,9 @@ class SurveyMapView extends StatefulWidget {
 }
 
 class _SurveyMapViewState extends State<SurveyMapView> {
-  // Pin kecil: 2x sudah tajam. Lebih dari itu hanya memboroskan RAM.
   double _dpr = 2;
+
+  final Map<String, BitmapDescriptor> _lastIcons = {};
 
   @override
   void didChangeDependencies() {
@@ -97,10 +82,8 @@ class _SurveyMapViewState extends State<SurveyMapView> {
     );
   }
 
-  /// Gambar pin yang belum ada dibuat satu per satu (bukan serentak) supaya
-  /// lonjakan memori kecil. Pin yang sudah pernah dibuat langsung dipakai.
   Future<void> _prepareIcons() async {
-    if (!TickerMode.of(context)) return; // peta sedang dilepas
+    if (!TickerMode.of(context)) return;
     final plan = widget.data.plan;
     final missing = [
       for (final p in widget.data.points)
@@ -108,10 +91,10 @@ class _SurveyMapViewState extends State<SurveyMapView> {
     ];
     if (missing.isEmpty) return;
 
+    missing.sort((a, b) => (b.selected ? 1 : 0) - (a.selected ? 1 : 0));
     var sinceRefresh = 0;
     for (final spec in missing) {
       await SurveyPinIcons.ensure(spec, _dpr);
-      // Tampilkan bertahap tiap 10 pin supaya tidak menunggu semuanya.
       if (++sinceRefresh == 10 && mounted) {
         sinceRefresh = 0;
         setState(() {});
@@ -124,17 +107,18 @@ class _SurveyMapViewState extends State<SurveyMapView> {
     final markers = <Marker>{};
     for (final p in widget.data.points) {
       final spec = _specOf(p, plan);
-      final icon = SurveyPinIcons.peek(spec);
-      if (icon == null) continue; // gambar pin masih dibuat
+      final icon = SurveyPinIcons.peek(spec) ?? _lastIcons[p.id];
+      if (icon == null) continue;
+      _lastIcons[p.id] = icon;
 
       markers.add(
         Marker(
           markerId: MarkerId(p.id),
           position: p.position,
           icon: icon,
-          anchor: const Offset(0.5, 1), // ujung bawah pin = koordinat
-          consumeTapEvents: true, // tanpa gerak kamera / info window bawaan
-          zIndexInt: spec.selected ? 3 : 1, // pin terpilih paling atas
+          anchor: const Offset(0.5, 1),
+          consumeTapEvents: true,
+          zIndexInt: spec.selected ? 3 : 1,
           onTap: () => widget.onSelect(p.id),
         ),
       );

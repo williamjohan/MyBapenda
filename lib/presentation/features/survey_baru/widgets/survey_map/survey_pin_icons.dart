@@ -1,8 +1,3 @@
-// [BARU] Pin bernomor untuk Google Maps.
-//
-// Google Maps tidak bisa memakai widget Flutter sebagai marker, jadi pin
-// digambar sekali jadi gambar kecil (PNG) lalu dipakai ulang (di-cache).
-// Kalau pin yang sama (nomor + warna) dibutuhkan lagi, tidak digambar ulang.
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -32,10 +27,14 @@ class SurveyPinIcons {
     final key = _keyOf(spec);
     if (_ready.containsKey(key)) return;
 
-    final pending = _loading[key] ??= _render(spec, dpr)
-        .then((icon) => _ready[key] = icon)
-        .whenComplete(() => _loading.remove(key));
-    await pending;
+    try {
+      final pending = _loading[key] ??= _render(spec, dpr)
+          .then((icon) => _ready[key] = icon)
+          .whenComplete(() => _loading.remove(key));
+      await pending;
+    } catch (e) {
+      debugPrint('Gagal menggambar pin "${spec.label}": $e');
+    }
   }
 
   /// Kosongkan cache (dipanggil saat halaman daftar ditutup).
