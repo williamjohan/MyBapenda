@@ -8,6 +8,7 @@ import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/m
 import 'package:bapendacore/presentation/shared/widgets/bapenda_image.dart';
 import 'package:bapendacore/presentation/shared/widgets/button.dart';
 import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
+import 'package:bapendacore/presentation/shared/widgets/mb_dialog.dart';
 import 'package:bapendacore/presentation/shared/widgets/photo_preview.dart';
 import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
@@ -51,57 +52,61 @@ class _SurveyReviewPageState extends State<SurveyReviewPage> {
 
   Future<void> _submit(BuildContext context) async {
     if (!_agreementAccepted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Centang persetujuan pernyataan petugas sebelum mengirim.',
-          ),
-        ),
+      await BapendaDialog.showWarning(
+        context,
+        title: 'Persetujuan Belum Dicentang',
+        message: 'Centang pernyataan petugas survey sebelum mengirim hasil.',
+        primaryLabel: 'Mengerti',
       );
       return;
     }
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Kirim hasil survey?'),
-        content: const Text(
+
+    final ok = await BapendaDialog.showConfirm(
+      context,
+      title: 'Kirim hasil survey?',
+      message:
           'Pastikan foto, titik reklame, dan data semua sisi sudah benar. '
           'Bila semua isian lengkap, survey langsung dikirim ke penilaian; '
           'bila belum, disimpan sebagai draft.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cek Lagi'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Kirim'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Kirim',
+      cancelLabel: 'Cek Lagi',
+      icon: Icons.send_rounded,
     );
-    if (ok != true || !context.mounted) return;
+    if (!ok || !context.mounted) return;
 
-    final messenger = ScaffoldMessenger.of(context);
-    final res = await context.read<SurveySubmitCubit>().submit(
-      info: widget.info,
-      sisiList: widget.sisiList,
-      results: widget.results,
+    await _kirim(context);
+  }
+
+  Future<void> _kirim(BuildContext context) async {
+    final cubit = context.read<SurveySubmitCubit>();
+
+    final res = await BapendaDialog.runWithLoading(
+      context,
+      (_) => cubit.submit(
+        info: widget.info,
+        sisiList: widget.sisiList,
+        results: widget.results,
+      ),
+      title: 'Mengirim Hasil Survey',
+      message: 'Mohon tunggu, jangan tutup aplikasi.',
     );
     if (!context.mounted) return;
 
     final hasil = res.hasil;
     if (hasil == null) {
-      if (res.error != null) {
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(res.error!)));
+      final error = res.error;
+      if (error != null) {
+        final ulang = await BapendaDialog.showError(
+          context,
+          title: 'Gagal Mengirim Survey',
+          message: error,
+          retryLabel: 'Coba Lagi',
+        );
+        if (ulang && context.mounted) await _kirim(context);
       }
       return;
     }
 
-    // Submit -> ke dashboard; Draft -> tetap di sini dengan daftar kekurangan.
     await tampilkanHasilSimpanSurvey(context, hasil);
   }
 
@@ -595,51 +600,55 @@ class _InfoReviewCardState extends State<_InfoReviewCard> {
     );
     final formKey = GlobalKey<FormState>();
 
-    final alamatBaru = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Ubah Alamat'),
-        content: Form(
-          key: formKey,
-          child: TextFormField(
-            controller: controller,
-            autofocus: true,
-            minLines: 2,
-            maxLines: 3,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Alamat',
-              hintText: 'Masukkan alamat lokasi survei',
-              alignLabelWithHint: true,
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) => value == null || value.trim().isEmpty
-                ? 'Alamat tidak boleh kosong'
-                : null,
+    final alamatBaru = await BapendaDialog.show<String>(
+      context,
+      tone: BapendaDialogTone.info,
+      icon: Icons.edit_location_alt_outlined,
+      title: 'Ubah Alamat',
+      message: 'Alamat ini ikut terkirim bersama hasil survey.',
+      barrierDismissible: false, 
+      content: Form(
+        key: formKey,
+        child: TextFormField(
+          controller: controller,
+          autofocus: true,
+          minLines: 2,
+          maxLines: 3,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(
+            labelText: 'Alamat',
+            hintText: 'Masukkan alamat lokasi survei',
+            alignLabelWithHint: true,
+            border: OutlineInputBorder(),
           ),
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Alamat tidak boleh kosong'
+              : null,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (formKey.currentState?.validate() ?? false) {
-                Navigator.of(dialogContext).pop(controller.text.trim());
-              }
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
       ),
+      actions: [
+        BapendaDialogAction<String>.primary(
+          label: 'Simpan',
+          icon: Icons.check_rounded,
+          closeOnPressed: false, 
+          onPressed: () {
+            if (formKey.currentState?.validate() ?? false) {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pop(controller.text.trim());
+            }
+          },
+        ),
+        const BapendaDialogAction<String>.secondary(label: 'Batal'),
+      ],
     );
 
-    controller.dispose();
+    Future.delayed(const Duration(milliseconds: 350), controller.dispose);
+
     if (alamatBaru == null || !mounted) return;
 
     setState(() {
-      // Map yang sama dipakai saat submit, jadi alamat hasil edit ikut terkirim.
       widget.info['alamat'] = alamatBaru;
     });
   }

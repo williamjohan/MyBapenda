@@ -1,137 +1,449 @@
+
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:bapendacore/core/constants/app_colors_new.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-enum BapendaDialogTone { brand, success, warning, danger, info }
+/// Nuansa dialog: menentukan warna dan ikon bawaan.
+enum BapendaDialogTone { success, error, warning, info, confirm }
 
-/// Baris ringkasan di dalam dialog.
-typedef BapendaDialogDetail = ({String label, String value});
+/// Gaya tombol: utama (terisi), sekunder (garis tepi), atau teks saja.
+enum BapendaDialogActionStyle { primary, secondary, text }
 
-/// Hasil aksi async. Cocok dengan return SurveySubmitCubit.submit.
-typedef BapendaSubmitResult = ({bool ok, String? error});
+/// Susunan tombol. [auto]: dua tombol pendek berdampingan, selebihnya
+/// bertumpuk.
+enum BapendaDialogLayout { auto, vertical, horizontal }
+
+/// Satu tombol di dialog.
+class BapendaDialogAction<T> {
+  /// Teks tombol.
+  final String label;
+
+  /// Nilai yang dikembalikan oleh `show()` ketika tombol ini ditekan.
+  final T? result;
+
+  final IconData? icon;
+  final BapendaDialogActionStyle style;
+
+  /// Dijalankan saat ditekan. Boleh async: tombol berputar selama berjalan.
+  /// Kalau melempar error, dialog tetap terbuka dan menampilkan pesan.
+  final FutureOr<void> Function()? onPressed;
+
+  /// false = dialog tidak ditutup setelah [onPressed] selesai.
+  final bool closeOnPressed;
+
+  const BapendaDialogAction({
+    required this.label,
+    this.result,
+    this.icon,
+    this.style = BapendaDialogActionStyle.secondary,
+    this.onPressed,
+    this.closeOnPressed = true,
+  });
+
+  const BapendaDialogAction.primary({
+    required this.label,
+    this.result,
+    this.icon,
+    this.onPressed,
+    this.closeOnPressed = true,
+  }) : style = BapendaDialogActionStyle.primary;
+
+  const BapendaDialogAction.secondary({
+    required this.label,
+    this.result,
+    this.icon,
+    this.onPressed,
+    this.closeOnPressed = true,
+  }) : style = BapendaDialogActionStyle.secondary;
+
+  const BapendaDialogAction.text({
+    required this.label,
+    this.result,
+    this.icon,
+    this.onPressed,
+    this.closeOnPressed = true,
+  }) : style = BapendaDialogActionStyle.text;
+}
+
+/// Satu baris rincian (label di kiri, nilai di kanan).
+class BapendaDialogDetail {
+  final String label;
+  final String value;
+
+  /// true = nilai bisa diblok dan disalin (tekan lama).
+  final bool selectable;
+
+  const BapendaDialogDetail(this.label, this.value, {this.selectable = false});
+}
+
+/// Pengendali dialog loading dari [BapendaDialog.showLoading].
+class BapendaLoadingController {
+  BapendaLoadingController._(this._navigator);
+
+  final NavigatorState _navigator;
+  final ValueNotifier<_LoadingValue> _value = ValueNotifier(
+    const _LoadingValue(),
+  );
+  Route<void>? _route;
+  bool _closed = false;
+
+  bool get isClosed => _closed;
+
+  /// Ubah pesan dan/atau progres (0..1). Progres null = berputar tanpa angka.
+  void update({String? message, double? progress}) {
+    if (_closed) return;
+    final v = _value.value;
+    _value.value = _LoadingValue(
+      message: message ?? v.message,
+      progress: progress ?? v.progress,
+    );
+  }
+
+  /// Tutup dialog loading. Aman dipanggil berkali-kali.
+  void close() {
+    if (_closed) return;
+    _closed = true;
+    final route = _route;
+    if (route == null || !route.isActive) return;
+    if (route.isCurrent) {
+      _navigator.pop();
+    } else {
+      _navigator.removeRoute(route);
+    }
+  }
+}
+
+class _LoadingValue {
+  final String? message;
+  final double? progress;
+  const _LoadingValue({this.message, this.progress});
+}
+
+// =============================================================================
+// Pintu masuk
+// =============================================================================
 
 class BapendaDialog {
   BapendaDialog._();
 
-  /// Konfirmasi biasa. Return true kalau user menekan tombol konfirmasi.
-  static Future<bool> confirm(
+  // ---- Dialog bebas ----
+
+  /// Dialog serba bisa. Mengembalikan `result` tombol yang ditekan, atau null
+  /// bila ditutup tanpa menekan tombol (ketuk di luar / tombol kembali).
+  static Future<T?> show<T>(
+    BuildContext context, {
+    required BapendaDialogTone tone,
+    required String title,
+    required List<BapendaDialogAction<T>> actions,
+    String? message,
+    IconData? icon,
+    List<BapendaDialogDetail> details = const [],
+    Widget? content,
+    bool barrierDismissible = true,
+
+    /// Tutup otomatis setelah durasi ini (ada garis hitung mundur di atas).
+    Duration? autoCloseAfter,
+    bool haptic = true,
+    BapendaDialogLayout layout = BapendaDialogLayout.auto,
+  }) {
+    if (haptic) _haptic(tone);
+    final navigator = Navigator.of(context, rootNavigator: true);
+    return navigator.push<T>(
+      _route<T>(
+        dismissible: barrierDismissible,
+        builder: (_) => _DialogCard<T>(
+          tone: tone,
+          title: title,
+          message: message,
+          icon: icon,
+          details: details,
+          content: content,
+          actions: actions,
+          dismissible: barrierDismissible,
+          autoCloseAfter: autoCloseAfter,
+          layout: layout,
+        ),
+      ),
+    );
+  }
+
+  // ---- Jalan pintas ----
+
+  /// Berhasil. Return true bila tombol utama ditekan.
+  static Future<bool> showSuccess(
     BuildContext context, {
     required String title,
     String? message,
-    BapendaDialogTone tone = BapendaDialogTone.brand,
-    IconData? icon,
+    List<BapendaDialogDetail> details = const [],
+    Widget? content,
+    String primaryLabel = 'OK',
+    IconData? primaryIcon,
+    String? secondaryLabel,
+    Duration? autoCloseAfter,
+    bool barrierDismissible = true,
+  }) => _simple(
+    context,
+    tone: BapendaDialogTone.success,
+    title: title,
+    message: message,
+    details: details,
+    content: content,
+    primaryLabel: primaryLabel,
+    primaryIcon: primaryIcon,
+    secondaryLabel: secondaryLabel,
+    autoCloseAfter: autoCloseAfter,
+    barrierDismissible: barrierDismissible,
+  );
+
+  /// Peringatan. Return true bila tombol utama ditekan.
+  static Future<bool> showWarning(
+    BuildContext context, {
+    required String title,
+    String? message,
+    List<BapendaDialogDetail> details = const [],
+    Widget? content,
+    String primaryLabel = 'Mengerti',
+    IconData? primaryIcon,
+    String? secondaryLabel,
+    bool barrierDismissible = true,
+  }) => _simple(
+    context,
+    tone: BapendaDialogTone.warning,
+    title: title,
+    message: message,
+    details: details,
+    content: content,
+    primaryLabel: primaryLabel,
+    primaryIcon: primaryIcon,
+    secondaryLabel: secondaryLabel,
+    barrierDismissible: barrierDismissible,
+  );
+
+  /// Informasi. Return true bila tombol utama ditekan.
+  static Future<bool> showInfo(
+    BuildContext context, {
+    required String title,
+    String? message,
+    List<BapendaDialogDetail> details = const [],
+    Widget? content,
+    String primaryLabel = 'OK',
+    IconData? primaryIcon,
+    String? secondaryLabel,
+    bool barrierDismissible = true,
+  }) => _simple(
+    context,
+    tone: BapendaDialogTone.info,
+    title: title,
+    message: message,
+    details: details,
+    content: content,
+    primaryLabel: primaryLabel,
+    primaryIcon: primaryIcon,
+    secondaryLabel: secondaryLabel,
+    barrierDismissible: barrierDismissible,
+  );
+
+  /// Gagal. Isi [retryLabel] untuk menampilkan tombol coba lagi; return true
+  /// bila tombol itu ditekan.
+  static Future<bool> showError(
+    BuildContext context, {
+    required String title,
+    String? message,
+    List<BapendaDialogDetail> details = const [],
+    Widget? content,
+    String? retryLabel,
+    String closeLabel = 'Tutup',
+    bool barrierDismissible = true,
+  }) async {
+    final result = await show<bool>(
+      context,
+      tone: BapendaDialogTone.error,
+      title: title,
+      message: message,
+      details: details,
+      content: content,
+      barrierDismissible: barrierDismissible,
+      actions: [
+        if (retryLabel != null) ...[
+          BapendaDialogAction<bool>.primary(
+            label: retryLabel,
+            icon: Icons.refresh_rounded,
+            result: true,
+          ),
+          BapendaDialogAction<bool>.secondary(label: closeLabel, result: false),
+        ] else
+          BapendaDialogAction<bool>.primary(label: closeLabel, result: false),
+      ],
+    );
+    return result ?? false;
+  }
+
+  /// Konfirmasi. Return true bila dikonfirmasi.
+  ///
+  /// [destructive] = tindakan berbahaya (hapus dll): dialog dan tombol merah.
+  /// [onConfirm] = proses async yang dijalankan di dalam dialog.
+  static Future<bool> showConfirm(
+    BuildContext context, {
+    required String title,
+    String? message,
     String confirmLabel = 'Ya',
     String cancelLabel = 'Batal',
+    bool destructive = false,
+    IconData? icon,
     List<BapendaDialogDetail> details = const [],
     Widget? content,
-    bool dismissible = true,
+    Future<void> Function()? onConfirm,
+    bool barrierDismissible = true,
   }) async {
-    final r = await _show<bool>(
+    final result = await show<bool>(
       context,
-      _Config(
-        title: title,
-        message: message,
-        tone: tone,
-        icon: icon,
-        confirmLabel: confirmLabel,
-        cancelLabel: cancelLabel,
-        details: details,
-        content: content,
-      ),
-      dismissible: dismissible,
+      tone: destructive ? BapendaDialogTone.error : BapendaDialogTone.confirm,
+      title: title,
+      message: message,
+      icon:
+          icon ??
+          (destructive
+              ? Icons.delete_outline_rounded
+              : Icons.help_outline_rounded),
+      details: details,
+      content: content,
+      barrierDismissible: barrierDismissible,
+      actions: [
+        BapendaDialogAction<bool>.primary(
+          label: confirmLabel,
+          result: true,
+          onPressed: onConfirm,
+        ),
+        BapendaDialogAction<bool>.secondary(label: cancelLabel, result: false),
+      ],
     );
-    return r == true;
+    return result ?? false;
   }
 
-  /// Pemberitahuan satu tombol (sukses, gagal, info).
-  static Future<void> alert(
+  // ---- Loading ----
+
+  /// Tampilkan dialog loading. Tutup lewat `controller.close()`.
+  static BapendaLoadingController showLoading(
     BuildContext context, {
-    required String title,
+    String title = 'Mohon tunggu',
     String? message,
-    BapendaDialogTone tone = BapendaDialogTone.info,
-    IconData? icon,
-    String buttonLabel = 'Mengerti',
-  }) async {
-    await _show<bool>(
-      context,
-      _Config(
-        title: title,
-        message: message,
-        tone: tone,
-        icon: icon,
-        confirmLabel: buttonLabel,
-        cancelLabel: null,
-      ),
-      dismissible: true,
-    );
-  }
 
-  /// Konfirmasi + proses async di dalam dialog yang sama.
-  /// Return true kalau proses sukses dan user menutup dialog sukses.
-  static Future<bool> submit(
-    BuildContext context, {
-    required String title,
-    String? message,
-    required Future<BapendaSubmitResult> Function() onConfirm,
-    BapendaDialogTone tone = BapendaDialogTone.brand,
-    IconData? icon,
-    String confirmLabel = 'Kirim',
-    String cancelLabel = 'Cek Lagi',
-    List<BapendaDialogDetail> details = const [],
-    Widget? content,
-    String loadingTitle = 'Mengirim data...',
-    String loadingMessage = 'Mohon tunggu dan jangan tutup aplikasi.',
-    String successTitle = 'Berhasil',
-    String? successMessage,
-    String successLabel = 'Selesai',
-    String errorTitle = 'Gagal Mengirim',
-  }) async {
-    final r = await _show<bool>(
-      context,
-      _Config(
-        title: title,
-        message: message,
-        tone: tone,
-        icon: icon,
-        confirmLabel: confirmLabel,
-        cancelLabel: cancelLabel,
-        details: details,
-        content: content,
-        onConfirm: onConfirm,
-        loadingTitle: loadingTitle,
-        loadingMessage: loadingMessage,
-        successTitle: successTitle,
-        successMessage: successMessage,
-        successLabel: successLabel,
-        errorTitle: errorTitle,
-      ),
-      dismissible: false,
-    );
-    return r == true;
-  }
-
-  static Future<T?> _show<T>(
-    BuildContext context,
-    _Config cfg, {
-    required bool dismissible,
+    /// true = ada tombol Batal. [onCancel] dipanggil saat ditekan.
+    bool cancellable = false,
+    VoidCallback? onCancel,
   }) {
-    return showGeneralDialog<T>(
-      context: context,
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final controller = BapendaLoadingController._(navigator);
+    controller._value.value = _LoadingValue(message: message);
+
+    final route = _route<void>(
+      dismissible: false,
+      builder: (_) => _LoadingCard(
+        title: title,
+        controller: controller,
+        cancellable: cancellable,
+        onCancel: onCancel,
+      ),
+    );
+    controller._route = route;
+    navigator.push<void>(route).then((_) => controller._closed = true);
+    return controller;
+  }
+
+  /// Tampilkan loading selama [task] berjalan, lalu tutup otomatis (juga saat
+  /// error). Hasil atau error dari [task] diteruskan apa adanya.
+  static Future<T> runWithLoading<T>(
+    BuildContext context,
+    Future<T> Function(BapendaLoadingController loading) task, {
+    String title = 'Mohon tunggu',
+    String? message,
+  }) async {
+    final loading = showLoading(context, title: title, message: message);
+    try {
+      return await task(loading);
+    } finally {
+      loading.close();
+    }
+  }
+
+  // ---- Bagian dalam ----
+
+  static Future<bool> _simple(
+    BuildContext context, {
+    required BapendaDialogTone tone,
+    required String title,
+    required String primaryLabel,
+    String? message,
+    List<BapendaDialogDetail> details = const [],
+    Widget? content,
+    IconData? primaryIcon,
+    String? secondaryLabel,
+    Duration? autoCloseAfter,
+    bool barrierDismissible = true,
+  }) async {
+    final result = await show<bool>(
+      context,
+      tone: tone,
+      title: title,
+      message: message,
+      details: details,
+      content: content,
+      autoCloseAfter: autoCloseAfter,
+      barrierDismissible: barrierDismissible,
+      actions: [
+        BapendaDialogAction<bool>.primary(
+          label: primaryLabel,
+          icon: primaryIcon,
+          result: true,
+        ),
+        if (secondaryLabel != null)
+          BapendaDialogAction<bool>.secondary(
+            label: secondaryLabel,
+            result: false,
+          ),
+      ],
+    );
+    return result ?? false;
+  }
+
+  static void _haptic(BapendaDialogTone tone) {
+    switch (tone) {
+      case BapendaDialogTone.success:
+        HapticFeedback.lightImpact();
+      case BapendaDialogTone.error:
+      case BapendaDialogTone.warning:
+        HapticFeedback.mediumImpact();
+      case BapendaDialogTone.info:
+      case BapendaDialogTone.confirm:
+        break;
+    }
+  }
+
+  /// Rute dialog: memudar + membesar halus, aman untuk keyboard dan notch.
+  static RawDialogRoute<T> _route<T>({
+    required bool dismissible,
+    required WidgetBuilder builder,
+  }) {
+    return RawDialogRoute<T>(
       barrierDismissible: dismissible,
       barrierLabel: 'Tutup',
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      transitionDuration: const Duration(milliseconds: 220),
-      pageBuilder: (_, __, ___) => _DialogView(cfg: cfg),
-      transitionBuilder: (_, anim, __, child) {
-        final curved = CurvedAnimation(
-          parent: anim,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeIn,
-        );
+      barrierColor: AppThemeColors.blackPrimary.withValues(alpha: 0.6),
+      transitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (context, _, _) => AnimatedPadding(
+        duration: const Duration(milliseconds: 150),
+        padding: MediaQuery.viewInsetsOf(context),
+        child: SafeArea(child: Center(child: builder(context))),
+      ),
+      transitionBuilder: (context, animation, _, child) {
         return FadeTransition(
-          opacity: curved,
+          opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
           child: ScaleTransition(
-            scale: Tween<double>(begin: 0.92, end: 1).animate(curved),
+            scale: animation
+                .drive(CurveTween(curve: Curves.easeOutBack))
+                .drive(Tween<double>(begin: 0.88, end: 1)),
             child: child,
           ),
         );
@@ -140,448 +452,728 @@ class BapendaDialog {
   }
 }
 
-// ============================================================================
-// Internal
-// ============================================================================
+// =============================================================================
+// Warna & ikon per nuansa
+// =============================================================================
 
-class _Config {
-  final String title;
-  final String? message;
-  final BapendaDialogTone tone;
-  final IconData? icon;
-  final String confirmLabel;
-  final String? cancelLabel;
-  final List<BapendaDialogDetail> details;
-  final Widget? content;
-  final Future<BapendaSubmitResult> Function()? onConfirm;
-  final String loadingTitle;
-  final String loadingMessage;
-  final String successTitle;
-  final String? successMessage;
-  final String successLabel;
-  final String errorTitle;
-
-  const _Config({
-    required this.title,
-    required this.confirmLabel,
-    this.message,
-    this.tone = BapendaDialogTone.brand,
-    this.icon,
-    this.cancelLabel,
-    this.details = const [],
-    this.content,
-    this.onConfirm,
-    this.loadingTitle = '',
-    this.loadingMessage = '',
-    this.successTitle = '',
-    this.successMessage,
-    this.successLabel = 'Selesai',
-    this.errorTitle = 'Gagal',
-  });
+class _ToneStyle {
+  final Color color;
+  final Color soft;
+  final IconData icon;
+  const _ToneStyle(this.color, this.soft, this.icon);
 }
 
-typedef _ToneStyle = ({Color fg, Color bg, IconData icon});
-
-_ToneStyle _styleOf(BapendaDialogTone t) => switch (t) {
-  BapendaDialogTone.brand => (
-    fg: AppThemeColors.primary,
-    bg: AppThemeColors.primarySoft,
-    icon: Icons.help_outline_rounded,
+_ToneStyle _styleOf(BapendaDialogTone tone) => switch (tone) {
+  BapendaDialogTone.success => const _ToneStyle(
+    AppThemeColors.success,
+    AppThemeColors.successSoft,
+    Icons.check_rounded,
   ),
-  BapendaDialogTone.success => (
-    fg: AppThemeColors.success,
-    bg: AppThemeColors.successSoft,
-    icon: Icons.check_rounded,
+  BapendaDialogTone.error => const _ToneStyle(
+    AppThemeColors.danger,
+    AppThemeColors.dangerSoft,
+    Icons.priority_high_rounded,
   ),
-  BapendaDialogTone.warning => (
-    fg: AppThemeColors.warning,
-    bg: AppThemeColors.warningSoft,
-    icon: Icons.warning_amber_rounded,
+  // `warning` (kuning terang) terlalu pucat untuk ikon & tombol putih, jadi
+  // yang dipakai versi emas tuanya.
+  BapendaDialogTone.warning => const _ToneStyle(
+    AppThemeColors.gold,
+    AppThemeColors.warningSoft,
+    Icons.warning_amber_rounded,
   ),
-  BapendaDialogTone.danger => (
-    fg: AppThemeColors.danger,
-    bg: AppThemeColors.dangerSoft,
-    icon: Icons.delete_outline_rounded,
+  BapendaDialogTone.info => const _ToneStyle(
+    AppThemeColors.information,
+    AppThemeColors.informationSoft,
+    Icons.info_outline_rounded,
   ),
-  BapendaDialogTone.info => (
-    fg: AppThemeColors.information,
-    bg: AppThemeColors.informationSoft,
-    icon: Icons.info_outline_rounded,
+  BapendaDialogTone.confirm => const _ToneStyle(
+    AppThemeColors.primary,
+    AppThemeColors.primarySoft,
+    Icons.help_outline_rounded,
   ),
 };
 
-enum _Phase { ask, loading, success, error }
+const _ink = AppThemeColors.titleText;
+const _body = AppThemeColors.secondaryText;
+// Label kecil & tombol teks: tetap secondaryText supaya terbaca jelas
+// (tertiaryText terlalu pucat di ukuran 12).
+const _muted = AppThemeColors.secondaryText;
 
-class _DialogView extends StatefulWidget {
-  final _Config cfg;
-  const _DialogView({required this.cfg});
+// =============================================================================
+// Kartu dialog
+// =============================================================================
+
+class _DialogCard<T> extends StatefulWidget {
+  final BapendaDialogTone tone;
+  final String title;
+  final String? message;
+  final IconData? icon;
+  final List<BapendaDialogDetail> details;
+  final Widget? content;
+  final List<BapendaDialogAction<T>> actions;
+  final bool dismissible;
+  final Duration? autoCloseAfter;
+  final BapendaDialogLayout layout;
+
+  const _DialogCard({
+    required this.tone,
+    required this.title,
+    required this.message,
+    required this.icon,
+    required this.details,
+    required this.content,
+    required this.actions,
+    required this.dismissible,
+    required this.autoCloseAfter,
+    required this.layout,
+  });
 
   @override
-  State<_DialogView> createState() => _DialogViewState();
+  State<_DialogCard<T>> createState() => _DialogCardState<T>();
 }
 
-class _DialogViewState extends State<_DialogView> {
-  _Phase _phase = _Phase.ask;
+class _DialogCardState<T> extends State<_DialogCard<T>> {
+  /// Indeks tombol yang sedang menjalankan proses (null = tidak ada).
+  int? _busy;
   String? _error;
+  Timer? _timer;
+  bool _autoClosing = false;
 
-  Future<void> _run() async {
-    final run = widget.cfg.onConfirm;
-    if (run == null) {
-      Navigator.of(context).pop(true);
-      return;
+  @override
+  void initState() {
+    super.initState();
+    final after = widget.autoCloseAfter;
+    if (after != null) {
+      _autoClosing = true;
+      _timer = Timer(after, () {
+        if (mounted) Navigator.of(context).pop();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _handle(BapendaDialogAction<T> action, int index) async {
+    if (_busy != null) return;
+
+    // Pengguna sudah bertindak: batalkan tutup otomatis.
+    _timer?.cancel();
+    if (_autoClosing) setState(() => _autoClosing = false);
+
+    final task = action.onPressed;
+    if (task != null) {
+      setState(() {
+        _busy = index;
+        _error = null;
+      });
+      try {
+        await task();
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _busy = null;
+            _error = 'Terjadi kesalahan. Silakan coba lagi.';
+          });
+        }
+        return;
+      }
+      if (!mounted) return;
     }
 
-    setState(() => _phase = _Phase.loading);
-
-    BapendaSubmitResult res;
-    try {
-      res = await run();
-    } catch (_) {
-      res = (ok: false, error: null);
+    if (action.closeOnPressed) {
+      Navigator.of(context).pop(action.result);
+    } else {
+      setState(() => _busy = null);
     }
-    if (!mounted) return;
-
-    res.ok ? HapticFeedback.lightImpact() : HapticFeedback.heavyImpact();
-    setState(() {
-      _phase = res.ok ? _Phase.success : _Phase.error;
-      _error = res.error;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final c = widget.cfg;
+    final style = _styleOf(widget.tone);
+    final mq = MediaQuery.of(context);
+    final message = widget.message;
+    final content = widget.content;
 
-    final tone = switch (_phase) {
-      _Phase.ask => c.tone,
-      _Phase.loading => BapendaDialogTone.brand,
-      _Phase.success => BapendaDialogTone.success,
-      _Phase.error => BapendaDialogTone.danger,
+    return MediaQuery(
+      // Teks sistem yang sangat besar tidak boleh merusak dialog.
+      data: mq.copyWith(textScaler: mq.textScaler.clamp(maxScaleFactor: 1.25)),
+      child: PopScope(
+        canPop: widget.dismissible && _busy == null,
+        child: Semantics(
+          scopesRoute: true,
+          namesRoute: true,
+          explicitChildNodes: true,
+          label: widget.title,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: 380,
+                maxHeight: mq.size.height * 0.88,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: Material(
+                  color: AppThemeColors.defaultSurface,
+                  elevation: 14,
+                  shadowColor: Colors.black38,
+                  borderRadius: BorderRadius.circular(26),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_autoClosing)
+                        _AutoCloseBar(
+                          duration: widget.autoCloseAfter!,
+                          style: style,
+                        ),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 4),
+                          child: Column(
+                            children: [
+                              _IconBadge(
+                                tone: widget.tone,
+                                style: style,
+                                icon: widget.icon,
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                widget.title,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.25,
+                                  color: _ink,
+                                ),
+                              ),
+                              if (message != null) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  message,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    height: 1.5,
+                                    color: _body,
+                                  ),
+                                ),
+                              ],
+                              if (widget.details.isNotEmpty) ...[
+                                const SizedBox(height: 18),
+                                _DetailPanel(details: widget.details),
+                              ],
+                              if (content != null) ...[
+                                const SizedBox(height: 16),
+                                content,
+                              ],
+                              if (_error != null) ...[
+                                const SizedBox(height: 14),
+                                _InlineError(text: _error!),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
+                        child: _buildActions(style),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActions(_ToneStyle style) {
+    int rank(BapendaDialogAction<T> a) => switch (a.style) {
+      BapendaDialogActionStyle.primary => 0,
+      BapendaDialogActionStyle.secondary => 1,
+      BapendaDialogActionStyle.text => 2,
     };
-    final style = _styleOf(tone);
 
-    final icon = switch (_phase) {
-      _Phase.ask => c.icon ?? style.icon,
-      _Phase.loading => Icons.cloud_upload_rounded,
-      _Phase.success => Icons.check_rounded,
-      _Phase.error => Icons.error_outline_rounded,
+    // Urutan tetap: utama dulu, lalu sekunder, lalu teks (sesuai urutan
+    // pemanggil bila setara).
+    final items =
+        [
+          for (var i = 0; i < widget.actions.length; i++)
+            (i: i, a: widget.actions[i]),
+        ]..sort((x, y) {
+          final c = rank(x.a).compareTo(rank(y.a));
+          return c != 0 ? c : x.i.compareTo(y.i);
+        });
+
+    final horizontal = switch (widget.layout) {
+      BapendaDialogLayout.vertical => false,
+      BapendaDialogLayout.horizontal => true,
+      BapendaDialogLayout.auto =>
+        items.length == 2 &&
+            items.every(
+              (e) =>
+                  e.a.style != BapendaDialogActionStyle.text &&
+                  e.a.label.length <= 16,
+            ),
     };
 
-    final title = switch (_phase) {
-      _Phase.ask => c.title,
-      _Phase.loading => c.loadingTitle,
-      _Phase.success => c.successTitle,
-      _Phase.error => c.errorTitle,
-    };
+    Widget button(({int i, BapendaDialogAction<T> a}) e) => _DialogButton(
+      label: e.a.label,
+      icon: e.a.icon,
+      style: e.a.style,
+      color: style.color,
+      loading: _busy == e.i,
+      enabled: _busy == null,
+      onTap: () => _handle(e.a, e.i),
+    );
 
-    final message = switch (_phase) {
-      _Phase.ask => c.message,
-      _Phase.loading => c.loadingMessage,
-      _Phase.success => c.successMessage,
-      _Phase.error =>
-        _error ?? 'Terjadi kesalahan. Periksa koneksi lalu coba lagi.',
-    };
+    if (horizontal) {
+      // Berdampingan: tombol utama di kanan.
+      final ordered = items.reversed.toList();
+      return Row(
+        children: [
+          for (var j = 0; j < ordered.length; j++) ...[
+            if (j > 0) const SizedBox(width: 10),
+            Expanded(child: button(ordered[j])),
+          ],
+        ],
+      );
+    }
 
-    return PopScope(
-      canPop: _phase != _Phase.loading,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var j = 0; j < items.length; j++) ...[
+          if (j > 0) const SizedBox(height: 10),
+          button(items[j]),
+        ],
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// Bagian-bagian kecil
+// =============================================================================
+
+/// Lingkaran ikon dengan animasi masuk satu kali. Pada dialog gagal, ikon
+/// bergetar sebentar. Menghormati pengaturan "kurangi animasi" di HP.
+class _IconBadge extends StatelessWidget {
+  final BapendaDialogTone tone;
+  final _ToneStyle style;
+  final IconData? icon;
+
+  const _IconBadge({
+    required this.tone,
+    required this.style,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final reduce = MediaQuery.disableAnimationsOf(context);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: reduce ? Duration.zero : const Duration(milliseconds: 650),
+      builder: (context, t, _) {
+        final ring = Curves.easeOutCubic.transform(t);
+        final core = Curves.easeOutBack.transform(
+          ((t - 0.1) / 0.9).clamp(0.0, 1.0),
+        );
+        final shake = tone == BapendaDialogTone.error
+            ? math.sin(t * math.pi * 5) * (1 - t) * 7
+            : 0.0;
+
+        return SizedBox(
+          width: 96,
+          height: 96,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Transform.scale(
+                scale: 0.6 + 0.4 * ring,
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: style.soft,
+                  ),
+                ),
+              ),
+              Transform.translate(
+                offset: Offset(shake, 0),
+                child: Transform.scale(
+                  scale: core,
+                  child: Container(
+                    width: 66,
+                    height: 66,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.color,
+                      boxShadow: [
+                        BoxShadow(
+                          color: style.color.withValues(alpha: 0.35),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      icon ?? style.icon,
+                      size: 36,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Garis hitung mundur di atas dialog yang tutup otomatis.
+class _AutoCloseBar extends StatelessWidget {
+  final Duration duration;
+  final _ToneStyle style;
+
+  const _AutoCloseBar({required this.duration, required this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 1, end: 0),
+      duration: duration,
+      builder: (context, v, _) => LinearProgressIndicator(
+        value: v,
+        minHeight: 3,
+        color: style.color,
+        backgroundColor: style.soft,
+      ),
+    );
+  }
+}
+
+class _DetailPanel extends StatelessWidget {
+  final List<BapendaDialogDetail> details;
+
+  const _DetailPanel({required this.details});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppThemeColors.grey7,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < details.length; i++) ...[
+            if (i > 0) const Divider(height: 1, color: AppThemeColors.grey4),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    details[i].label,
+                    style: const TextStyle(fontSize: 12, color: _muted),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(child: _value(details[i])),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _value(BapendaDialogDetail d) {
+    const style = TextStyle(
+      fontSize: 12.5,
+      fontWeight: FontWeight.w700,
+      color: _ink,
+    );
+    return d.selectable
+        ? SelectableText(d.value, textAlign: TextAlign.end, style: style)
+        : Text(d.value, textAlign: TextAlign.end, style: style);
+  }
+}
+
+class _InlineError extends StatelessWidget {
+  final String text;
+
+  const _InlineError({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppThemeColors.dangerSoft,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 16,
+            color: AppThemeColors.danger,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12,
+                height: 1.4,
+                color: AppThemeColors.textDanger,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DialogButton extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final BapendaDialogActionStyle style;
+  final Color color;
+  final bool loading;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _DialogButton({
+    required this.label,
+    required this.icon,
+    required this.style,
+    required this.color,
+    required this.loading,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isPrimary = style == BapendaDialogActionStyle.primary;
+    final isText = style == BapendaDialogActionStyle.text;
+    final radius = BorderRadius.circular(14);
+
+    final fg = isPrimary
+        ? Colors.white
+        : isText
+        ? _muted
+        : AppThemeColors.titleText;
+
+    final Widget child = loading
+        ? SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2.4, color: fg),
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: fg),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: fg,
+                  ),
+                ),
+              ),
+            ],
+          );
+
+    return Opacity(
+      // Tombol lain meredup saat satu tombol sedang memproses.
+      opacity: (!enabled && !loading) ? 0.45 : 1,
+      child: Material(
+        color: isPrimary ? color : Colors.transparent,
+        borderRadius: radius,
+        child: InkWell(
+          borderRadius: radius,
+          onTap: enabled ? onTap : null,
+          child: Container(
+            height: isText ? 42 : 48,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: style == BapendaDialogActionStyle.secondary
+                ? BoxDecoration(
+                    borderRadius: radius,
+                    border: Border.all(
+                      color: AppThemeColors.defaultBorder,
+                      width: 1.2,
+                    ),
+                  )
+                : null,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Dialog loading
+// =============================================================================
+
+class _LoadingCard extends StatelessWidget {
+  final String title;
+  final BapendaLoadingController controller;
+  final bool cancellable;
+  final VoidCallback? onCancel;
+
+  const _LoadingCard({
+    required this.title,
+    required this.controller,
+    required this.cancellable,
+    required this.onCancel,
+  });
+
+  static const _accent = AppThemeColors.primary;
+  static const _accentText = AppThemeColors.gold; // teks kecil: lebih gelap
+  static const _soft = AppThemeColors.primarySoft;
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+
+    return MediaQuery(
+      data: mq.copyWith(textScaler: mq.textScaler.clamp(maxScaleFactor: 1.25)),
+      child: PopScope(
+        canPop: false, // loading tidak boleh ditutup dengan tombol kembali
+        child: Semantics(
+          scopesRoute: true,
+          namesRoute: true,
+          explicitChildNodes: true,
+          label: title,
+          liveRegion: true,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 360),
+            constraints: const BoxConstraints(maxWidth: 300),
             child: Material(
               color: AppThemeColors.defaultSurface,
+              elevation: 14,
+              shadowColor: Colors.black38,
               borderRadius: BorderRadius.circular(24),
-              elevation: 0,
-              clipBehavior: Clip.antiAlias,
-              child: AnimatedSize(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                alignment: Alignment.topCenter,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (child, anim) =>
-                      FadeTransition(opacity: anim, child: child),
-                  child: Padding(
-                    key: ValueKey(_phase),
-                    padding: const EdgeInsets.fromLTRB(22, 28, 22, 20),
-                    child: Column(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
+                child: ValueListenableBuilder<_LoadingValue>(
+                  valueListenable: controller._value,
+                  builder: (context, v, _) {
+                    final progress = v.progress?.clamp(0.0, 1.0);
+                    return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _Badge(
-                          style: style,
-                          icon: icon,
-                          spinning: _phase == _Phase.loading,
+                        Container(
+                          width: 84,
+                          height: 84,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _soft,
+                          ),
+                          child: SizedBox(
+                            width: 52,
+                            height: 52,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: progress, // null = berputar bebas
+                                  strokeWidth: 4,
+                                  strokeCap: StrokeCap.round,
+                                  color: _accent,
+                                  backgroundColor: progress == null
+                                      ? null
+                                      : AppThemeColors.brown2,
+                                ),
+                                if (progress != null)
+                                  Text(
+                                    '${(progress * 100).round()}%',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: _accentText,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 18),
                         Text(
                           title,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            height: 1.25,
-                            color: AppThemeColors.titleText,
+                            color: _ink,
                           ),
                         ),
-                        if (message != null && message.isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                        if (v.message != null) ...[
+                          const SizedBox(height: 6),
                           Text(
-                            message,
+                            v.message!,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 13.5,
-                              height: 1.5,
-                              color: AppThemeColors.secondaryText,
+                              fontSize: 13,
+                              height: 1.45,
+                              color: _body,
                             ),
                           ),
                         ],
-                        if (_phase == _Phase.ask) ...[
-                          if (c.details.isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            _DetailBox(details: c.details),
-                          ],
-                          if (c.content != null) ...[
-                            const SizedBox(height: 16),
-                            c.content!,
-                          ],
-                        ],
-                        if (_phase != _Phase.loading) ...[
-                          const SizedBox(height: 22),
-                          _buildActions(tone),
+                        if (cancellable) ...[
+                          const SizedBox(height: 14),
+                          TextButton(
+                            onPressed: () {
+                              onCancel?.call();
+                              controller.close();
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: _muted,
+                              textStyle: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            child: const Text('Batal'),
+                          ),
                         ],
                       ],
-                    ),
-                  ),
+                    );
+                  },
                 ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActions(BapendaDialogTone tone) {
-    final c = widget.cfg;
-    final color = _styleOf(tone).fg;
-    final brand = tone == BapendaDialogTone.brand;
-
-    switch (_phase) {
-      case _Phase.success:
-        return _Btn(
-          label: c.successLabel,
-          color: color,
-          onTap: () => Navigator.of(context).pop(true),
-        );
-      case _Phase.error:
-        return Row(
-          children: [
-            Expanded(
-              child: _Btn(
-                label: 'Tutup',
-                outlined: true,
-                onTap: () => Navigator.of(context).pop(false),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _Btn(
-                label: 'Coba Lagi',
-                color: AppThemeColors.primary,
-                gradient: true,
-                onTap: _run,
-              ),
-            ),
-          ],
-        );
-      case _Phase.ask:
-      case _Phase.loading:
-        final confirm = _Btn(
-          label: c.confirmLabel,
-          color: color,
-          gradient: brand,
-          onTap: _run,
-        );
-        if (c.cancelLabel == null) return confirm;
-        return Row(
-          children: [
-            Expanded(
-              child: _Btn(
-                label: c.cancelLabel!,
-                outlined: true,
-                onTap: () => Navigator.of(context).pop(false),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(child: confirm),
-          ],
-        );
-    }
-  }
-}
-
-class _Badge extends StatelessWidget {
-  final _ToneStyle style;
-  final IconData icon;
-  final bool spinning;
-
-  const _Badge({
-    required this.style,
-    required this.icon,
-    required this.spinning,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 88,
-      height: 88,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Cincin luar yang lembut.
-          Container(
-            width: 88,
-            height: 88,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: style.fg.withValues(alpha: 0.08),
-            ),
-          ),
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: style.bg),
-            child: Icon(icon, size: 30, color: style.fg),
-          ),
-          if (spinning)
-            SizedBox(
-              width: 80,
-              height: 80,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                strokeCap: StrokeCap.round,
-                color: style.fg,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailBox extends StatelessWidget {
-  final List<BapendaDialogDetail> details;
-  const _DetailBox({required this.details});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppThemeColors.grey8,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppThemeColors.subtleBorder),
-      ),
-      child: Column(
-        children: [
-          for (var i = 0; i < details.length; i++) ...[
-            if (i > 0) const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: Text(
-                    details[i].label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppThemeColors.tertiaryText,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 6,
-                  child: Text(
-                    details[i].value,
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppThemeColors.titleText,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _Btn extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  final bool outlined;
-  final bool gradient;
-  final Color color;
-
-  const _Btn({
-    required this.label,
-    required this.onTap,
-    this.outlined = false,
-    this.gradient = false,
-    this.color = AppThemeColors.primary,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(14);
-
-    return Material(
-      color: Colors.transparent,
-      child: Ink(
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: radius,
-          color: outlined ? Colors.white : (gradient ? null : color),
-          gradient: (!outlined && gradient)
-              ? const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [AppThemeColors.primary, AppThemeColors.yellow5],
-                )
-              : null,
-          border: outlined
-              ? Border.all(color: AppThemeColors.defaultBorder, width: 1.2)
-              : null,
-          boxShadow: outlined
-              ? null
-              : [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.28),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-        ),
-        child: InkWell(
-          borderRadius: radius,
-          onTap: onTap,
-          child: Center(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 14.5,
-                fontWeight: FontWeight.w700,
-                color: outlined ? AppThemeColors.blackPrimary : Colors.white,
               ),
             ),
           ),
