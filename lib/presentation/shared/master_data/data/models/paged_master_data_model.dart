@@ -42,6 +42,12 @@ String _requireString(Map<String, dynamic> json, String key) {
   return s;
 }
 
+String? _asStringOrNull(dynamic v) {
+  if (v == null) return null;
+  final s = '$v'.trim();
+  return s.isEmpty ? null : s;
+}
+
 // ---------------------------------------------------------------------------
 // Pembungkus halaman: { currentPage, pageSize, totalData, totalPage, items }
 // ---------------------------------------------------------------------------
@@ -145,12 +151,16 @@ class PersilItemModel {
   final String alamat;
   final String kec;
   final String kel;
+  final DateTime? tglSurveyTerakhir;
+  final String? fotoUrl;
 
   const PersilItemModel({
     required this.idPersil,
     required this.alamat,
     required this.kec,
     required this.kel,
+    this.tglSurveyTerakhir,
+    this.fotoUrl,
   });
 
   factory PersilItemModel.fromJson(Map<String, dynamic> json) =>
@@ -159,12 +169,16 @@ class PersilItemModel {
         alamat: _asString(json['alamat']),
         kec: _asString(json['kec'], ''),
         kel: _asString(json['kel'], ''),
+        tglSurveyTerakhir: DateTime.tryParse(
+          _asString(json['tglSurveyTerakhir'], ''),
+        ),
+        fotoUrl: _asStringOrNull(json['fotoUrl']),
       );
 }
 
 extension PersilItemModelX on PersilItemModel {
   PersilEntity toEntity() =>
-      PersilEntity(idPersil: idPersil, alamat: alamat, kec: kec, kel: kel);
+      PersilEntity(idPersil: idPersil, alamat: alamat, kec: kec, kel: kel, tglSurveyTerakhir: tglSurveyTerakhir, fotoUrl: fotoUrl);
 }
 
 // ---------------------------------------------------------------------------

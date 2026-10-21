@@ -34,25 +34,30 @@ class PersilEntity extends Equatable {
   final String alamat;
   final String kec;
   final String kel;
+  final DateTime? tglSurveyTerakhir;
+  final String? fotoUrl;
 
   const PersilEntity({
     required this.idPersil,
     required this.alamat,
     required this.kec,
     required this.kel,
+    this.tglSurveyTerakhir,
+    this.fotoUrl,
   });
 
   String get label => '$idPersil - $alamat';
+  bool get punyaFoto => fotoUrl != null && fotoUrl!.isNotEmpty;
 
   @override
-  List<Object?> get props => [idPersil, alamat, kec, kel];
+  List<Object?> get props => [idPersil, alamat, kec, kel, tglSurveyTerakhir, fotoUrl];
 }
 
 class PegawaiSurveyEntity extends Equatable {
   final String nip;
   final String nama;
 
-  const PegawaiSurveyEntity({ required this.nip, required this.nama });
+  const PegawaiSurveyEntity({required this.nip, required this.nama});
 
   @override
   List<Object?> get props => [nip, nama];
