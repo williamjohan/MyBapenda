@@ -606,7 +606,7 @@ class _InfoReviewCardState extends State<_InfoReviewCard> {
       icon: Icons.edit_location_alt_outlined,
       title: 'Ubah Alamat',
       message: 'Alamat ini ikut terkirim bersama hasil survey.',
-      barrierDismissible: false, 
+      barrierDismissible: false,
       content: Form(
         key: formKey,
         child: TextFormField(
@@ -630,7 +630,7 @@ class _InfoReviewCardState extends State<_InfoReviewCard> {
         BapendaDialogAction<String>.primary(
           label: 'Simpan',
           icon: Icons.check_rounded,
-          closeOnPressed: false, 
+          closeOnPressed: false,
           onPressed: () {
             if (formKey.currentState?.validate() ?? false) {
               Navigator.of(
@@ -727,33 +727,7 @@ class _InfoReviewCardState extends State<_InfoReviewCard> {
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InfoRow(
-                  label: 'Alamat',
-                  value: '${info['alamat'] ?? '-'}',
-                ),
-              ),
-              const SizedBox(width: 4),
-              IconButton(
-                tooltip: 'Ubah alamat',
-                onPressed: _editAlamat,
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                style: IconButton.styleFrom(
-                  foregroundColor: const Color(0xFFB8680F),
-                  backgroundColor: const Color(0xFFFFF3E7),
-                  minimumSize: const Size(36, 36),
-                  padding: EdgeInsets.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          InfoRow(label: 'Alamat', value: '${info['alamat'] ?? '-'}'),
           InfoRow(label: 'Kecamatan', value: kec),
           InfoRow(label: 'Kelurahan', value: kel),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),

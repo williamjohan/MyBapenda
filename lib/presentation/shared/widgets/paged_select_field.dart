@@ -6,12 +6,21 @@ class PagedOption<T> extends Equatable {
   final T value;
   final String label;
   final String? subtitle;
+  final String? imageUrl;
 
-  const PagedOption({required this.value, required this.label, this.subtitle});
+  const PagedOption({
+    required this.value,
+    required this.label,
+    this.subtitle,
+    this.imageUrl,
+  });
 
   @override
-  List<Object?> get props => [value, label, subtitle];
+  List<Object?> get props => [value, label, subtitle, imageUrl];
 }
+
+typedef PagedImageBuilder =
+    Widget Function(BuildContext context, String url, double size);
 
 class PagedSelectData<T> extends Equatable {
   final List<PagedOption<T>> items;
@@ -78,12 +87,13 @@ class PagedSelectField<T> extends StatelessWidget {
   final String searchHint;
   final T? value;
 
-  /// Teks pilihan terpilih (karena daftar tidak lengkap di memori).
   final String? valueLabel;
   final void Function(T value, String label) onChanged;
   final PagedSelectSource<T> source;
   final bool mandatory;
   final bool enabled;
+  final bool showImage;
+  final PagedImageBuilder? imageBuilder;
 
   const PagedSelectField({
     super.key,
@@ -97,6 +107,8 @@ class PagedSelectField<T> extends StatelessWidget {
     this.searchHint = 'Cari...',
     this.mandatory = false,
     this.enabled = true,
+    this.showImage = false,
+    this.imageBuilder,
   });
 
   Future<void> _open(BuildContext context) async {
@@ -116,6 +128,8 @@ class PagedSelectField<T> extends StatelessWidget {
         searchHint: searchHint,
         value: value,
         source: source,
+        showImage: showImage,
+        imageBuilder: imageBuilder,
       ),
     );
     if (picked != null) onChanged(picked.value, picked.label);
@@ -198,12 +212,16 @@ class _PagedSheet<T> extends StatefulWidget {
   final String searchHint;
   final T? value;
   final PagedSelectSource<T> source;
+  final bool showImage;
+  final PagedImageBuilder? imageBuilder;
 
   const _PagedSheet({
     required this.title,
     required this.searchHint,
     required this.value,
     required this.source,
+    required this.showImage,
+    required this.imageBuilder,
   });
 
   @override
@@ -415,9 +433,16 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
             borderRadius: BorderRadius.circular(12),
             onTap: () => Navigator.of(context).pop(e),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: widget.showImage ? 10 : 12,
+              ),
               child: Row(
                 children: [
+                  if (widget.showImage) ...[
+                    _OptionThumb(url: e.imageUrl, builder: widget.imageBuilder),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,6 +484,65 @@ class _PagedSheetState<T> extends State<_PagedSheet<T>> {
           ),
         );
       },
+    );
+  }
+}
+
+class _OptionThumb extends StatelessWidget {
+  final String? url;
+  final PagedImageBuilder? builder;
+
+  const _OptionThumb({required this.url, required this.builder});
+
+  static const double _size = 52;
+
+  @override
+  Widget build(BuildContext context) {
+    final u = url;
+
+    final Widget child;
+    if (u == null || u.isEmpty) {
+      child = const _ThumbPlaceholder();
+    } else if (builder != null) {
+      child = builder!(context, u, _size);
+    } else {
+      child = Image.network(
+        u,
+        width: _size,
+        height: _size,
+        fit: BoxFit.cover,
+        cacheWidth: (_size * 3).round(),
+        filterQuality: FilterQuality.low,
+        gaplessPlayback: true,
+        loadingBuilder: (_, image, progress) =>
+            progress == null ? image : const _ThumbPlaceholder(),
+        errorBuilder: (_, error, __) {
+          debugPrint('FOTO GAGAL [$u] -> $error');
+          return const _ThumbPlaceholder();
+        },
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(width: _size, height: _size, child: child),
+    );
+  }
+}
+
+class _ThumbPlaceholder extends StatelessWidget {
+  const _ThumbPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: context.palette.background,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.image_outlined,
+        size: 22,
+        color: context.palette.textTertiary,
+      ),
     );
   }
 }

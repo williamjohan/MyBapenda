@@ -358,6 +358,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i826.AuthUseCase(gh<_i660.IAuthRepository>()));
     gh.lazySingleton<_i899.IBalaiRwRepository>(() =>
         _i518.BalaiRwRepositoryImpl(gh<_i348.IBalaiRwRemoteDataSource>()));
+    gh.factory<_i686.SurveySummaryCubit>(
+        () => _i686.SurveySummaryCubit(gh<_i11.SurveyPermohonanUseCase>()));
     gh.factory<_i410.TaxObjectSearchCubit>(
         () => _i410.TaxObjectSearchCubit(gh<_i930.VaQrisUseCase>()));
     gh.factory<_i197.VaQrisCubit>(

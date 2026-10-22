@@ -10,10 +10,12 @@ import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/mas
 import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/paged_search_cubit.dart';
 import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/master_paged_select_field.dart';
 import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/master_select_field.dart';
+import 'package:mybapenda/presentation/shared/widgets/bapenda_image.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:mybapenda/presentation/features/survey_baru/widgets/tombol_simpan_draft.dart';
 import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_thumb.dart';
 import 'package:mybapenda/presentation/shared/widgets/paged_select_field.dart';
 import 'package:mybapenda/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
@@ -151,7 +153,14 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
       children: [
         MasterPagedSelectField<String, PersilEntity>(
           cubit: _persilCubit,
-          toOption: (e) => PagedOption(value: e.idPersil, label: e.label),
+          showImage: true,
+          imageBuilder: (context, url, size) =>
+              BapendaThumb(url: url, size: size),
+          toOption: (e) => PagedOption(
+            value: e.idPersil,
+            label: e.label,
+            imageUrl: e.fotoUrl,
+          ),
           label: 'Persil',
           hint: 'Pilih persil',
           searchHint: 'Cari ID / alamat persil',
