@@ -23,6 +23,7 @@ import 'package:mybapenda/presentation/features/survey_baru/screens/survey_histo
 import 'package:mybapenda/presentation/features/survey_baru/screens/survey_history/survey_history_page.dart';
 import 'package:mybapenda/presentation/features/survey_baru/screens/survey_info_page.dart';
 import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_radius/survey_radius_cubit.dart';
 import 'package:mybapenda/presentation/features/survey_baru/screens/survey_lokasi_page.dart';
 import 'package:mybapenda/presentation/features/survey_baru/screens/survey_permohonan_baru_page.dart';
 import 'package:mybapenda/presentation/features/survey_baru/screens/survey_review_page.dart';
@@ -459,10 +460,24 @@ class AppRouter {
                     List<Map<String, dynamic>> sisiList,
                     Map<String, dynamic> info,
                   });
-          // Cubit simpan dipakai tombol Simpan Draft.
-          return BlocProvider<SurveySubmitCubit>(
-            create: (_) =>
-                SurveySubmitCubit(useCase: getIt<SurveyPermohonanUseCase>()),
+          // Cubit simpan dipakai tombol Simpan Draft; radius untuk menandai
+          // pin sisi yang jadi di luar radius.
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<SurveySubmitCubit>(
+                create: (_) => SurveySubmitCubit(
+                  useCase: getIt<SurveyPermohonanUseCase>(),
+                ),
+              ),
+              BlocProvider<SurveyRadiusCubit>(
+                create: (_) => getIt<SurveyRadiusCubit>()
+                  ..mulai(
+                    dariForm: args.sisiList.isEmpty
+                        ? null
+                        : jarakMaksOf(args.sisiList.first),
+                  ),
+              ),
+            ],
             child: SurveySisiPage(
               nomorPelayanan: args.nomor,
               sisiList: args.sisiList,
@@ -510,6 +525,7 @@ class AppRouter {
                   getIt<SurveyLokasiCubit>()..mulai(
                     awal: args.result?.lokasi,
                     pinDraft: titikDraftOf(args.sisi),
+                    jarakMaksMeter: jarakMaksOf(args.sisi),
                   ),
               child: SurveyLokasiPage(
                 sisi: args.sisi,

@@ -16,6 +16,7 @@ SurveyDetailModel _$SurveyDetailModelFromJson(Map<String, dynamic> json) =>
           json['kategoriPenyelenggaraanNama'] as String?,
       statusPermohonan: json['statusPermohonan'] as String?,
       isDraft: json['isDraft'] as bool? ?? false,
+      jarakMaksMeter: _intOrNull(json['jarakMaksMeter']),
       header: _headerFrom(json['header']),
       checkin: _checkinFrom(json['checkin']),
       sisiList: (json['sisiList'] as List<dynamic>?)
@@ -33,6 +34,7 @@ Map<String, dynamic> _$SurveyDetailModelToJson(SurveyDetailModel instance) =>
       'kategoriPenyelenggaraanNama': instance.kategoriPenyelenggaraanNama,
       'statusPermohonan': instance.statusPermohonan,
       'isDraft': instance.isDraft,
+      'jarakMaksMeter': instance.jarakMaksMeter,
       'sisiList': instance.sisiList.map((e) => e.toJson()).toList(),
     };
 

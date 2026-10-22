@@ -704,7 +704,7 @@ class _SurveyLokasiPageState extends State<SurveyLokasiPage> {
           Circle(
             circleId: const CircleId('radius-maks'),
             center: LatLng(petugas.latitude, petugas.longitude),
-            radius: SurveyLokasiState.jarakMaksMeter,
+            radius: s.jarakMaksMeter.toDouble(),
             fillColor: warna.withValues(alpha: 0.08),
             strokeColor: warna.withValues(alpha: 0.7),
             strokeWidth: 2,
@@ -738,7 +738,7 @@ class _PetunjukPeta extends StatelessWidget {
     final palette = context.palette;
     final jarak = state.jarakMeter;
     final jauh = state.terlaluJauh;
-    final maks = SurveyLokasiState.jarakMaksMeter.round();
+    final maks = state.jarakMaksMeter;
 
     return Material(
       color: jauh ? palette.statusGagal : palette.surface,
@@ -761,7 +761,7 @@ class _PetunjukPeta extends StatelessWidget {
                 children: [
                   Text(
                     jauh
-                        ? 'Pin di luar radius $maks m'
+                        ? 'Titik reklame di luar radius $maks m, pindahkan pin'
                         : 'Ketuk peta atau seret pin',
                     style: TextStyle(
                       fontSize: 12.5,
@@ -1057,7 +1057,7 @@ class _PanelBawah extends StatelessWidget {
     final alamat = SurveyLokasiUiHelper.alamat(s.alamat);
     final jarak = s.jarakMeter;
     final foto = this.foto;
-    final maks = SurveyLokasiState.jarakMaksMeter.round();
+    final maks = s.jarakMaksMeter;
 
     return Container(
       decoration: BoxDecoration(

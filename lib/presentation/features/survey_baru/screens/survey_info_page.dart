@@ -169,6 +169,7 @@ class _SurveyInfoPageState extends State<SurveyInfoPage> {
   }
 
   String? _validate(SurveyInfoState s) {
+    // Check-in tersimpan: selfie & lokasi tidak perlu diambil lagi.
     if (_checkinTersimpan == null) {
       if (s.selfiePath == null) return 'Foto selfie wajib diambil';
       if (s.isLocating || s.isStamping) {

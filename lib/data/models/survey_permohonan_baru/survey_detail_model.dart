@@ -70,6 +70,10 @@ class SurveyDetailModel {
   @JsonKey(name: 'isDraft', defaultValue: false)
   final bool isDraft;
 
+  /// Radius maksimal pin reklame dari posisi petugas (meter, setting server).
+  @JsonKey(name: 'jarakMaksMeter', fromJson: _intOrNull)
+  final int? jarakMaksMeter;
+
   @JsonKey(name: 'header', fromJson: _headerFrom, includeToJson: false)
   final SurveyDetailHeaderModel? header;
   @JsonKey(name: 'checkin', fromJson: _checkinFrom, includeToJson: false)
@@ -86,6 +90,7 @@ class SurveyDetailModel {
     this.kategoriPenyelenggaraanNama,
     this.statusPermohonan,
     this.isDraft = false,
+    this.jarakMaksMeter,
     this.header,
     this.checkin,
     required this.sisiList,
@@ -299,6 +304,7 @@ extension SurveyDetailModelX on SurveyDetailModel {
     kategoriPenyelenggaraanNama: kategoriPenyelenggaraanNama,
     statusPermohonan: statusPermohonan,
     isDraft: isDraft,
+    jarakMaksMeter: jarakMaksMeter,
     header: header?.toEntity(),
     checkin: checkin?.toEntity(),
     sisiList: sisiList.map((e) => e.toEntity()).toList(),

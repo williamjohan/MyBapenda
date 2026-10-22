@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../../../core/services/geo_location/i_geo_location_service.dart';
+import '../../../../../domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 
 /// Lokasi reklame satu sisi hasil pinpoint (ikut di `SurveyResult`).
 typedef SurveyLokasiHasil = ({
@@ -35,6 +36,11 @@ class SurveyLokasiState extends Equatable {
   // 🚀 REFACTOR: Mengganti kodeError menjadi flag boolean universal
   final bool requiresLocationSettings;
 
+  /// Pin reklame paling jauh dari posisi petugas (meter): petugas harus
+  /// benar-benar di lokasi reklame. Dari setting server
+  /// ([SurveyPermohonanUseCase.radiusSurvey]).
+  final int jarakMaksMeter;
+
   const SurveyLokasiState({
     this.status = SurveyLokasiStatus.memuat,
     this.petugas,
@@ -42,6 +48,7 @@ class SurveyLokasiState extends Equatable {
     this.alamat,
     this.memuatAlamat = false,
     this.pesanError,
+    this.jarakMaksMeter = SurveyPermohonanUseCase.radiusBawaanMeter,
     this.requiresLocationSettings = false, // Default false
   });
 
@@ -51,11 +58,6 @@ class SurveyLokasiState extends Equatable {
     if (p == null || t == null) return null;
     return Geolocator.distanceBetween(p.latitude, p.longitude, t.lat, t.lng);
   }
-
-  /// Pin reklame paling jauh sejauh ini dari posisi petugas (keputusan
-  /// user 2026-10-17, diperketat dari 50 m): petugas harus benar-benar di
-  /// lokasi reklame.
-  static const jarakMaksMeter = 20.0;
 
   bool get terlaluJauh => (jarakMeter ?? 0) > jarakMaksMeter;
 
@@ -85,7 +87,8 @@ class SurveyLokasiState extends Equatable {
     bool? memuatAlamat,
     String? pesanError,
     bool? requiresLocationSettings,
-    bool clearError = false, 
+    int? jarakMaksMeter,
+    bool clearError = false,
   }) {
     return SurveyLokasiState(
       status: status ?? this.status,
@@ -94,6 +97,7 @@ class SurveyLokasiState extends Equatable {
       alamat: alamat ?? this.alamat,
       memuatAlamat: memuatAlamat ?? this.memuatAlamat,
       pesanError: clearError ? null : pesanError ?? this.pesanError,
+      jarakMaksMeter: jarakMaksMeter ?? this.jarakMaksMeter,
       requiresLocationSettings: clearError ? false : requiresLocationSettings ?? this.requiresLocationSettings,
     );
   }
@@ -108,6 +112,7 @@ class SurveyLokasiState extends Equatable {
     alamat,
     memuatAlamat,
     pesanError,
-    requiresLocationSettings, 
+    jarakMaksMeter,
+    requiresLocationSettings,
   ];
 }
