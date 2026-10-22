@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_request_entity.dart';
-import 'package:bapendacore/presentation/shared/widgets/bt_image_compressor.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_request_entity.dart';
+import 'package:mybapenda/presentation/shared/widgets/bt_image_compressor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import '../../screens/survey_foto_page.dart'; // SurveyResult
 
 /// state = true saat sedang mengirim.

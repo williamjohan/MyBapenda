@@ -1,9 +1,9 @@
-import 'package:bapendacore/data/models/survey_permohonan_baru/cari_nor_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/simpan_survey_request_model.dart';
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_detail_model.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_permohonan_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/cari_nor_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/simpan_survey_request_model.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_detail_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_permohonan_model.dart';
 import 'dart:async';
 
 import 'package:dartz/dartz.dart';
@@ -18,7 +18,6 @@ import '../../../domain/entities/cek_reklames/survey_permohonan_baru/simpan_surv
 import '../../../domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
 import '../../../domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart';
 import '../../datasources/cek_reklame/survey_remote_datasource.dart';
-
 
 @LazySingleton(as: ISurveyPermohonanRepository)
 class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
@@ -38,7 +37,8 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   // 1. GET LIST HEADER (Map List<Model> -> List<Entity>)
   // ===========================================================================
   @override
-  Future<Either<Failure, List<SurveyPermohonanEntity>>> getSurveyPermohonanHeader() {
+  Future<Either<Failure, List<SurveyPermohonanEntity>>>
+  getSurveyPermohonanHeader() {
     return executeSafeApiCall<List<SurveyPermohonanEntity>>(() async {
       final models = await _remoteDataSource.getSurveyPermohonanHeader();
       return models.map((model) => model.toEntity()).toList();
@@ -49,7 +49,9 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   // 2. GET DETAIL SURVEY (Map Model -> Entity)
   // ===========================================================================
   @override
-  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({required String key}) {
+  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({
+    required String key,
+  }) {
     return executeSafeApiCall<SurveyDetailEntity>(() async {
       final model = await _remoteDataSource.getSurveyDetail(key: key);
       // Radius dari survey-form = nilai terbaru, ikut memperbarui cache.
@@ -72,7 +74,7 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
     });
   }
 
- // ===========================================================================
+  // ===========================================================================
   // 4. CARI NOR
   // ===========================================================================
   @override
@@ -84,7 +86,17 @@ class SurveyPermohonanRepositoryImpl implements ISurveyPermohonanRepository {
   }
 
   // ===========================================================================
-  // 5. PENGATURAN RADIUS SURVEY (cache memori + disk, TTL)
+  // 5. GET SUMMARY
+  // ===========================================================================
+  @override
+  Future<Either<Failure, SurveySummaryEntity>> getSurveySummary() {
+    return executeSafeApiCall<SurveySummaryEntity>(() async {
+      final model = await _remoteDataSource.getSurveySummary();
+      return model.toEntity();
+    });
+  }
+
+  // 6. PENGATURAN RADIUS SURVEY (cache memori + disk, TTL)
   // ===========================================================================
   @override
   Future<Either<Failure, int>> getRadiusSurvey({bool forceRefresh = false}) {

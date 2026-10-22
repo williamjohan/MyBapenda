@@ -2,14 +2,14 @@
 import 'package:flutter/material.dart';
 
 class ReklameSurveyBaruCard extends StatelessWidget {
-  final IconData icon;
+  final int? total;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
   const ReklameSurveyBaruCard({
     super.key,
-    required this.icon,
+    required this.total,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -31,6 +31,7 @@ class ReklameSurveyBaruCard extends StatelessWidget {
               Container(
                 width: 52,
                 height: 52,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
                   gradient: const LinearGradient(
@@ -39,7 +40,26 @@ class ReklameSurveyBaruCard extends StatelessWidget {
                     colors: [Color(0xFFE09A2B), Color(0xFFB8680F)],
                   ),
                 ),
-                child: Icon(icon, color: Colors.white, size: 26),
+                child: total == null
+                    ? const Icon(
+                        Icons.assignment_outlined,
+                        color: Colors.white,
+                        size: 26,
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: FittedBox(
+                          // angka 3 digit tetap muat
+                          child: Text(
+                            '$total',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
               ),
               const SizedBox(width: 14),
               Expanded(

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/storage/survey_radius_storage.dart';
-import 'package:bapendacore/data/datasources/cek_reklame/survey_remote_datasource.dart';
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_detail_model.dart';
-import 'package:bapendacore/data/repositories/cek_reklame/survey_permohonan_repository_impl.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/storage/survey_radius_storage.dart';
+import 'package:mybapenda/data/datasources/cek_reklame/survey_remote_datasource.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_detail_model.dart';
+import 'package:mybapenda/data/repositories/cek_reklame/survey_permohonan_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

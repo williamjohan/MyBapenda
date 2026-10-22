@@ -1,5 +1,5 @@
 /// Satu pintu untuk light/dark theme. Modul lain cukup:
-/// `import 'package:bapendacore/core/theme/theme_kit.dart';`
+/// `import 'package:mybapenda/core/theme/theme_kit.dart';`
 library;
 
 export '../constants/design_system/tokens/app_palette.dart';

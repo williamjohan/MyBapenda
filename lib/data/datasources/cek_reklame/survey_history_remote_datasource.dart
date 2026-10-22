@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:bapendacore/data/models/survey_permohonan_baru/survey_history_model.dart';
+import 'package:mybapenda/data/models/survey_permohonan_baru/survey_history_model.dart';
+import 'package:chucker_flutter/chucker_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/errors/exception.dart';
@@ -28,6 +29,14 @@ class SurveyHistoryRemoteDataSourceImpl
     String p(int n) => n.toString().padLeft(2, '0');
     return '${d.year}-${p(d.month)}-${p(d.day)}';
   }
+
+  late final Dio _downloadDio = Dio(_dio.options.copyWith())
+    ..httpClientAdapter = _dio.httpClientAdapter
+    ..transformer = _dio.transformer
+    ..interceptors.clear()
+    ..interceptors.addAll(
+      _dio.interceptors.where((i) => i is! ChuckerDioInterceptor),
+    );
 
   // ===========================================================================
   // 1. GET LIST HISTORY
@@ -102,7 +111,9 @@ class SurveyHistoryRemoteDataSourceImpl
     required String fileName,
   }) async {
     final path = '${Directory.systemTemp.path}/$fileName';
-    await _dio.download(url, path);
+
+    await _downloadDio.download(url, path);
+
     return path;
   }
 }

@@ -1,9 +1,9 @@
-import 'package:bapendacore/domain/entities/pengiriman/antrean_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/jejak_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/lacak_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/master_pengiriman_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/pengiriman_payload_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/antrean_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/jejak_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/lacak_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/master_pengiriman_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/pengiriman_payload_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Dua objek dengan isi sama harus setara (Equatable memakai semua field).

@@ -3,9 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-
 import '../../../../core/constants/design_system/tokens/app_palette.dart';
-import '../../../../core/services/geo_location_service.dart';
 import '../../../../domain/entities/absensi/riwayat_absensi_entity.dart';
 import '../../../shared/widgets/section_label.dart';
 import '../cubit/absen/absen_cubit.dart';
@@ -59,12 +57,15 @@ class _AbsensiPageState extends State<AbsensiPage> {
   Future<void> _onAbsenState(BuildContext context, AbsenState state) async {
     final absenCubit = context.read<AbsenCubit>();
 
-    switch (state) {
-      case AbsenSuccess(:final result):
+    await state.when(
+      idle: () async {}, // Do nothing
+      inProgress: (_) async {}, // Do nothing
+      success: (result) async {
         absenCubit.reset();
         context.read<AbsensiCubit>().onAbsenRecorded(result.ringkasan);
         await showHasilAbsenSheet(context, result);
-      case AbsenFailure(:final message):
+      },
+      failure: (message) async {
         absenCubit.reset();
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
@@ -75,46 +76,27 @@ class _AbsensiPageState extends State<AbsensiPage> {
               behavior: SnackBarBehavior.floating,
             ),
           );
-      case AbsenLocationRequired(:final reason):
+      },
+      locationRequired: (message) async {
         absenCubit.reset();
-        await _showLocationDialog(context, reason, absenCubit);
-      case AbsenIdle() || AbsenInProgress():
-        break;
-    }
+        await _showLocationDialog(context, message, absenCubit);
+      },
+    );
   }
-
+  
   Future<void> _showLocationDialog(
     BuildContext context,
-    GeoLocationError reason,
+    String message, 
     AbsenCubit absenCubit,
   ) {
-    final (title, message, actionLabel, VoidCallback action) = switch (reason) {
-      GeoLocationError.serviceDisabled => (
-        'Aktifkan GPS',
-        'GPS di HP Anda mati. Nyalakan GPS untuk melakukan absen.',
-        'Buka Pengaturan',
-        absenCubit.openLocationSettings,
-      ),
-      GeoLocationError.permissionDeniedForever => (
-        'Izin Lokasi Ditolak',
-        'Izin lokasi diperlukan untuk absen. Aktifkan izin lokasi aplikasi di pengaturan.',
-        'Buka Pengaturan',
-        absenCubit.openAppSettings,
-      ),
-      GeoLocationError.permissionDenied || GeoLocationError.timeout => (
-        'Izin Lokasi Diperlukan',
-        'Absen membutuhkan lokasi Anda untuk memastikan berada di area kantor.',
-        'Coba Lagi',
-        absenCubit.submit,
-      ),
-    };
-
     final palette = context.palette;
+    
+
     return showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: palette.surface,
-        title: Text(title, style: TextStyle(color: palette.textPrimary)),
+        title: Text('Perhatian', style: TextStyle(color: palette.textPrimary)),
         content: Text(message, style: TextStyle(color: palette.textSecondary)),
         actions: [
           TextButton(
@@ -127,9 +109,9 @@ class _AbsensiPageState extends State<AbsensiPage> {
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
-              action();
+              absenCubit.openAppSettings(); 
             },
-            child: Text(actionLabel, style: TextStyle(color: palette.accent)),
+            child: Text('Buka Pengaturan', style: TextStyle(color: palette.accent)),
           ),
         ],
       ),
@@ -238,11 +220,19 @@ class _AbsensiPageState extends State<AbsensiPage> {
             RekapHarianLogic.hitung(state.riwayat, today).masuk != null;
 
         return BlocBuilder<AbsenCubit, AbsenState>(
-          builder: (context, absenState) => AbsenBottomPanel(
-            busyStep: absenState is AbsenInProgress ? absenState.step : null,
-            sudahMasuk: sudahMasuk,
-            onAbsen: context.read<AbsenCubit>().submit,
-          ),
+          builder: (context, absenState) {
+            
+            final busyStep = absenState.maybeWhen(
+              inProgress: (step) => step, 
+              orElse: () => null,         
+            );
+
+            return AbsenBottomPanel(
+              busyStep: busyStep, // 🚀 Inject hasil ekstraksi
+              sudahMasuk: sudahMasuk,
+              onAbsen: context.read<AbsenCubit>().submit,
+            );
+          },
         );
       },
     );

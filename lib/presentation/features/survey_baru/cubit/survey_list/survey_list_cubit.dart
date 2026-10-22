@@ -1,8 +1,8 @@
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/detail_survey_entity.dart';
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/detail_survey_entity.dart';
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_permohonan_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import 'survey_list_state.dart';
 
 class SurveyListCubit extends Cubit<SurveyListState> {

@@ -1,35 +1,50 @@
 import 'dart:async';
 
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/core/services/geo_location_service.dart';
-import 'package:bapendacore/domain/entities/coordinate_entity.dart';
-import 'package:bapendacore/domain/repositories/geocoding/geocoding_repository.dart';
-import 'package:bapendacore/domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart';
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
-import 'package:bapendacore/presentation/features/survey_baru/utils/survey_lokasi_ui_helper.dart';
+import 'package:mybapenda/core/enums/app_permission_enum.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/core/services/geo_location/i_geo_location_service.dart';
+import 'package:mybapenda/core/services/permission/i_permission_service.dart';
+import 'package:mybapenda/domain/entities/coordinate_entity.dart';
+import 'package:mybapenda/domain/repositories/geocoding/geocoding_repository.dart';
+import 'package:mybapenda/domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/utils/survey_lokasi_ui_helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FakeLokasi implements GeoLocationService {
+class _FakeLokasi implements IGeoLocationService {
   GeoPosition? posisi;
-  GeoLocationError? error;
+  Failure? gagal;
 
   @override
-  Future<GeoPosition> getCurrentPosition() async {
-    if (error != null) throw GeoLocationException(error!);
-    return posisi!;
+  Future<Either<Failure, GeoPosition>> getCurrentPosition({
+    double maxAccuracy = 50,
+  }) async {
+    final g = gagal;
+    return g != null ? Left(g) : Right(posisi!);
   }
+}
+
+class _FakeIzin implements IPermissionService {
+  int bukaPengaturan = 0;
 
   @override
-  Future<void> openAppSettings() async {}
+  Future<void> openSettings() async => bukaPengaturan++;
 
   @override
   Future<void> openLocationSettings() async {}
+
+  @override
+  Future<void> openBluetoothSettings() async {}
+
+  @override
+  Future<AppPermissionStatus> requestPermission(AppPermissionType type) async =>
+      AppPermissionStatus.granted;
 }
 
-class _FakeGeocoding implements GeocodingRepository {
+class _FakeGeocoding implements IGeocodingRepository {
   final permintaan = <CoordinateEntity>[];
   Completer<Either<Failure, String>>? tahan;
   Either<Failure, String> hasil = const Right('Jl. Kemlaten X No.20, Kebraon');
@@ -67,25 +82,28 @@ class _FakeSurveyRepo implements ISurveyPermohonanRepository {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
-const _posisi = GeoPosition(
+final _posisi = (
   latitude: -7.3300,
   longitude: 112.7000,
-  akurasiMeter: 8,
-  isMocked: false,
+  akurasiMeter: 8.0,
+  time: DateTime(2026, 10, 21),
 );
 
 void main() {
   late _FakeLokasi lokasi;
+  late _FakeIzin izin;
   late _FakeGeocoding geocoding;
   late _FakeSurveyRepo surveyRepo;
   late SurveyLokasiCubit cubit;
 
   setUp(() {
     lokasi = _FakeLokasi()..posisi = _posisi;
+    izin = _FakeIzin();
     geocoding = _FakeGeocoding();
     surveyRepo = _FakeSurveyRepo();
     cubit = SurveyLokasiCubit(
       lokasi,
+      izin,
       geocoding,
       SurveyPermohonanUseCase(surveyRepo),
     );
@@ -155,24 +173,27 @@ void main() {
     expect(h.akurasiMeter, 8);
   });
 
-  test('fake GPS ditolak', () async {
-    lokasi.posisi = const GeoPosition(
-      latitude: -7.33,
-      longitude: 112.7,
-      akurasiMeter: 5,
-      isMocked: true,
-    );
-    await cubit.mulai();
-    expect(cubit.state.status, SurveyLokasiStatus.gagal);
-    expect(cubit.state.pin, isNull);
-  });
+  test(
+    'GPS ditolak layanan lokasi (fake GPS / akurasi): gagal tanpa pin',
+    () async {
+      lokasi.gagal = const LocationHardwareFailure('Fake GPS terdeteksi.');
+      await cubit.mulai();
+      expect(cubit.state.status, SurveyLokasiStatus.gagal);
+      expect(cubit.state.pin, isNull);
+      expect(cubit.state.pesanError, 'Fake GPS terdeteksi.');
+      expect(cubit.state.requiresLocationSettings, isFalse);
+    },
+  );
 
-  test('GPS mati: pesan + kode error untuk tombol pengaturan', () async {
-    lokasi.error = GeoLocationError.serviceDisabled;
+  test('GPS mati / izin ditolak: pesan + tombol pengaturan', () async {
+    lokasi.gagal = const PermissionFailure('Sensor GPS mati.');
     await cubit.mulai();
     expect(cubit.state.status, SurveyLokasiStatus.gagal);
-    expect(cubit.state.kodeError, GeoLocationError.serviceDisabled);
-    expect(cubit.state.pesanError, 'GPS HP mati. Nyalakan GPS.');
+    expect(cubit.state.requiresLocationSettings, isTrue);
+    expect(cubit.state.pesanError, 'Sensor GPS mati.');
+
+    await cubit.bukaPengaturanLokasi();
+    expect(izin.bukaPengaturan, 1);
   });
 
   test('buka ulang dengan hasil sebelumnya: pin & alamat dipulihkan', () async {

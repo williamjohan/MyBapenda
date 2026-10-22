@@ -50,6 +50,7 @@ class ApiEndpoints {
   // ==========================================
   // SURVEY PERMOHONAN BARU
   // ==========================================
+  static const String surveySummary = '/api/reklame/bo/header/summary';
   static const String surveyPermohonanHeader = '/api/reklame/bo/header';
   static const String surveyPermohonanDetail = '/api/reklame/bo/survey-form';
   static const String surveySimpan = '/api/reklame/bo/simpan-survey';

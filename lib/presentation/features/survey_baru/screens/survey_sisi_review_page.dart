@@ -1,7 +1,7 @@
 // lib/presentation/features/survey_baru/screens/survey_sisi_review_page.dart
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_header_card.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import 'survey_foto_page.dart';
@@ -54,8 +54,6 @@ class SurveySisiReviewPage extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.all(18),
             sliver: SliverToBoxAdapter(
-              // onEdit null -> tombol Edit di kartu tidak muncul,
-              // ubah data lewat tombol di bawah
               child: SisiReviewCard(sisi: sisi, result: result),
             ),
           ),

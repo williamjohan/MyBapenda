@@ -1,8 +1,8 @@
-import 'package:bapendacore/data/models/pengiriman/berkas_model.dart';
-import 'package:bapendacore/data/models/pengiriman/lacak_model.dart';
-import 'package:bapendacore/data/models/pengiriman/master_pengiriman_model.dart';
-import 'package:bapendacore/data/models/pengiriman/pengiriman_json_util.dart';
-import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:mybapenda/data/models/pengiriman/berkas_model.dart';
+import 'package:mybapenda/data/models/pengiriman/lacak_model.dart';
+import 'package:mybapenda/data/models/pengiriman/master_pengiriman_model.dart';
+import 'package:mybapenda/data/models/pengiriman/pengiriman_json_util.dart';
+import 'package:mybapenda/domain/entities/pengiriman/berkas_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Map<String, dynamic> _berkasJson() => {

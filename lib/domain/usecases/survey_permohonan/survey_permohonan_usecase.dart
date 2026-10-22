@@ -20,15 +20,17 @@ class SurveyPermohonanUseCase {
 
   SurveyPermohonanUseCase(this._repository);
 
-
   // 1. GET LIST HEADER SURVEY
-  Future<Either<Failure, List<SurveyPermohonanEntity>>> getSurveyPermohonanHeader() {
+  Future<Either<Failure, List<SurveyPermohonanEntity>>>
+  getSurveyPermohonanHeader() {
     return _repository.getSurveyPermohonanHeader();
   }
 
   // 2. GET DETAIL SURVEY
   /// Mengambil rincian detail dari satu tugas survey berdasarkan [key]
-  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({required String key}) {
+  Future<Either<Failure, SurveyDetailEntity>> getSurveyDetail({
+    required String key,
+  }) {
     return _repository.getSurveyDetail(key: key);
   }
 
@@ -44,7 +46,12 @@ class SurveyPermohonanUseCase {
     return _repository.cariNor(nor: nor);
   }
 
-  // 5. RADIUS MAKSIMAL PIN REKLAME
+  // 5. GET SUMMARY
+  Future<Either<Failure, SurveySummaryEntity>> getSurveySummary() {
+    return _repository.getSurveySummary();
+  }
+
+  // 6. RADIUS MAKSIMAL PIN REKLAME
   /// Dipakai bila server belum punya setting dan belum pernah ada cache
   /// (keputusan user 2026-10-17, diperketat dari 50 m).
   static const radiusBawaanMeter = 20;

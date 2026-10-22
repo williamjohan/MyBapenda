@@ -1,7 +1,7 @@
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
-import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
-import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/master_data_state.dart';
-import 'package:bapendacore/presentation/shared/widgets/bt_select_fields.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
+import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/master_data_state.dart';
+import 'package:mybapenda/presentation/shared/widgets/bt_select_fields.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

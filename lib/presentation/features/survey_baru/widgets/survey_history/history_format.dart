@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
 
 class HistoryFmt {

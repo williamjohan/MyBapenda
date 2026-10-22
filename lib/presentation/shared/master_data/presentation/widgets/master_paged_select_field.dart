@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/shared/widgets/paged_select_field.dart';
+import 'package:mybapenda/presentation/shared/widgets/paged_select_field.dart';
 import 'package:flutter/material.dart';
 import '../cubit/paged_search_cubit.dart';
 

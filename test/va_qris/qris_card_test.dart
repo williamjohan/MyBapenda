@@ -1,9 +1,9 @@
-import 'package:bapendacore/core/constants/design_system/tokens/app_theme.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_method.dart';
-import 'package:bapendacore/domain/entities/va_qris/payment_session_entity.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
-import 'package:bapendacore/presentation/features/va_qris/widgets/payment/qris_code_card.dart';
-import 'package:bapendacore/presentation/features/va_qris/widgets/payment/qris_share_card.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_theme.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_method.dart';
+import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_period_entity.dart';
+import 'package:mybapenda/presentation/features/va_qris/widgets/payment/qris_code_card.dart';
+import 'package:mybapenda/presentation/features/va_qris/widgets/payment/qris_share_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

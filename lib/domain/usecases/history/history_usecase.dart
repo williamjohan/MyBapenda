@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/repositories/history/history_repository.dart';
+import 'package:mybapenda/domain/repositories/history/history_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton

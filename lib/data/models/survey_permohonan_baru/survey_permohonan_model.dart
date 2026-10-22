@@ -149,9 +149,32 @@ class SurveyBadgeColorModel {
       _$SurveyBadgeColorModelFromJson(json);
 }
 
+@JsonSerializable(createToJson: false)
+class SurveySummaryModel {
+  @JsonKey(name: 'total')
+  final int? total;
+  @JsonKey(name: 'baru')
+  final int? baru;
+  @JsonKey(name: 'dikembalikanPenilaian')
+  final int? dikembalikanPenilaian;
+
+  const SurveySummaryModel({this.total, this.baru, this.dikembalikanPenilaian});
+
+  factory SurveySummaryModel.fromJson(Map<String, dynamic> json) =>
+      _$SurveySummaryModelFromJson(json);
+}
+
 // ====================================================================
 // EXTENSION (MAPPER KE ENTITY)
-// ====================================================================
+// ====================================================================\
+
+extension SurveySummaryModelX on SurveySummaryModel {
+  SurveySummaryEntity toEntity() => SurveySummaryEntity(
+    total: total,
+    baru: baru,
+    dikembalikanPenilaian: dikembalikanPenilaian,
+  );
+}
 
 extension SurveyPermohonanModelX on SurveyPermohonanModel {
   SurveyPermohonanEntity toEntity() => SurveyPermohonanEntity(

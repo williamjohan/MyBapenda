@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
 import 'package:flutter/foundation.dart';
 
 Map<String, dynamic>? apiDataOf(Map<String, dynamic> sisi) {

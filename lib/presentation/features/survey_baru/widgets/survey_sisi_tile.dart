@@ -1,6 +1,6 @@
 // lib/presentation/features/reklame/widgets/survey_sisi_tile.dart
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
 import 'package:flutter/material.dart';
 
 class SurveySisiTile extends StatelessWidget {

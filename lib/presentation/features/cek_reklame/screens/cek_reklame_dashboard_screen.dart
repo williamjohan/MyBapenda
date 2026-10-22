@@ -1,6 +1,10 @@
 // lib/presentation/features/reklame/pages/reklame_dashboard_page.dart
-import 'package:bapendacore/presentation/features/cek_reklame/widgets/reklame_survey_baru_card.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/cubit/survey_permohonan_baru/survey_summary_cubit.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/cubit/survey_permohonan_baru/survey_summary_state.dart';
+import 'package:mybapenda/presentation/features/cek_reklame/widgets/reklame_survey_baru_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
@@ -12,76 +16,94 @@ class ReklameDashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F8),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          BapendaSliverHeader(
-            title: 'Survey Reklame',
-            showBackButton: true,
-            subtitle: Text(
-              'Pengawasan reklame Kota Surabaya',
-              style: TextStyle(
-                fontSize: 12.5,
-                color: Colors.white.withValues(alpha: 0.85),
+    return BlocProvider(
+      create: (_) => getIt<SurveySummaryCubit>()..load(),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F6F8),
+        body: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            BapendaSliverHeader(
+              title: 'Survey Reklame',
+              showBackButton: true,
+              subtitle: Text(
+                'Pengawasan reklame Kota Surabaya',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: Colors.white.withValues(alpha: 0.85),
+                ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 24, 18, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ---- Section 1: Laporan Foto ----
-                  const _SectionLabel(
-                    title: 'Laporan Foto',
-                    subtitle: 'Temuan reklame di lapangan',
-                  ),
-                  const SizedBox(height: 12),
-                  ReklamePrimaryActionCard(
-                    title: 'Ambil Gambar Reklame',
-                    description:
-                        'Foto lokasi & laporkan billboard yang ditemukan di lapangan secara presisi',
-                    ctaLabel: 'Mulai Ambil Gambar',
-                    onTap: () => context.pushNamed(AppRoutes.camera),
-                  ),
-                  const SizedBox(height: 12),
-                  ReklameHistoryTile(
-                    icon: Icons.history_rounded,
-                    title: 'Riwayat Laporan Foto',
-                    subtitle: 'Laporan foto yang pernah dikirim',
-                    onTap: () => context.pushNamed(AppRoutes.history),
-                  ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 24, 18, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ---- Section 1: Laporan Foto ----
+                    const _SectionLabel(
+                      title: 'Laporan Foto',
+                      subtitle: 'Temuan reklame di lapangan',
+                    ),
+                    const SizedBox(height: 12),
+                    ReklamePrimaryActionCard(
+                      title: 'Ambil Gambar Reklame',
+                      description:
+                          'Foto lokasi & laporkan billboard yang ditemukan di lapangan secara presisi',
+                      ctaLabel: 'Mulai Ambil Gambar',
+                      onTap: () => context.pushNamed(AppRoutes.camera),
+                    ),
+                    const SizedBox(height: 12),
+                    ReklameHistoryTile(
+                      icon: Icons.history_rounded,
+                      title: 'Riwayat Laporan Foto',
+                      subtitle: 'Laporan foto yang pernah dikirim',
+                      onTap: () => context.pushNamed(AppRoutes.history),
+                    ),
 
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
-                  // ---- Section 2: Survey Permohonan ----
-                  const _SectionLabel(
-                    title: 'Survey Permohonan',
-                    subtitle: 'Tugas survey dari permohonan reklame',
-                  ),
-                  const SizedBox(height: 12),
-                  ReklameSurveyBaruCard(
-                    icon: Icons.add_rounded,
-                    title: 'Survey Permohonan Baru',
-                    subtitle: 'Buat laporan survey reklame baru',
-                    onTap: () =>
-                        context.pushNamed(AppRoutes.surveyPermohonanBaru),
-                  ),
-                  const SizedBox(height: 12),
-                  ReklameHistoryTile(
-                    icon: Icons.fact_check_outlined,
-                    title: 'Riwayat Survey Permohonan',
-                    subtitle: 'Survey yang sudah selesai dikirim',
-                    onTap: () => context.pushNamed(AppRoutes.surveyHistory),
-                  ),
-                ],
+                    // ---- Section 2: Survey Permohonan ----
+                    const _SectionLabel(
+                      title: 'Survey Permohonan',
+                      subtitle: 'Tugas survey dari permohonan reklame',
+                    ),
+                    const SizedBox(height: 12),
+                    BlocBuilder<SurveySummaryCubit, SurveySummaryState>(
+                      buildWhen: (p, c) => p.total != c.total,
+                      builder: (context, s) {
+                        final total = s.total;
+                        return ReklameSurveyBaruCard(
+                          total: total,
+                          title: 'Survey Permohonan Baru',
+                          subtitle: total == null
+                              ? 'Tugas survey dari permohonan reklame'
+                              : total == 0
+                              ? 'Tidak ada tugas survey saat ini'
+                              : '$total tugas menunggu disurvey',
+                          onTap: () async {
+                            await context.pushNamed(
+                              AppRoutes.surveyPermohonanBaru,
+                            );
+                            if (context.mounted)
+                              context.read<SurveySummaryCubit>().load();
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    ReklameHistoryTile(
+                      icon: Icons.fact_check_outlined,
+                      title: 'Riwayat Survey Permohonan',
+                      subtitle: 'Survey yang sudah selesai dikirim',
+                      onTap: () => context.pushNamed(AppRoutes.surveyHistory),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,7 @@
-import 'package:bapendacore/core/constants/design_system/tokens/app_theme.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_type_entity.dart';
-import 'package:bapendacore/presentation/features/va_qris/widgets/nop/nop_input_card.dart';
-import 'package:bapendacore/presentation/features/va_qris/widgets/nop/upper_case_text_formatter.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_theme.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_type_entity.dart';
+import 'package:mybapenda/presentation/features/va_qris/widgets/nop/nop_input_card.dart';
+import 'package:mybapenda/presentation/features/va_qris/widgets/nop/upper_case_text_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

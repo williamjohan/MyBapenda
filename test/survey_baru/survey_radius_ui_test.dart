@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:bapendacore/core/errors/failure.dart';
-import 'package:bapendacore/domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart';
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_radius/survey_radius_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/screens/survey_foto_page.dart';
-import 'package:bapendacore/presentation/features/survey_baru/utils/survey_lokasi_ui_helper.dart';
+import 'package:mybapenda/core/errors/failure.dart';
+import 'package:mybapenda/domain/repositories/survey_permohonan/i_survey_permohonan_repository.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_radius/survey_radius_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/screens/survey_foto_page.dart';
+import 'package:mybapenda/presentation/features/survey_baru/utils/survey_lokasi_ui_helper.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:bapendacore/core/constants/design_system/tokens/app_palette.dart';
+import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
 
 InputDecoration _dec(
   BuildContext context,

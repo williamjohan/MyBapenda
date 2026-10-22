@@ -1,4 +1,4 @@
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_data_entity.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_data_entity.dart';
 import 'master_option_model.dart';
 
 /// Gabungan master reklame yang di-fetch sekali (juga dipakai untuk cache lokal).

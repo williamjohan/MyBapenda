@@ -1,6 +1,6 @@
-import 'package:bapendacore/domain/entities/pengiriman/master_pengiriman_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/pengiriman_payload_entity.dart';
-import 'package:bapendacore/domain/usecases/pengiriman/pengiriman_usecase.dart';
+import 'package:mybapenda/domain/entities/pengiriman/master_pengiriman_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/pengiriman_payload_entity.dart';
+import 'package:mybapenda/domain/usecases/pengiriman/pengiriman_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/pengiriman_fakes.dart';

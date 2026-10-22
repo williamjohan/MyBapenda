@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-import '../../../../../core/services/geo_location_service.dart';
+import '../../../../../core/services/geo_location/i_geo_location_service.dart'; 
 import '../../../../../domain/entities/pengiriman/antrean_entity.dart';
 import '../../../../../domain/entities/pengiriman/master_pengiriman_entity.dart';
 import '../../../../../domain/entities/pengiriman/pengiriman_payload_entity.dart';
@@ -11,11 +10,13 @@ enum KirimStatus { idle, mengirim, sukses, gagal }
 
 class AksiState extends Equatable {
   final LokasiStatus lokasiStatus;
+  
   final GeoPosition? lokasi;
+  
   final String? lokasiError;
 
-  /// Untuk tombol "Buka Pengaturan" (GPS mati / izin ditolak permanen).
-  final GeoLocationError? lokasiErrorKode;
+
+  final bool requiresLocationSettings;
 
   final MasterPengirimanEntity? master;
   final bool masterGagal;
@@ -36,7 +37,7 @@ class AksiState extends Equatable {
     this.lokasiStatus = LokasiStatus.mencari,
     this.lokasi,
     this.lokasiError,
-    this.lokasiErrorKode,
+    this.requiresLocationSettings = false, 
     this.master,
     this.masterGagal = false,
     this.foto = const {},
@@ -53,7 +54,7 @@ class AksiState extends Equatable {
     LokasiStatus? lokasiStatus,
     GeoPosition? lokasi,
     String? lokasiError,
-    GeoLocationError? lokasiErrorKode,
+    bool? requiresLocationSettings, 
     MasterPengirimanEntity? master,
     bool? masterGagal,
     Map<FotoSlot, String>? foto,
@@ -71,9 +72,9 @@ class AksiState extends Equatable {
       lokasiError: lokasiStatus != null
           ? lokasiError
           : (lokasiError ?? this.lokasiError),
-      lokasiErrorKode: lokasiStatus != null
-          ? lokasiErrorKode
-          : (lokasiErrorKode ?? this.lokasiErrorKode),
+      requiresLocationSettings: lokasiStatus != null
+          ? (requiresLocationSettings ?? false)
+          : (requiresLocationSettings ?? this.requiresLocationSettings),
       master: master ?? this.master,
       masterGagal: masterGagal ?? this.masterGagal,
       foto: foto ?? this.foto,
@@ -93,7 +94,7 @@ class AksiState extends Equatable {
     lokasiStatus,
     lokasi,
     lokasiError,
-    lokasiErrorKode,
+    requiresLocationSettings, 
     master,
     masterGagal,
     foto,

@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:bapendacore/core/services/map_service.dart';
+import 'package:mybapenda/core/services/map_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:bapendacore/core/services/network_service.dart';
+import 'package:mybapenda/core/services/network_service.dart';
 import 'nearby_state.dart';
 
 class NearbyCubit extends Cubit<NearbyState> {

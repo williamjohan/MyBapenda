@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'splash_state.dart';
 
 @injectable 
@@ -10,10 +10,10 @@ class SplashCubit extends Cubit<SplashState> {
   void start() => _checkNavigation();
 
   Future<void> _checkNavigation() async {
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
     
     // Baca status first launch (berguna untuk nanti)
-    final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
+    // final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
     
     // Durasi splash screen (memberi waktu logo Bapenda untuk tampil penuh)
     await Future.delayed(const Duration(milliseconds: 2500));

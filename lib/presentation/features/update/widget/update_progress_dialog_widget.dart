@@ -1,7 +1,7 @@
 // import 'dart:io';
 
-// import 'package:bapendacore/presentation/features/update/cubit/update_progress_cubit.dart';
-// import 'package:bapendacore/presentation/features/update/cubit/update_progress_state.dart';
+// import 'package:mybapenda/presentation/features/update/cubit/update_progress_cubit.dart';
+// import 'package:mybapenda/presentation/features/update/cubit/update_progress_state.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import '../../../shared/widgets/custom_modal_widget.dart';

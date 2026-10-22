@@ -1,13 +1,16 @@
-import 'package:bapendacore/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_history/survey_history_detail_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_history/survey_history_detail_state.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_image.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_history/history_sisi_card.dart';
-import 'package:bapendacore/presentation/shared/widgets/bapenda_sliver_header.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'dart:io';
+
+import 'package:mybapenda/domain/entities/cek_reklames/survey_permohonan_baru/survey_history_entity.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_history/survey_history_detail_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_history/survey_history_detail_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_history/history_format.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_history/history_image.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_history/history_sisi_card.dart';
+import 'package:mybapenda/presentation/shared/widgets/bapenda_sliver_header.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_dialog.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,9 +35,38 @@ class SurveyHistoryDetailPage extends StatelessWidget {
     final res = await context.read<SurveyHistoryDetailCubit>().downloadPdf();
     if (!context.mounted) return;
 
-    if (res.error != null) return _snack(context, res.error!);
+    // [UBAH] Gagal: dialog dengan tombol Coba Lagi (dulu hanya snackbar).
+    if (res.error != null) {
+      final ulang = await BapendaDialog.showError(
+        context,
+        title: 'Gagal Mengunduh Laporan',
+        message: res.error!,
+        retryLabel: 'Coba Lagi',
+      );
+      if (ulang && context.mounted) await _openPdf(context);
+      return;
+    }
+
     final path = res.path;
     if (path == null) return;
+
+    final size = await File(path).length();
+    if (!context.mounted) return;
+
+    // [BARU] Berhasil: beri tahu dulu, PDF dibuka kalau petugas memilih.
+    final buka = await BapendaDialog.showSuccess(
+      context,
+      title: 'Laporan Siap Dibuka',
+      message: 'Laporan survey berhasil diunduh.',
+      details: [
+        BapendaDialogDetail('Nama file', path.split('/').last),
+        BapendaDialogDetail('Ukuran', _fmtSize(size)),
+      ],
+      primaryLabel: 'Buka PDF',
+      primaryIcon: Icons.picture_as_pdf_rounded,
+      secondaryLabel: 'Nanti',
+    );
+    if (!buka || !context.mounted) return;
 
     final r = await OpenFilex.open(path, type: 'application/pdf');
     if (!context.mounted) return;
@@ -44,6 +76,13 @@ class SurveyHistoryDetailPage extends StatelessWidget {
         'Tidak bisa membuka PDF. Pastikan ada aplikasi pembaca PDF.',
       );
     }
+  }
+
+  // [BARU] Taruh di dalam class SurveyHistoryDetailPage.
+  String _fmtSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).round()} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',')} MB';
   }
 
   @override

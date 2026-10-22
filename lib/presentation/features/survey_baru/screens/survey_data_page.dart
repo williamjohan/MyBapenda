@@ -1,21 +1,21 @@
 // lib/presentation/features/survey_baru/screens/survey_data_page.dart
-import 'package:bapendacore/core/di/injection.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
-import 'package:bapendacore/presentation/features/survey_baru/cubit/survey_data/survey_data_state.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/paged_master_entities.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
-import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
-import 'package:bapendacore/presentation/shared/master_data/presentation/cubit/paged_search_cubit.dart';
-import 'package:bapendacore/presentation/shared/master_data/presentation/widgets/master_paged_select_field.dart';
-import 'package:bapendacore/presentation/shared/master_data/presentation/widgets/master_select_field.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/features/survey_baru/widgets/tombol_simpan_draft.dart';
-import 'package:bapendacore/presentation/shared/widgets/form_fields.dart';
-import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
-import 'package:bapendacore/presentation/shared/widgets/paged_select_field.dart';
-import 'package:bapendacore/presentation/shared/widgets/step_indicator.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
+import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_data/survey_data_state.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_header_card.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/paged_master_entities.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
+import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/master_data_cubit.dart';
+import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/paged_search_cubit.dart';
+import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/master_paged_select_field.dart';
+import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/master_select_field.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/tombol_simpan_draft.dart';
+import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
+import 'package:mybapenda/presentation/shared/widgets/paged_select_field.dart';
+import 'package:mybapenda/presentation/shared/widgets/step_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -332,33 +332,47 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                             onChanged: cubit.setLokasi,
                           ),
                           _gap,
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: BapendaTextField(
-                                  label: 'Panjang (P)',
-                                  suffixText: 'm',
-                                  controller: _pCtrl,
-                                  keyboardType: TextInputType.number,
+                              const Text(
+                                'Ukuran Reklame',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1F2933),
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: BapendaTextField(
-                                  label: 'Lebar (L)',
-                                  suffixText: 'm',
-                                  controller: _lCtrl,
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: BapendaTextField(
-                                  label: 'Tinggi (T)',
-                                  suffixText: 'm',
-                                  controller: _tCtrl,
-                                  keyboardType: TextInputType.number,
-                                ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: BapendaTextField(
+                                      label: 'Panjang (P)',
+                                      suffixText: 'm',
+                                      controller: _pCtrl,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: BapendaTextField(
+                                      label: 'Lebar (L)',
+                                      suffixText: 'm',
+                                      controller: _lCtrl,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: BapendaTextField(
+                                      label: 'Tinggi (T)',
+                                      suffixText: 'm',
+                                      controller: _tCtrl,
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

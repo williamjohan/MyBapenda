@@ -1,35 +1,37 @@
 import 'dart:async';
 import 'dart:io';
-
-import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
+import 'package:injectable/injectable.dart';
+import 'package:mybapenda/domain/usecases/auth/auth_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
-
-import 'package:bapendacore/presentation/shared/master_data/domain/entities/master_option_type.dart';
-import 'package:bapendacore/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
-import 'package:bapendacore/presentation/shared/utils/date_util.dart';
-import 'package:bapendacore/presentation/shared/utils/foto_stamp_util.dart';
-import 'package:bapendacore/presentation/shared/utils/location_util.dart';
-
+import 'package:mybapenda/presentation/shared/master_data/domain/entities/master_option_type.dart';
+import 'package:mybapenda/presentation/shared/master_data/domain/usecases/master_data_usecase.dart';
+import 'package:mybapenda/presentation/shared/utils/date_util.dart';
+import 'package:mybapenda/presentation/shared/utils/foto_stamp_util.dart';
+import '../../../../../core/services/geo_location/i_geo_location_service.dart';
 import 'survey_info_state.dart';
 
+@injectable
 class SurveyInfoCubit extends Cubit<SurveyInfoState> {
   final String nomorPelayanan;
+  final IGeoLocationService _geolocationService;
   final MasterDataUseCase _master;
   final AuthUseCase _auth;
+
   String? _prefillKec;
   String? _prefillKel;
-
-  // Setiap operasi baru membatalkan hasil operasi sebelumnya.
   int _operationId = 0;
 
   SurveyInfoCubit({
-    required this.nomorPelayanan,
-    required MasterDataUseCase masterUseCase,
+    @factoryParam required this.nomorPelayanan,
+    required IGeoLocationService geolocationService,
+    required MasterDataUseCase masterDataUseCase,
     required AuthUseCase authUseCase,
-  }) : _master = masterUseCase,
-       _auth = authUseCase,
-       super(const SurveyInfoState());
+  })  : _geolocationService = geolocationService,
+        _master = masterDataUseCase,
+        _auth = authUseCase,
+        super(const SurveyInfoState());
+
 
   bool _isCurrentOperation(int id) => !isClosed && id == _operationId;
 
@@ -356,157 +358,153 @@ class SurveyInfoCubit extends Cubit<SurveyInfoState> {
   Future<void> _fetchLocationAndStamp(int operationId) async {
     if (!_isCurrentOperation(operationId)) return;
 
-    try {
-      final fix = await LocationUtil.current();
+    // 🚀 REFACTOR: Ganti LocationUtil.current() dengan IGeoLocationService
+    final locationResult = await _geolocationService.getCurrentPosition();
 
-      if (!_isCurrentOperation(operationId)) return;
+    if (!_isCurrentOperation(operationId)) return;
 
-      // Simpan GPS sebelum reverse geocoding.
-      emit(
-        state.copyWith(
-          latitude: fix.lat,
-          longitude: fix.lng,
-          accuracy: fix.accuracy,
-          gpsTime: fix.time,
-        ),
-      );
-
-      final geo = await _reverseGeocode(fix.lat, fix.lng);
-
-      if (!_isCurrentOperation(operationId)) return;
-      final String? nextKecamatanId = geo.kecamatanId ?? state.kecamatanId;
-
-      final String? nextKelurahanId = geo.kecamatanId != null
-          ? geo.kelurahanId
-          : state.kelurahanId;
-
-      emit(
-        state.copyWith(
-          address: geo.address,
-          rt: geo.rt,
-          rw: geo.rw,
-          kecamatanId: nextKecamatanId,
-          clearKecamatan: nextKecamatanId == null,
-          kelurahanId: nextKelurahanId,
-          clearKelurahan: nextKelurahanId == null,
-        ),
-      );
-
-      final sourcePath = state.originalPhotoPath;
-      final capturedAt = state.photoCapturedAt;
-
-      // GPS boleh diambil sebelum foto diambil.
-      if (sourcePath == null || capturedAt == null) {
-        emit(
-          state.copyWith(
-            message: geo.address == '-'
-                ? 'Koordinat didapat, tetapi alamat tidak ditemukan.'
-                : 'Lokasi berhasil diperbarui.',
-            messageType: SurveyInfoMessageType.info,
-          ),
-        );
-        return;
-      }
-
-      // Selama stamp dibuat, hanya foto asli yang dipertahankan.
-      emit(
-        state.copyWith(
-          selfiePath: sourcePath,
-          isPhotoStamped: false,
-          isStamping: true,
-        ),
-      );
-
-      String? stampedPath;
-
-      try {
-        stampedPath = await FotoStampUtil.stamp(
-          sourcePath: sourcePath,
-          title: 'BUKTI SURVEI • $nomorPelayanan',
-          lines: [
-            '${DateUtil.hari(capturedAt)}, '
-                '${DateUtil.tanggal(capturedAt)} / '
-                '${DateUtil.jam(capturedAt)} WIB',
-            'Lokasi: ${geo.address}',
-            if (geo.rt != null && geo.rw != null) 'RT/RW: ${geo.rt}/${geo.rw}',
-            'Latitude: ${fix.lat.toStringAsFixed(6)}, Longitude: ${fix.lng.toStringAsFixed(6)}',
-            'Akurasi GPS: ±${fix.accuracy.round()} meter',
-          ],
-        );
-
-        // Jika ada foto/operasi baru, jangan gunakan hasil lama.
-        if (!_isCurrentOperation(operationId)) {
-          await _deleteStampFile(stampedPath);
-          return;
-        }
+    // 🚀 Tangani Either<Failure, GeoPosition> menggunakan .fold()
+    await locationResult.fold(
+      // =======================================================================
+      // KONDISI GAGAL (Left: Failure)
+      // =======================================================================
+      (failure) async {
+        if (!_isCurrentOperation(operationId)) return;
 
         emit(
           state.copyWith(
-            selfiePath: stampedPath,
-            isPhotoStamped: true,
-            message: geo.address == '-'
-                ? 'Foto diberi stamp, tetapi alamat tidak ditemukan. Cek wilayah secara manual.'
-                : (geo.kecamatanId == null || geo.kelurahanId == null)
-                ? 'Foto berhasil diberi stamp. Cek kecamatan dan kelurahan.'
-                : 'Foto berhasil diberi stamp lokasi.',
-            messageType: SurveyInfoMessageType.success,
+            message: state.originalPhotoPath == null
+                ? failure.message
+                : '${failure.message} Foto belum memiliki stamp lokasi. '
+                    'Tekan "Lokasi Saat Ini" untuk mencoba lagi.',
+            messageType: SurveyInfoMessageType.error,
           ),
         );
-      } catch (error) {
-        if (!_isCurrentOperation(operationId)) {
-          if (stampedPath != null) {
-            await _deleteStampFile(stampedPath);
-          }
+      },
+
+      // =======================================================================
+      // KONDISI SUKSES (Right: GeoPosition)
+      // =======================================================================
+      (fix) async {
+        if (!_isCurrentOperation(operationId)) return;
+
+        // Simpan GPS sebelum reverse geocoding.
+        // (Perhatikan penyesuaian nama properti dari lat/lng/accuracy ke latitude/longitude/akurasiMeter)
+        emit(
+          state.copyWith(
+            latitude: fix.latitude,
+            longitude: fix.longitude,
+            accuracy: fix.akurasiMeter,
+            gpsTime: fix.time,
+          ),
+        );
+
+        final geo = await _reverseGeocode(fix.latitude, fix.longitude);
+
+        if (!_isCurrentOperation(operationId)) return;
+        final String? nextKecamatanId = geo.kecamatanId ?? state.kecamatanId;
+
+        final String? nextKelurahanId = geo.kecamatanId != null
+            ? geo.kelurahanId
+            : state.kelurahanId;
+
+        emit(
+          state.copyWith(
+            address: geo.address,
+            rt: geo.rt,
+            rw: geo.rw,
+            kecamatanId: nextKecamatanId,
+            clearKecamatan: nextKecamatanId == null,
+            kelurahanId: nextKelurahanId,
+            clearKelurahan: nextKelurahanId == null,
+          ),
+        );
+
+        final sourcePath = state.originalPhotoPath;
+        final capturedAt = state.photoCapturedAt;
+
+        // GPS boleh diambil sebelum foto diambil.
+        if (sourcePath == null || capturedAt == null) {
+          emit(
+            state.copyWith(
+              message: geo.address == '-'
+                  ? 'Koordinat didapat, tetapi alamat tidak ditemukan.'
+                  : 'Lokasi berhasil diperbarui.',
+              messageType: SurveyInfoMessageType.info,
+            ),
+          );
           return;
         }
 
+        // Selama stamp dibuat, hanya foto asli yang dipertahankan.
         emit(
           state.copyWith(
             selfiePath: sourcePath,
             isPhotoStamped: false,
-            message: 'Gagal membuat stamp foto: $error',
-            messageType: SurveyInfoMessageType.error,
+            isStamping: true,
           ),
         );
-      }
-    } on LocationException catch (error) {
-      if (!_isCurrentOperation(operationId)) return;
 
-      emit(
-        state.copyWith(
-          message: state.originalPhotoPath == null
-              ? error.message
-              : '${error.message} Foto belum memiliki stamp lokasi. '
-                    'Tekan "Lokasi Saat Ini" untuk mencoba lagi.',
-          messageType: SurveyInfoMessageType.error,
-        ),
-      );
-    } on TimeoutException {
-      if (!_isCurrentOperation(operationId)) return;
+        String? stampedPath;
 
-      emit(
-        state.copyWith(
-          message: 'Sinyal GPS lemah, coba lagi di area lebih terbuka.',
-          messageType: SurveyInfoMessageType.error,
-        ),
-      );
-    } catch (error) {
-      if (!_isCurrentOperation(operationId)) return;
+        try {
+          stampedPath = await FotoStampUtil.stamp(
+            sourcePath: sourcePath,
+            title: 'BUKTI SURVEI • $nomorPelayanan',
+            lines: [
+              '${DateUtil.hari(capturedAt)}, '
+                  '${DateUtil.tanggal(capturedAt)} / '
+                  '${DateUtil.jam(capturedAt)} WIB',
+              'Lokasi: ${geo.address}',
+              if (geo.rt != null && geo.rw != null) 'RT/RW: ${geo.rt}/${geo.rw}',
+              'Latitude: ${fix.latitude.toStringAsFixed(6)}, Longitude: ${fix.longitude.toStringAsFixed(6)}',
+              'Akurasi GPS: ±${fix.akurasiMeter.round()} meter',
+            ],
+          );
 
-      emit(
-        state.copyWith(
-          message: 'Gagal mengambil lokasi: $error',
-          messageType: SurveyInfoMessageType.error,
-        ),
-      );
-    } finally {
-      // Proses lama tidak boleh mengubah loading state proses baru.
-      if (_isCurrentOperation(operationId)) {
-        emit(state.copyWith(isLocating: false, isStamping: false));
-      }
+          // Jika ada foto/operasi baru, jangan gunakan hasil lama.
+          if (!_isCurrentOperation(operationId)) {
+            await _deleteStampFile(stampedPath);
+            return;
+          }
+
+          emit(
+            state.copyWith(
+              selfiePath: stampedPath,
+              isPhotoStamped: true,
+              message: geo.address == '-'
+                  ? 'Foto diberi stamp, tetapi alamat tidak ditemukan. Cek wilayah secara manual.'
+                  : (geo.kecamatanId == null || geo.kelurahanId == null)
+                  ? 'Foto berhasil diberi stamp. Cek kecamatan dan kelurahan.'
+                  : 'Foto berhasil diberi stamp lokasi.',
+              messageType: SurveyInfoMessageType.success,
+            ),
+          );
+        } catch (error) {
+          if (!_isCurrentOperation(operationId)) {
+            if (stampedPath != null) {
+              await _deleteStampFile(stampedPath);
+            }
+            return;
+          }
+
+          emit(
+            state.copyWith(
+              selfiePath: sourcePath,
+              isPhotoStamped: false,
+              message: 'Gagal membuat stamp foto: $error',
+              messageType: SurveyInfoMessageType.error,
+            ),
+          );
+        }
+      },
+    );
+
+    // Proses lama tidak boleh mengubah loading state proses baru.
+    if (_isCurrentOperation(operationId)) {
+      emit(state.copyWith(isLocating: false, isStamping: false));
     }
   }
-
   void setKecamatan(String? id) {
     emit(
       state.copyWith(

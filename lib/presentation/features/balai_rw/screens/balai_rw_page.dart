@@ -1,10 +1,10 @@
 // lib/presentation/features/balai_rw/pages/balai_rw_page.dart
-import 'package:bapendacore/domain/entities/balai_rw/roster_pegawai_entity.dart';
-import 'package:bapendacore/presentation/features/balai_rw/constant/balai_rw_dummy.dart';
-import 'package:bapendacore/presentation/shared/utils/date_util.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
-import 'package:bapendacore/presentation/shared/widgets/info_row.dart';
-import 'package:bapendacore/presentation/shared/widgets/status_chip.dart';
+import 'package:mybapenda/domain/entities/balai_rw/roster_pegawai_entity.dart';
+import 'package:mybapenda/presentation/features/balai_rw/constant/balai_rw_dummy.dart';
+import 'package:mybapenda/presentation/shared/utils/date_util.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
+import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

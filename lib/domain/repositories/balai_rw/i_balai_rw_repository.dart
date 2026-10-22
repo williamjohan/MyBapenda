@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/entities/balai_rw/laporan_payload_entity.dart';
+import 'package:mybapenda/domain/entities/balai_rw/laporan_payload_entity.dart';
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failure.dart';
 import '../../entities/balai_rw/kategori_pertanyaan_entity.dart';

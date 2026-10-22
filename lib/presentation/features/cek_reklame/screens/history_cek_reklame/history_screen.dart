@@ -1,6 +1,6 @@
-import 'package:bapendacore/core/constants/app_colors_new.dart';
-import 'package:bapendacore/core/di/injection.dart';
-import 'package:bapendacore/core/utils/date_format_id.dart';
+import 'package:mybapenda/core/constants/app_colors_new.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/core/utils/date_format_id.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../shared/widgets/bapenda_sliver_header.dart';

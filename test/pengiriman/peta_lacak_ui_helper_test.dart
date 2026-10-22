@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
-import 'package:bapendacore/domain/entities/pengiriman/jejak_entity.dart';
-import 'package:bapendacore/presentation/features/pengiriman/utils/peta_lacak_ui_helper.dart';
+import 'package:mybapenda/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:mybapenda/domain/entities/pengiriman/jejak_entity.dart';
+import 'package:mybapenda/presentation/features/pengiriman/utils/peta_lacak_ui_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 JejakEntity _j(StatusBerkas s, {double? lat, double? lng}) =>

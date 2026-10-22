@@ -1,6 +1,6 @@
-import 'package:bapendacore/core/utils/currency_formatter.dart';
-import 'package:bapendacore/core/utils/date_format_id.dart';
-import 'package:bapendacore/domain/entities/va_qris/tax_period_entity.dart';
+import 'package:mybapenda/core/utils/currency_formatter.dart';
+import 'package:mybapenda/core/utils/date_format_id.dart';
+import 'package:mybapenda/domain/entities/va_qris/tax_period_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/theme_kit.dart';
 

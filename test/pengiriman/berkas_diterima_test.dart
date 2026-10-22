@@ -1,5 +1,5 @@
-import 'package:bapendacore/data/models/pengiriman/berkas_model.dart';
-import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:mybapenda/data/models/pengiriman/berkas_model.dart';
+import 'package:mybapenda/domain/entities/pengiriman/berkas_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/pengiriman_fakes.dart';

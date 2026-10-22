@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
-
-import '../../../../../core/services/geo_location_service.dart';
+import '../../../../../core/services/geo_location/i_geo_location_service.dart';
 import '../../../../../domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 
 /// Lokasi reklame satu sisi hasil pinpoint (ikut di `SurveyResult`).
@@ -33,7 +32,9 @@ class SurveyLokasiState extends Equatable {
   final String? alamat;
   final bool memuatAlamat;
   final String? pesanError;
-  final GeoLocationError? kodeError;
+  
+  // 🚀 REFACTOR: Mengganti kodeError menjadi flag boolean universal
+  final bool requiresLocationSettings;
 
   /// Pin reklame paling jauh dari posisi petugas (meter): petugas harus
   /// benar-benar di lokasi reklame. Dari setting server
@@ -47,8 +48,8 @@ class SurveyLokasiState extends Equatable {
     this.alamat,
     this.memuatAlamat = false,
     this.pesanError,
-    this.kodeError,
     this.jarakMaksMeter = SurveyPermohonanUseCase.radiusBawaanMeter,
+    this.requiresLocationSettings = false, // Default false
   });
 
   /// Jarak petugas ke pin (meter); null bila salah satu belum ada.
@@ -85,7 +86,7 @@ class SurveyLokasiState extends Equatable {
     String? alamat,
     bool? memuatAlamat,
     String? pesanError,
-    GeoLocationError? kodeError,
+    bool? requiresLocationSettings,
     int? jarakMaksMeter,
     bool clearError = false,
   }) {
@@ -96,8 +97,8 @@ class SurveyLokasiState extends Equatable {
       alamat: alamat ?? this.alamat,
       memuatAlamat: memuatAlamat ?? this.memuatAlamat,
       pesanError: clearError ? null : pesanError ?? this.pesanError,
-      kodeError: clearError ? null : kodeError ?? this.kodeError,
       jarakMaksMeter: jarakMaksMeter ?? this.jarakMaksMeter,
+      requiresLocationSettings: clearError ? false : requiresLocationSettings ?? this.requiresLocationSettings,
     );
   }
 
@@ -111,7 +112,7 @@ class SurveyLokasiState extends Equatable {
     alamat,
     memuatAlamat,
     pesanError,
-    kodeError,
     jarakMaksMeter,
+    requiresLocationSettings,
   ];
 }

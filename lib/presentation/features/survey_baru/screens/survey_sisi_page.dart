@@ -1,6 +1,6 @@
 // lib/presentation/features/reklame/pages/survey_sisi_page.dart
-import 'package:bapendacore/presentation/features/survey_baru/widgets/survey_header_card.dart';
-import 'package:bapendacore/presentation/shared/widgets/button.dart';
+import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_header_card.dart';
+import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -160,7 +160,7 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1F2933),
+                        color:  Color(0xFF1F2933),
                       ),
                     ),
                   ),
@@ -169,7 +169,7 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFFB8680F),
+                      color:  Color(0xFFB8680F),
                     ),
                   ),
                 ],

@@ -1,4 +1,4 @@
-import 'package:bapendacore/domain/usecases/auth/auth_usecase.dart';
+import 'package:mybapenda/domain/usecases/auth/auth_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/services/permission/i_permission_service.dart';

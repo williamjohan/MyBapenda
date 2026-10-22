@@ -1,12 +1,12 @@
-import 'package:bapendacore/core/errors/exception.dart';
-import 'package:bapendacore/core/network/api_endpoints.dart';
-import 'package:bapendacore/data/datasources/pengiriman/pengiriman_remote_datasource.dart';
-import 'package:bapendacore/data/datasources/pengiriman/rute_remote_datasource.dart';
-import 'package:bapendacore/data/models/pengiriman/rute_model.dart';
-import 'package:bapendacore/domain/entities/pengiriman/lacak_entity.dart';
-import 'package:bapendacore/data/models/pengiriman/berkas_model.dart';
-import 'package:bapendacore/data/models/pengiriman/lacak_model.dart';
-import 'package:bapendacore/domain/entities/pengiriman/berkas_entity.dart';
+import 'package:mybapenda/core/errors/exception.dart';
+import 'package:mybapenda/core/network/api_endpoints.dart';
+import 'package:mybapenda/data/datasources/pengiriman/pengiriman_remote_datasource.dart';
+import 'package:mybapenda/data/datasources/pengiriman/rute_remote_datasource.dart';
+import 'package:mybapenda/data/models/pengiriman/rute_model.dart';
+import 'package:mybapenda/domain/entities/pengiriman/lacak_entity.dart';
+import 'package:mybapenda/data/models/pengiriman/berkas_model.dart';
+import 'package:mybapenda/data/models/pengiriman/lacak_model.dart';
+import 'package:mybapenda/domain/entities/pengiriman/berkas_entity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 

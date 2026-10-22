@@ -7,13 +7,12 @@ import '../../models/survey_permohonan_baru/cari_nor_model.dart';
 import '../../models/survey_permohonan_baru/simpan_survey_hasil_model.dart';
 import '../../models/survey_permohonan_baru/simpan_survey_request_model.dart';
 import '../../models/survey_permohonan_baru/survey_permohonan_model.dart';
-import '../../models/survey_permohonan_baru/survey_detail_model.dart'; 
-
+import '../../models/survey_permohonan_baru/survey_detail_model.dart';
 
 abstract class ISurveyPermohonanRemoteDataSource {
   // Get List Header
   Future<List<SurveyPermohonanModel>> getSurveyPermohonanHeader();
-  
+
   //  Get Detail Header - Survey Permohonan Baru
   Future<SurveyDetailModel> getSurveyDetail({required String key});
 
@@ -22,8 +21,10 @@ abstract class ISurveyPermohonanRemoteDataSource {
     SimpanSurveyRequestModel requestModel,
   );
 
-  // Cari Nor 
+  // Cari Nor
   Future<List<CariNorModel>> cariNor({required String nor});
+
+  Future<SurveySummaryModel> getSurveySummary();
 
   // Radius maksimal pin reklame dari posisi petugas (meter); null = kosong
   Future<int?> getRadiusSurvey();
@@ -41,16 +42,18 @@ class SurveyPermohonanRemoteDataSourceImpl
   // ===========================================================================
   @override
   Future<List<SurveyPermohonanModel>> getSurveyPermohonanHeader() async {
-    final response = await _dio.get(
-      ApiEndpoints.surveyPermohonanHeader,
-    );
+    final response = await _dio.get(ApiEndpoints.surveyPermohonanHeader);
 
-    final apiResponse = BaseApiResponseModel<List<SurveyPermohonanModel>>.fromJson(
-      response.data,
-      (json) => (json as List)
-          .map((e) => SurveyPermohonanModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+    final apiResponse =
+        BaseApiResponseModel<List<SurveyPermohonanModel>>.fromJson(
+          response.data,
+          (json) => (json as List)
+              .map(
+                (e) =>
+                    SurveyPermohonanModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
+        );
 
     if (!apiResponse.isSuccess) {
       throw ServerException(apiResponse.status, apiResponse.errorMessage);
@@ -65,13 +68,10 @@ class SurveyPermohonanRemoteDataSourceImpl
   @override
   Future<SurveyDetailModel> getSurveyDetail({required String key}) async {
     final response = await _dio.get(
-      ApiEndpoints.surveyPermohonanDetail, 
-      queryParameters: {
-        'key': key,
-      },
+      ApiEndpoints.surveyPermohonanDetail,
+      queryParameters: {'key': key},
     );
 
-    
     final apiResponse = BaseApiResponseModel<SurveyDetailModel>.fromJson(
       response.data,
       (json) => SurveyDetailModel.fromJson(json as Map<String, dynamic>),
@@ -81,9 +81,11 @@ class SurveyPermohonanRemoteDataSourceImpl
       throw ServerException(apiResponse.status, apiResponse.errorMessage);
     }
 
-
     if (apiResponse.data == null) {
-      throw const ServerException(404, 'Detail permohonan survey tidak ditemukan.');
+      throw const ServerException(
+        404,
+        'Detail permohonan survey tidak ditemukan.',
+      );
     }
 
     return apiResponse.data!;
@@ -98,10 +100,7 @@ class SurveyPermohonanRemoteDataSourceImpl
   ) async {
     final formData = await requestModel.toFormData();
 
-    final response = await _dio.post(
-      ApiEndpoints.surveySimpan, 
-      data: formData,
-    );
+    final response = await _dio.post(ApiEndpoints.surveySimpan, data: formData);
 
     final apiResponse = BaseApiResponseModel<SimpanSurveyHasilModel>.fromJson(
       response.data,
@@ -124,16 +123,14 @@ class SurveyPermohonanRemoteDataSourceImpl
     return data;
   }
 
-  
   // ===========================================================================
   // 4. GET CARI NOR
   // ===========================================================================
   @override
-  Future<List<CariNorModel>> cariNor({required String nor}) async {final response = await _dio.get(
+  Future<List<CariNorModel>> cariNor({required String nor}) async {
+    final response = await _dio.get(
       ApiEndpoints.surveyCariNor,
-      queryParameters: {
-        'nor': nor,
-      },
+      queryParameters: {'nor': nor},
     );
 
     final apiResponse = BaseApiResponseModel<List<CariNorModel>>.fromJson(
@@ -151,20 +148,47 @@ class SurveyPermohonanRemoteDataSourceImpl
   }
 
   // ===========================================================================
-  // 5. GET PENGATURAN RADIUS SURVEY
+  // 5. GET SUMMARY
+  // ===========================================================================
+  @override
+  Future<SurveySummaryModel> getSurveySummary() async {
+    final response = await _dio.get(ApiEndpoints.surveySummary);
+
+    final apiResponse = BaseApiResponseModel<SurveySummaryModel>.fromJson(
+      response.data,
+      (json) => json is Map
+          ? SurveySummaryModel.fromJson(Map<String, dynamic>.from(json))
+          : throw const ServerException(
+              500,
+              'Respons ringkasan survey tidak dikenali.',
+            ),
+    );
+
+    if (!apiResponse.isSuccess) {
+      throw ServerException(apiResponse.status, apiResponse.errorMessage);
+    }
+
+    final data = apiResponse.data;
+    if (data == null) {
+      throw const ServerException(500, 'Respons ringkasan survey kosong.');
+    }
+    return data;
+  }
+
+  // ===========================================================================
+  // 6. GET PENGATURAN RADIUS SURVEY
   // ===========================================================================
   @override
   Future<int?> getRadiusSurvey() async {
     final response = await _dio.get(ApiEndpoints.surveyPengaturanRadius);
 
-    final apiResponse = BaseApiResponseModel<int?>.fromJson(
-      response.data,
-      (json) {
-        final v = json is Map ? json['jarakMaksMeter'] : null;
-        if (v is num) return v.toInt();
-        return int.tryParse('${v ?? ''}'.trim());
-      },
-    );
+    final apiResponse = BaseApiResponseModel<int?>.fromJson(response.data, (
+      json,
+    ) {
+      final v = json is Map ? json['jarakMaksMeter'] : null;
+      if (v is num) return v.toInt();
+      return int.tryParse('${v ?? ''}'.trim());
+    });
 
     if (!apiResponse.isSuccess) {
       throw ServerException(apiResponse.status, apiResponse.errorMessage);
