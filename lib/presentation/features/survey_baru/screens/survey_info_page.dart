@@ -14,7 +14,7 @@ import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/m
 import 'package:mybapenda/presentation/shared/widgets/bt_select_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:mybapenda/presentation/shared/widgets/checkin_card.dart';
-import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_form_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/paged_select_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

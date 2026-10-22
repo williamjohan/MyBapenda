@@ -13,7 +13,7 @@ import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/m
 import 'package:mybapenda/presentation/shared/widgets/bapenda_image.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:mybapenda/presentation/features/survey_baru/widgets/tombol_simpan_draft.dart';
-import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_form_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
 import 'package:mybapenda/presentation/shared/widgets/mb_thumb.dart';
 import 'package:mybapenda/presentation/shared/widgets/paged_select_field.dart';
@@ -167,6 +167,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
           value: form.persilId,
           valueLabel: form.persilLabel,
           onChanged: cubit.setPersil,
+          mandatory: true,
         ),
         _gap,
         MasterSelectField<int>(
@@ -415,16 +416,17 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                           BapendaTextField(
                             label: 'Materi Reklame',
                             controller: _materiCtrl,
+                            mandatory: true,
                           ),
                           _gap,
                           BapendaTextField(
-                            label: 'Keterangan Sisi (Opsional)',
+                            label: 'Keterangan Sisi',
                             controller: _ketSisiCtrl,
                             maxLines: 2,
                           ),
                           _gap,
                           BapendaTextField(
-                            label: 'Keterangan Survey (Opsional)',
+                            label: 'Keterangan Survey',
                             hint: 'Tambahkan catatan jika ada...',
                             controller: _ketSurveyCtrl,
                             maxLines: 3,
