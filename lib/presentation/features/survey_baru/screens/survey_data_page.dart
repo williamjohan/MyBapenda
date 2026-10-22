@@ -1,4 +1,5 @@
 // lib/presentation/features/survey_baru/screens/survey_data_page.dart
+import 'package:mybapenda/core/constants/app_colors_new.dart';
 import 'package:mybapenda/core/di/injection.dart';
 import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_data/survey_data_cubit.dart';
 import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_data/survey_data_state.dart';
@@ -10,9 +11,9 @@ import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/mas
 import 'package:mybapenda/presentation/shared/master_data/presentation/cubit/paged_search_cubit.dart';
 import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/master_paged_select_field.dart';
 import 'package:mybapenda/presentation/shared/master_data/presentation/widgets/master_select_field.dart';
-import 'package:mybapenda/presentation/shared/widgets/bapenda_image.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
 import 'package:mybapenda/presentation/features/survey_baru/widgets/tombol_simpan_draft.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_dialog.dart';
 import 'package:mybapenda/presentation/shared/widgets/mb_form_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
 import 'package:mybapenda/presentation/shared/widgets/mb_thumb.dart';
@@ -112,7 +113,6 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
   SurveyDataTexts _teks() {
     final cubit = context.read<SurveyDataCubit>();
 
-    // Nama lokasi diambil dari cache master berdasarkan ID yang dipilih.
     final lokasiId = cubit.state.lokasiPenyelenggaraanId;
     final lokasiNama = lokasiId == null
         ? ''
@@ -249,9 +249,12 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
         }
         final err = state.error;
         if (err != null) {
-          ScaffoldMessenger.of(
+          BapendaDialog.showWarning(
             context,
-          ).showSnackBar(SnackBar(content: Text(err)));
+            title: 'Data Belum Lengkap',
+            message: err,
+            primaryLabel: 'Mengerti',
+          );
           context.read<SurveyDataCubit>().clearError();
         }
       },
@@ -348,9 +351,9 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                               const Text(
                                 'Ukuran Reklame',
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1F2933),
+                                  fontSize: 13,
+                                  color: AppThemeColors.textSecondary,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -361,6 +364,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                                       label: 'Panjang (P)',
                                       suffixText: 'm',
                                       controller: _pCtrl,
+                                      mandatory: true,
                                       keyboardType: TextInputType.number,
                                     ),
                                   ),
@@ -370,6 +374,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                                       label: 'Lebar (L)',
                                       suffixText: 'm',
                                       controller: _lCtrl,
+                                      mandatory: true,
                                       keyboardType: TextInputType.number,
                                     ),
                                   ),
@@ -379,6 +384,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                                       label: 'Tinggi (T)',
                                       suffixText: 'm',
                                       controller: _tCtrl,
+                                      mandatory: true,
                                       keyboardType: TextInputType.number,
                                     ),
                                   ),
@@ -423,6 +429,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                             label: 'Keterangan Sisi',
                             controller: _ketSisiCtrl,
                             maxLines: 2,
+                            mandatory: true,
                           ),
                           _gap,
                           BapendaTextField(
@@ -431,6 +438,7 @@ class _SurveyDataPageState extends State<SurveyDataPage> {
                             controller: _ketSurveyCtrl,
                             maxLines: 3,
                             maxLength: 200,
+                            mandatory: true,
                           ),
                         ],
                       ),

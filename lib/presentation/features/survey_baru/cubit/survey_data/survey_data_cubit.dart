@@ -89,27 +89,36 @@ class SurveyDataCubit extends Cubit<SurveyDataState> {
   double _num(String s) => double.tryParse(s.replaceAll(',', '.')) ?? 0;
 
   String? _validate(SurveyDataTexts t) {
-    if (!sudahPunyaNor &&
-        (state.jenisBangunanId == null ||
-            state.namaJalanId == null ||
-            state.persilId == null ||
-            (t.noAlamat ?? '').trim().isEmpty)) {
-      return 'Lengkapi semua data NOR baru';
+    final kurang = <String>[];
+
+    if (!sudahPunyaNor) {
+      if (state.persilId == null) kurang.add('Persil');
+      if (state.jenisBangunanId == null) kurang.add('Jenis Bangunan');
+      if (state.namaJalanId == null) kurang.add('Nama Jalan');
+      if ((t.noAlamat ?? '').trim().isEmpty) kurang.add('No. Alamat');
+      
     }
-    if (state.lokasiTertentuId == null ||
-        state.lokasiPenyelenggaraanId == null ||
-        state.letakId == null ||
-        state.statusTanahId == null ||
-        state.jenisReklameId == null ||
-        state.jenisProdukId == null ||
-        state.sudutId == null) {
-      return 'Lengkapi semua pilihan dulu';
-    }
-    if (t.lokasi.trim().isEmpty) {
-      return 'Lokasi penyelenggaraan belum termuat. Pilih ulang lokasinya';
+
+    if (state.lokasiTertentuId == null) kurang.add('Lokasi Tertentu');
+    if (state.letakId == null) kurang.add('Letak Reklame');
+    if (state.statusTanahId == null) kurang.add('Status Tanah');
+    if (state.lokasiPenyelenggaraanId == null) {
+      kurang.add('Lokasi Penyelenggaraan');
     }
     if (_num(t.panjang) <= 0 || _num(t.lebar) <= 0 || _num(t.tinggi) <= 0) {
-      return 'Ukuran reklame harus lebih dari 0';
+      kurang.add('Ukuran (P, L, T harus lebih dari 0)');
+    }
+    if (state.jenisReklameId == null) kurang.add('Jenis Reklame');
+    if (state.jenisProdukId == null) kurang.add('Jenis Produk');
+    if (state.sudutId == null) kurang.add('Sudut Pandang');
+    if (t.materi.trim().isEmpty) kurang.add('Materi Reklame');
+    if (t.ketSisi.trim().isEmpty) kurang.add('Keterangan Sisi');
+    if (t.ketSurvey.trim().isEmpty) kurang.add('Keterangan Survey');
+
+    if (kurang.isNotEmpty) return 'Lengkapi dulu: ${kurang.join(', ')}';
+
+    if (t.lokasi.trim().isEmpty) {
+      return 'Lokasi penyelenggaraan belum termuat. Pilih ulang lokasinya';
     }
     return null;
   }

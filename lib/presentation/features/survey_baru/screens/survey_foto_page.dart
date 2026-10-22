@@ -518,7 +518,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
             borderRadius: BorderRadius.circular(18),
           ),
           child: BapendaTextField(
-            label: 'Keterangan Foto (Opsional)',
+            label: 'Keterangan Foto',
             hint: 'Contoh: tampak depan dari sisi jalan',
             controller: _ketCtrl,
             maxLines: 2,
