@@ -12,7 +12,7 @@ import 'package:mybapenda/core/enums/app_permission_enum.dart';
 import 'package:mybapenda/presentation/shared/utils/date_util.dart';
 import 'package:mybapenda/presentation/shared/utils/foto_stamp_util.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
-import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_form_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
 import '../../../shared/widgets/bapenda_image.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';

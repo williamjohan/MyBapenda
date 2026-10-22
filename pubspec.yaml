@@ -123,6 +123,7 @@ dependencies:
   signalr_netcore: ^1.4.4
   path: ^1.9.1
   cached_network_image: ^3.4.1
+  flutter_cache_manager: ^3.4.1
   firebase_core: ^4.14.0
   firebase_crashlytics: ^5.3.0
 

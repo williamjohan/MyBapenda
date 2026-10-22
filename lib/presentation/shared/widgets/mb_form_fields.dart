@@ -2,6 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mybapenda/core/constants/design_system/tokens/app_palette.dart';
 
+class _Satuan extends StatelessWidget {
+  final String text;
+
+  const _Satuan(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, right: 14),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13.5,
+          fontWeight: FontWeight.w600,
+          color: context.palette.textSecondary,
+        ),
+      ),
+    );
+  }
+}
+
 InputDecoration _dec(
   BuildContext context,
   String? hint, {
@@ -9,7 +30,8 @@ InputDecoration _dec(
   bool readOnly = false,
 }) => InputDecoration(
   hintText: hint,
-  suffixText: suffixText,
+  suffixIcon: suffixText == null ? null : _Satuan(suffixText),
+  suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
   hintStyle: TextStyle(fontSize: 13, color: context.palette.textTertiary),
   isDense: true,
   filled: true,
@@ -109,6 +131,7 @@ class BapendaTextField extends StatelessWidget {
         maxLines: maxLines,
         readOnly: readOnly,
         onChanged: onChanged,
+        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
         style: _valueStyle(context),
         decoration: _dec(
           context,
