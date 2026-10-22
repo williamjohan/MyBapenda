@@ -1,5 +1,5 @@
 
-import 'package:bapendacore/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
+import 'package:mybapenda/domain/usecases/survey_permohonan/survey_permohonan_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'survey_summary_state.dart';

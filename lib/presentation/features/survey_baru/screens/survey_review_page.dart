@@ -594,64 +594,6 @@ class _InfoReviewCard extends StatefulWidget {
 }
 
 class _InfoReviewCardState extends State<_InfoReviewCard> {
-  Future<void> _editAlamat() async {
-    final controller = TextEditingController(
-      text: '${widget.info['alamat'] ?? ''}',
-    );
-    final formKey = GlobalKey<FormState>();
-
-    final alamatBaru = await BapendaDialog.show<String>(
-      context,
-      tone: BapendaDialogTone.info,
-      icon: Icons.edit_location_alt_outlined,
-      title: 'Ubah Alamat',
-      message: 'Alamat ini ikut terkirim bersama hasil survey.',
-      barrierDismissible: false, 
-      content: Form(
-        key: formKey,
-        child: TextFormField(
-          controller: controller,
-          autofocus: true,
-          minLines: 2,
-          maxLines: 3,
-          textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            labelText: 'Alamat',
-            hintText: 'Masukkan alamat lokasi survei',
-            alignLabelWithHint: true,
-            border: OutlineInputBorder(),
-          ),
-          validator: (value) => value == null || value.trim().isEmpty
-              ? 'Alamat tidak boleh kosong'
-              : null,
-        ),
-      ),
-      actions: [
-        BapendaDialogAction<String>.primary(
-          label: 'Simpan',
-          icon: Icons.check_rounded,
-          closeOnPressed: false, 
-          onPressed: () {
-            if (formKey.currentState?.validate() ?? false) {
-              Navigator.of(
-                context,
-                rootNavigator: true,
-              ).pop(controller.text.trim());
-            }
-          },
-        ),
-        const BapendaDialogAction<String>.secondary(label: 'Batal'),
-      ],
-    );
-
-    Future.delayed(const Duration(milliseconds: 350), controller.dispose);
-
-    if (alamatBaru == null || !mounted) return;
-
-    setState(() {
-      widget.info['alamat'] = alamatBaru;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -727,33 +669,7 @@ class _InfoReviewCardState extends State<_InfoReviewCard> {
             child: Divider(height: 1, color: Color(0xFFEEF0F3)),
           ),
           InfoRow(label: 'Koordinat', value: '$lat, $lng'),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InfoRow(
-                  label: 'Alamat',
-                  value: '${info['alamat'] ?? '-'}',
-                ),
-              ),
-              const SizedBox(width: 4),
-              IconButton(
-                tooltip: 'Ubah alamat',
-                onPressed: _editAlamat,
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                style: IconButton.styleFrom(
-                  foregroundColor: const Color(0xFFB8680F),
-                  backgroundColor: const Color(0xFFFFF3E7),
-                  minimumSize: const Size(36, 36),
-                  padding: EdgeInsets.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          InfoRow(label: 'Alamat', value: '${info['alamat'] ?? '-'}'),
           InfoRow(label: 'Kecamatan', value: kec),
           InfoRow(label: 'Kelurahan', value: kel),
           InfoRow(label: 'RT / RW', value: '${info['rt']} / ${info['rw']}'),

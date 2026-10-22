@@ -2,7 +2,7 @@
 import 'package:mybapenda/domain/entities/balai_rw/pertanyaan_entity.dart';
 import 'package:mybapenda/presentation/shared/utils/date_util.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
-import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_form_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/info_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

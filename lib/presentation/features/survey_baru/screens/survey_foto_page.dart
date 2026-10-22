@@ -6,7 +6,7 @@ import 'package:mybapenda/core/utils/app_file_picker_utils.dart';
 import 'package:mybapenda/presentation/features/survey_baru/cubit/survey_lokasi/survey_lokasi_state.dart';
 import 'package:mybapenda/presentation/features/survey_baru/widgets/survey_header_card.dart';
 import 'package:mybapenda/presentation/shared/widgets/button.dart';
-import 'package:mybapenda/presentation/shared/widgets/form_fields.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_form_fields.dart';
 import 'package:mybapenda/presentation/shared/widgets/marker_box.dart';
 import 'package:mybapenda/presentation/shared/widgets/status_chip.dart';
 import 'package:flutter/material.dart';
@@ -518,7 +518,7 @@ class _SurveyFotoPageState extends State<SurveyFotoPage> {
             borderRadius: BorderRadius.circular(18),
           ),
           child: BapendaTextField(
-            label: 'Keterangan Foto (Opsional)',
+            label: 'Keterangan Foto',
             hint: 'Contoh: tampak depan dari sisi jalan',
             controller: _ketCtrl,
             maxLines: 2,

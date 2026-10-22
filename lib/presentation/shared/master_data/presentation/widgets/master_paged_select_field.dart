@@ -16,6 +16,8 @@ class MasterPagedSelectField<T, E> extends StatelessWidget {
   final String? valueLabel;
   final void Function(T value, String label) onChanged;
   final bool mandatory;
+  final bool showImage; 
+  final PagedImageBuilder? imageBuilder;
 
   const MasterPagedSelectField({
     super.key,
@@ -30,6 +32,8 @@ class MasterPagedSelectField<T, E> extends StatelessWidget {
     this.searchHint = 'Cari...',
     this.idleMessage,
     this.mandatory = true,
+    this.showImage = false,
+    this.imageBuilder
   });
 
   PagedSelectData<T> _toData(PagedSearchState<E> s) {
@@ -56,6 +60,8 @@ class MasterPagedSelectField<T, E> extends StatelessWidget {
       hint: hint,
       searchHint: searchHint,
       mandatory: mandatory,
+      showImage: showImage,
+      imageBuilder: imageBuilder,
       value: value,
       valueLabel: valueLabel,
       onChanged: onChanged,
