@@ -1,4 +1,4 @@
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../../logic/task_priority_logic.dart';
@@ -18,14 +18,13 @@ class TaskListView extends StatelessWidget {
     this.groupPriority = false,
   });
 
-  final List<TaskEntity> tasks;
+  final List<MyTaskEntity> tasks; 
   final bool isLoading;
   final Future<void> Function() onRefresh;
-  final ValueChanged<TaskEntity> onTapTask;
+  final ValueChanged<MyTaskEntity> onTapTask;
   final String emptyTitle;
   final String emptyMessage;
 
-  /// Pisahkan "Perlu segera dikerjakan" dari tugas lain (tab Aktif).
   final bool groupPriority;
 
   @override
@@ -66,18 +65,26 @@ class TaskListView extends StatelessWidget {
 
   List<Widget> _buildChildren() {
     final priority = groupPriority
-        ? tasks.where(TaskPriorityLogic.isPriority).toList()
-        : <TaskEntity>[];
+        ? tasks
+              .where(TaskPriorityLogic.isPriority)
+              .toList() // [UBAH]
+        : <MyTaskEntity>[];
     final others = groupPriority
         ? tasks.where((t) => !TaskPriorityLogic.isPriority(t)).toList()
         : tasks;
 
     final children = <Widget>[];
 
-    void addCards(List<TaskEntity> list) {
+    void addCards(List<MyTaskEntity> list) {
       for (final task in list) {
         children
-          ..add(TaskCard(task: task, onTap: () => onTapTask(task)))
+          ..add(
+            TaskCard(
+              key: ValueKey(task.keyTask), // [BARU] kunci stabil per tugas
+              task: task,
+              onTap: () => onTapTask(task),
+            ),
+          )
           ..add(const SizedBox(height: 10));
       }
     }

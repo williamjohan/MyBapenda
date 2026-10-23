@@ -29,11 +29,13 @@ class AppFilePickerUtils {
   /// ============================================================
   static Future<File?> pickImage({
     required bool fromCamera,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
     double? maxMbSize, // Opsional jika ingin divalidasi langsung
   }) async {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
+        preferredCameraDevice: preferredCameraDevice,
       );
 
       if (pickedFile == null) return null; // User batal

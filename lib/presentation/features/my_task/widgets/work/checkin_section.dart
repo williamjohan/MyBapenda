@@ -6,9 +6,7 @@ import 'task_photo_slot_card.dart';
 
 /// Check-in: selfie petugas sebagai bukti sedang mengerjakan tugas.
 ///
-/// TODO(tech-debt): gunakan kamera depan; aturan check-in (wajib, radius
-/// dari objek pajak) belum ditetapkan. Hanya kamera, tanpa galeri, karena
-/// selfie harus diambil saat itu juga.
+/// Check-in memakai kamera depan tanpa opsi galeri agar selfie diambil saat itu.
 class CheckInSection extends StatelessWidget {
   const CheckInSection({
     super.key,

@@ -6,8 +6,7 @@ import 'form_section_card.dart';
 
 /// Geotag lokasi petugas saat ini.
 ///
-/// TODO(tech-debt): izin lokasi ditolak, GPS mati, akurasi rendah, deteksi
-/// mock location, dan jarak ke objek pajak (geofencing) belum ditangani.
+/// Izin, status GPS, akurasi, dan lokasi tiruan diperiksa oleh layanan GPS.
 class LocationSection extends StatelessWidget {
   const LocationSection({
     super.key,

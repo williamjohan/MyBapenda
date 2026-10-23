@@ -1,4 +1,3 @@
-
 class ApiEndpoints {
   ApiEndpoints._();
 
@@ -18,8 +17,7 @@ class ApiEndpoints {
   // ==========================================
   static const String profile = '/api/profile';
   static const String profileGantiFoto = '/api/profile/ganti-foto';
-  static const String profileKirimOtpKontak =
-      '/api/profile/kontak/kirim-otp';
+  static const String profileKirimOtpKontak = '/api/profile/kontak/kirim-otp';
   static const String profileVerifikasiOtpKontak =
       '/api/profile/kontak/verifikasi-otp';
 
@@ -62,14 +60,19 @@ class ApiEndpoints {
   // ==========================================
   // CREATE VA & QRIS
   // ==========================================
-  static const String pembayaranJenisPajak =
-      '/api/pembayaran/jenis-pajak';
+  static const String pembayaranJenisPajak = '/api/pembayaran/jenis-pajak';
   static const String pembayaranTagihan = '/api/pembayaran/tagihan';
   static const String pembayaranCariObjek = '/api/pembayaran/cari-objek';
-  static const String pembayaranCheckNominal =
-      '/api/pembayaran/check-nominal';
+  static const String pembayaranCheckNominal = '/api/pembayaran/check-nominal';
   static const String pembayaranBayar = '/api/pembayaran/bayar';
   static const String pembayaranStatus = '/api/pembayaran/status';
+
+  // ==========================================
+  // MY TASK
+  // ==========================================
+  static const String myTaskHeader = '/api/mytask/header';
+  static const String myTaskHeaderDetail = '/api/mytask/headerdetail';
+  static const String myTaskCheckin = '/api/mytask/checkin';
 
   // ==========================================
   // MASTER DATA REKLAME
@@ -84,16 +87,12 @@ class ApiEndpoints {
       '/api/reklame/master/status-tanah';
   static const String reklameMasterSudutPandang =
       '/api/reklame/master/sudut-pandang';
-  static const String reklameMasterPersil =
-      '/api/reklame/master/persil';
+  static const String reklameMasterPersil = '/api/reklame/master/persil';
   static const String reklameMasterJenisBangunan =
       '/api/reklame/master/jenis-bangunan';
-  static const String reklameMasterNamaJalan =
-      '/api/reklame/master/nama-jalan';
-  static const String reklameMasterKecamatan =
-      '/api/reklame/master/kecamatan';
-  static const String reklameMasterKelurahan =
-      '/api/reklame/master/kelurahan';
+  static const String reklameMasterNamaJalan = '/api/reklame/master/nama-jalan';
+  static const String reklameMasterKecamatan = '/api/reklame/master/kecamatan';
+  static const String reklameMasterKelurahan = '/api/reklame/master/kelurahan';
   static const String reklameMasterJenisProduk =
       '/api/reklame/master/jenis-produk';
   static const String reklameMasterPegawaiSurvey =

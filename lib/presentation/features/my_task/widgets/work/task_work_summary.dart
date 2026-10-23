@@ -1,18 +1,17 @@
-import 'package:mybapenda/core/utils/app_formatters_utils.dart';
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart'; // [UBAH] dulu task_entity.dart
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../../../va_qris/widgets/common/va_qris_hero_header.dart';
 import '../../utils/task_type_style.dart';
 
-/// Ringkasan tugas di atas form, supaya petugas tahu sedang mengerjakan apa.
 class TaskWorkSummary extends StatelessWidget {
   const TaskWorkSummary({super.key, required this.task});
 
-  final TaskEntity task;
+  final MyTaskEntity task; 
 
   @override
   Widget build(BuildContext context) {
+    final jenis = task.jenisType;
     return VaQrisHeroHeader(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 18),
       child: Container(
@@ -27,10 +26,10 @@ class TaskWorkSummary extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: task.type.softColor,
+                color: jenis.softColor,
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: Icon(task.type.icon, color: task.type.color),
+              child: Icon(jenis.icon, color: jenis.color),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -38,15 +37,15 @@ class TaskWorkSummary extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    task.type.label,
+                    task.jenisNama, // [UBAH] dulu task.type.label
                     style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
-                      color: task.type.color,
+                      color: jenis.color,
                     ),
                   ),
                   Text(
-                    task.taxpayerName,
+                    task.namaWp, // [UBAH] dulu task.taxpayerName
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -56,7 +55,7 @@ class TaskWorkSummary extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    AppFormatters.nop(task.nop),
+                    task.npwpd,
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppThemeColors.secondaryText,

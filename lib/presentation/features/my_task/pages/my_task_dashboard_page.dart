@@ -1,41 +1,50 @@
-import 'package:mybapenda/core/utils/app_logger.dart';
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
-import 'package:mybapenda/domain/entities/my_task/task_status.dart';
-import 'package:mybapenda/domain/entities/my_task/task_type.dart';
-import 'package:mybapenda/routes/app_routes.dart';
+// lib/presentation/features/my_task/pages/my_task_dashboard_page.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_header_entity.dart';
+import 'package:mybapenda/domain/usecases/my_task/my_task_usecase.dart';
+import 'package:mybapenda/presentation/features/my_task/cubit/my_task_cubit.dart';
+import 'package:mybapenda/presentation/features/my_task/cubit/my_task_state.dart';
+import 'package:mybapenda/presentation/features/my_task/widgets/dashboard/my_task_error_state.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_dialog.dart';
+import 'package:mybapenda/routes/app_routes.dart';
 import '../../../../core/constants/app_colors_new.dart';
 import '../../va_qris/widgets/common/va_qris_app_bar.dart';
-import '../logic/task_priority_logic.dart';
-import '../mock/my_task_mock_data.dart';
 import '../widgets/dashboard/my_task_summary_header.dart';
 import '../widgets/dashboard/task_list_view.dart';
 import '../widgets/dashboard/task_status_tab_bar.dart';
 import '../widgets/dashboard/task_type_filter_bar.dart';
 
-/// Dashboard My Task: ringkasan, tab status, filter jenis, daftar tugas.
-class MyTaskDashboardPage extends StatefulWidget {
+class MyTaskDashboardPage extends StatelessWidget {
   const MyTaskDashboardPage({super.key});
 
   @override
-  State<MyTaskDashboardPage> createState() => _MyTaskDashboardPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => MyTaskCubit(useCase: getIt<MyTaskUseCase>())..load(),
+      child: const _MyTaskDashboardView(),
+    );
+  }
 }
 
-class _MyTaskDashboardPageState extends State<MyTaskDashboardPage>
+class _MyTaskDashboardView extends StatefulWidget {
+  const _MyTaskDashboardView();
+
+  @override
+  State<_MyTaskDashboardView> createState() => _MyTaskDashboardViewState();
+}
+
+class _MyTaskDashboardViewState extends State<_MyTaskDashboardView>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-
-  // TODO(tech-debt): pindahkan ke MyTaskState (tasks, status, filter).
-  List<TaskEntity> _tasks = const [];
-  bool _isLoading = true;
-  TaskType? _filterType;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _load();
   }
 
   @override
@@ -44,97 +53,114 @@ class _MyTaskDashboardPageState extends State<MyTaskDashboardPage>
     super.dispose();
   }
 
-  Future<void> _load() async {
-    try {
-      // TODO(tech-debt): ganti dengan MyTaskCubit.fetchTasks().
-      final tasks = await MyTaskMockData.fetchTasks();
-      if (!mounted) return;
-      setState(() {
-        _tasks = tasks;
-        _isLoading = false;
-      });
-    } catch (e, st) {
-      // TODO(tech-debt): tampilkan state error + tombol "Coba lagi".
-      AppLogger.error('Gagal memuat My Task', e, st);
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-    }
+  void _openDetail(MyTaskEntity task) {
+    context.push(AppRoutes.myTaskDetail, extra: task);
   }
 
-  List<TaskEntity> _forStatus(TaskStatus status) =>
-      TaskPriorityLogic.forStatus(_tasks, status, type: _filterType);
+  /// Gagal memuat ulang (daftar lama tetap tampil di belakang dialog).
+  Future<void> _showRefreshError(String message) async {
+    final cubit = context.read<MyTaskCubit>();
+    cubit.clearError();
 
-  void _openDetail(TaskEntity task) {
-    context.push(AppRoutes.myTaskDetail, extra: task);
+    final retry = await BapendaDialog.showError(
+      context,
+      title: 'Gagal Memuat Ulang',
+      message: message,
+      retryLabel: 'Coba Lagi',
+    );
+    if (retry && mounted) cubit.refresh();
   }
 
   @override
   Widget build(BuildContext context) {
-    final active = _forStatus(TaskStatus.aktif);
-    final done = _forStatus(TaskStatus.selesai);
-    final expired = _forStatus(TaskStatus.kedaluwarsa);
-    final nearest = TaskPriorityLogic.nearestActive(_tasks);
+    return BlocConsumer<MyTaskCubit, MyTaskState>(
+      listenWhen: (p, c) =>
+          c.error != null &&
+          p.error != c.error &&
+          c.status == MyTaskLoadStatus.success,
+      listener: (context, state) => _showRefreshError(state.error!),
+      builder: (context, state) {
+        final cubit = context.read<MyTaskCubit>();
+        final summary = state.summary;
 
-    return Scaffold(
-      backgroundColor: AppThemeColors.defaultBackground,
-      appBar: const VaQrisAppBar(title: 'My Task'),
-      body: Column(
-        children: [
-          MyTaskSummaryHeader(
-            isLoading: _isLoading,
-            activeCount: TaskPriorityLogic.countByStatus(_tasks, TaskStatus.aktif),
-            priorityCount: TaskPriorityLogic.priorityCount(_tasks),
-            doneCount: TaskPriorityLogic.countByStatus(_tasks, TaskStatus.selesai),
-            nearest: nearest,
-            onOpenNearest: () {
-              if (nearest != null) _openDetail(nearest);
-            },
+        final active = state.tasksOf(MyTaskStatus.berjalan);
+        final done = state.tasksOf(MyTaskStatus.selesai);
+        final missed = state.tasksOf(MyTaskStatus.terlewat);
+
+        final failed =
+            state.status == MyTaskLoadStatus.failure && state.tasks.isEmpty;
+
+        return Scaffold(
+          backgroundColor: AppThemeColors.defaultBackground,
+          appBar: const VaQrisAppBar(title: 'My Task'),
+          body: Column(
+            children: [
+              MyTaskSummaryHeader(
+                isLoading: state.isLoading,
+                activeCount: summary?.aktif ?? 0,
+                priorityCount: summary?.mendesak ?? 0,
+                doneCount: summary?.selesai ?? 0,
+                nearest: summary?.tugasTerdekat,
+                onOpenNearest: () {
+                  final nearest = summary?.tugasTerdekat;
+                  if (nearest != null) _openDetail(nearest);
+                },
+              ),
+              TaskStatusTabBar(
+                controller: _tabController,
+                activeCount: active.length,
+                doneCount: done.length,
+                expiredCount: missed.length,
+              ),
+              TaskTypeFilterBar(
+                options: summary?.jenisList ?? const <MyTaskFilterEntity>[],
+                selected: state.jenisFilter,
+                onChanged: cubit.setJenisFilter,
+              ),
+              Expanded(
+                child: failed
+                    ? MyTaskErrorState(
+                        message: state.error ?? 'Terjadi kesalahan.',
+                        onRetry: cubit.load,
+                      )
+                    : TabBarView(
+                        controller: _tabController,
+                        children: [
+                          TaskListView(
+                            tasks: active,
+                            isLoading: state.isLoading,
+                            groupPriority: true,
+                            onRefresh: cubit.refresh,
+                            onTapTask: _openDetail,
+                            emptyTitle: 'Tidak ada tugas aktif',
+                            emptyMessage:
+                                'Tugas baru dari supervisor akan muncul di sini. Tarik ke bawah untuk memuat ulang.',
+                          ),
+                          TaskListView(
+                            tasks: done,
+                            isLoading: state.isLoading,
+                            onRefresh: cubit.refresh,
+                            onTapTask: _openDetail,
+                            emptyTitle: 'Belum ada tugas selesai',
+                            emptyMessage:
+                                'Tugas yang sudah dikirim akan tercatat di sini.',
+                          ),
+                          TaskListView(
+                            tasks: missed,
+                            isLoading: state.isLoading,
+                            onRefresh: cubit.refresh,
+                            onTapTask: _openDetail,
+                            emptyTitle: 'Tidak ada tugas terlewat',
+                            emptyMessage:
+                                'Tugas yang melewati batas waktu akan muncul di sini.',
+                          ),
+                        ],
+                      ),
+              ),
+            ],
           ),
-          TaskStatusTabBar(
-            controller: _tabController,
-            activeCount: active.length,
-            doneCount: done.length,
-            expiredCount: expired.length,
-          ),
-          TaskTypeFilterBar(
-            selected: _filterType,
-            onChanged: (type) => setState(() => _filterType = type),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                TaskListView(
-                  tasks: active,
-                  isLoading: _isLoading,
-                  groupPriority: true,
-                  onRefresh: _load,
-                  onTapTask: _openDetail,
-                  emptyTitle: 'Tidak ada tugas aktif',
-                  emptyMessage:
-                      'Tugas baru dari supervisor akan muncul di sini. Tarik ke bawah untuk memuat ulang.',
-                ),
-                TaskListView(
-                  tasks: done,
-                  isLoading: _isLoading,
-                  onRefresh: _load,
-                  onTapTask: _openDetail,
-                  emptyTitle: 'Belum ada tugas selesai',
-                  emptyMessage: 'Tugas yang sudah dikirim akan tercatat di sini.',
-                ),
-                TaskListView(
-                  tasks: expired,
-                  isLoading: _isLoading,
-                  onRefresh: _load,
-                  onTapTask: _openDetail,
-                  emptyTitle: 'Tidak ada tugas kedaluwarsa',
-                  emptyMessage: 'Tugas yang melewati batas waktu akan muncul di sini.',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

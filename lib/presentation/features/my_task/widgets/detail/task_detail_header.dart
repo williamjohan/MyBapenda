@@ -1,4 +1,4 @@
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../va_qris/widgets/common/va_qris_hero_header.dart';
 import '../../utils/task_deadline_label.dart';
@@ -6,12 +6,16 @@ import '../../utils/task_type_style.dart';
 import '../dashboard/task_status_chip.dart';
 
 class TaskDetailHeader extends StatelessWidget {
-  const TaskDetailHeader({super.key, required this.task});
+  const TaskDetailHeader({
+    super.key,
+    required this.task,
+  }); // [UBAH] MyTaskEntity
 
-  final TaskEntity task;
+  final MyTaskEntity task;
 
   @override
   Widget build(BuildContext context) {
+    final jenis = task.jenisType;
     return VaQrisHeroHeader(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 22),
       child: Row(
@@ -23,7 +27,7 @@ class TaskDetailHeader extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(task.type.icon, size: 30, color: task.type.color),
+            child: Icon(jenis.icon, size: 30, color: jenis.color),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -31,7 +35,7 @@ class TaskDetailHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  task.type.label,
+                  task.jenisNama,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -40,7 +44,7 @@ class TaskDetailHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  task.taskNumber,
+                  task.noSkpd,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.white.withValues(alpha: 0.85),

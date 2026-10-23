@@ -3,8 +3,8 @@ import 'package:mybapenda/domain/entities/my_task/task_photo_entity.dart';
 
 /// Isian form pengerjaan tugas yang sedang berjalan (immutable).
 ///
-/// TODO(tech-debt): pindahkan ke state Cubit, dan simpan lokal sebagai draft
-/// agar bisa dilanjutkan saat sinyal hilang.
+/// Draft disimpan di Cubit halaman kerja selama halaman form masih terbuka.
+/// Penyimpanan lokal untuk melanjutkan setelah halaman ditutup belum tersedia.
 class TaskDraft {
   const TaskDraft({
     this.checkInPhoto,

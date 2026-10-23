@@ -1,6 +1,4 @@
-import 'package:mybapenda/core/utils/app_formatters_utils.dart';
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
-import 'package:mybapenda/domain/entities/my_task/task_status.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../../logic/task_priority_logic.dart';
@@ -8,22 +6,23 @@ import '../../utils/task_deadline_label.dart';
 import '../../utils/task_type_style.dart';
 import 'task_status_chip.dart';
 
-/// Card ringkas satu tugas (info awal, tanpa membuka detail).
-/// Tugas mendesak/terlambat diberi aksen warna dan latar agar terlihat dulu.
 class TaskCard extends StatelessWidget {
   const TaskCard({super.key, required this.task, required this.onTap});
 
-  final TaskEntity task;
+  final MyTaskEntity task; // [UBAH] dulu TaskEntity
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final urgency = TaskPriorityLogic.urgencyOf(task);
-    final accent = _accent(urgency);
     final isPriority = TaskPriorityLogic.isPriority(task);
+    final accent = _accent(urgency);
+    final lockReason = task.keterangan;
+    final isLocked =
+        task.statusType == MyTaskStatus.berjalan && !task.bisaDikerjakan;
 
     return Material(
-      color: _background(urgency),
+      color: _background(urgency, isPriority),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
@@ -48,7 +47,7 @@ class TaskCard extends StatelessWidget {
                       _Header(task: task),
                       const SizedBox(height: 10),
                       Text(
-                        task.taxpayerName,
+                        task.namaWp,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -58,16 +57,22 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      _IconLine(
-                        icon: Icons.pin_outlined,
-                        text: AppFormatters.nop(task.nop),
-                      ),
+                      _IconLine(icon: Icons.pin_outlined, text: task.npwpd),
                       const SizedBox(height: 3),
                       _IconLine(
                         icon: Icons.place_outlined,
-                        text: '${task.objectName}, ${task.address}',
+                        text: '${task.jenisReklameNama}, ${task.alamatWp}',
                         maxLines: 2,
                       ),
+                      if (isLocked && lockReason != null) ...[
+                        const SizedBox(height: 3),
+                        _IconLine(
+                          icon: Icons.lock_outline_rounded,
+                          text: lockReason,
+                          maxLines: 2,
+                          color: AppThemeColors.gold,
+                        ),
+                      ],
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
                         child: Divider(
@@ -88,12 +93,14 @@ class TaskCard extends StatelessWidget {
   }
 
   Color _accent(TaskUrgency urgency) {
-    switch (task.status) {
-      case TaskStatus.selesai:
+    switch (task.statusType) {
+      case MyTaskStatus.selesai:
         return AppThemeColors.success;
-      case TaskStatus.kedaluwarsa:
+      case MyTaskStatus.terlewat:
         return AppThemeColors.disabled;
-      case TaskStatus.aktif:
+      case MyTaskStatus.berjalan:
+      case MyTaskStatus.unknown:
+        if (!task.bisaDikerjakan) return AppThemeColors.disabled;
         return switch (urgency) {
           TaskUrgency.overdue => AppThemeColors.danger,
           TaskUrgency.urgent => AppThemeColors.primary,
@@ -103,32 +110,32 @@ class TaskCard extends StatelessWidget {
     }
   }
 
-  Color _background(TaskUrgency urgency) {
-    return switch (urgency) {
-      TaskUrgency.overdue => AppThemeColors.dangerSoft,
-      TaskUrgency.urgent => AppThemeColors.primarySoft,
-      _ => AppThemeColors.defaultSurface,
-    };
+  Color _background(TaskUrgency urgency, bool isPriority) {
+    if (!isPriority) return AppThemeColors.defaultSurface;
+    return urgency == TaskUrgency.overdue
+        ? AppThemeColors.dangerSoft
+        : AppThemeColors.primarySoft;
   }
 }
 
 class _Header extends StatelessWidget {
   const _Header({required this.task});
 
-  final TaskEntity task;
+  final MyTaskEntity task;
 
   @override
   Widget build(BuildContext context) {
+    final jenis = task.jenisType;
     return Row(
       children: [
         Container(
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: task.type.softColor,
+            color: jenis.softColor,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(task.type.icon, size: 22, color: task.type.color),
+          child: Icon(jenis.icon, size: 22, color: jenis.color),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -136,18 +143,18 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                task.type.label,
+                task.jenisNama,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: task.type.color,
+                  color: jenis.color,
                 ),
               ),
               const SizedBox(height: 1),
               Text(
-                task.taskNumber,
+                task.noSkpd,
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppThemeColors.secondaryText,
@@ -164,11 +171,17 @@ class _Header extends StatelessWidget {
 }
 
 class _IconLine extends StatelessWidget {
-  const _IconLine({required this.icon, required this.text, this.maxLines = 1});
+  const _IconLine({
+    required this.icon,
+    required this.text,
+    this.maxLines = 1,
+    this.color = AppThemeColors.secondaryText,
+  });
 
   final IconData icon;
   final String text;
   final int maxLines;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +190,13 @@ class _IconLine extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 1),
-          child: Icon(icon, size: 15, color: AppThemeColors.tertiaryText),
+          child: Icon(
+            icon,
+            size: 15,
+            color: color == AppThemeColors.secondaryText
+                ? AppThemeColors.tertiaryText
+                : color,
+          ),
         ),
         const SizedBox(width: 6),
         Expanded(
@@ -185,11 +204,7 @@ class _IconLine extends StatelessWidget {
             text,
             maxLines: maxLines,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12.5,
-              height: 1.3,
-              color: AppThemeColors.secondaryText,
-            ),
+            style: TextStyle(fontSize: 12.5, height: 1.3, color: color),
           ),
         ),
       ],
@@ -200,11 +215,12 @@ class _IconLine extends StatelessWidget {
 class _DeadlineRow extends StatelessWidget {
   const _DeadlineRow({required this.task, required this.urgency});
 
-  final TaskEntity task;
+  final MyTaskEntity task;
   final TaskUrgency urgency;
 
   @override
   Widget build(BuildContext context) {
+    final isRunning = task.statusType == MyTaskStatus.berjalan;
     final isAlert =
         urgency == TaskUrgency.overdue || urgency == TaskUrgency.urgent;
     final color = urgency == TaskUrgency.overdue
@@ -225,7 +241,7 @@ class _DeadlineRow extends StatelessWidget {
             color: color,
           ),
         ),
-        if (task.status == TaskStatus.aktif) ...[
+        if (isRunning) ...[
           const Text(
             '  \u2022  ',
             style: TextStyle(color: AppThemeColors.tertiaryText),

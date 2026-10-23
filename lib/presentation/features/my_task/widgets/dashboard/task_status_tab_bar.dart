@@ -21,13 +21,18 @@ class TaskStatusTabBar extends StatelessWidget {
       color: AppThemeColors.defaultBackground,
       child: TabBar(
         controller: controller,
+        isScrollable: true,
+        tabAlignment: TabAlignment.center,
         labelColor: AppThemeColors.gold,
         unselectedLabelColor: AppThemeColors.secondaryText,
         indicatorColor: AppThemeColors.primary,
         indicatorWeight: 3,
         dividerColor: AppThemeColors.defaultBorder,
-        labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-        labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+        labelStyle: const TextStyle(
+          fontSize: 13.5,
+          fontWeight: FontWeight.w700,
+        ),
         unselectedLabelStyle: const TextStyle(
           fontSize: 13.5,
           fontWeight: FontWeight.w500,

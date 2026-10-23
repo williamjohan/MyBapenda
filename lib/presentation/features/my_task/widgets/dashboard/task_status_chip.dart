@@ -1,14 +1,12 @@
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
-import 'package:mybapenda/domain/entities/my_task/task_status.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../../logic/task_priority_logic.dart';
 
-/// Chip status tugas. Untuk tugas aktif, label mengikuti tingkat urgensi.
 class TaskStatusChip extends StatelessWidget {
-  const TaskStatusChip({super.key, required this.task});
+  const TaskStatusChip({super.key, required this.task}); 
 
-  final TaskEntity task;
+  final MyTaskEntity task;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +29,26 @@ class TaskStatusChip extends StatelessWidget {
   }
 
   (String, Color, Color) _style() {
-    switch (task.status) {
-      case TaskStatus.selesai:
+    switch (task.statusType) {
+      case MyTaskStatus.selesai:
         return ('Selesai', AppThemeColors.successSoft, AppThemeColors.success);
-      case TaskStatus.kedaluwarsa:
-        return ('Kedaluwarsa', AppThemeColors.grey4, AppThemeColors.secondaryText);
-      case TaskStatus.aktif:
+      case MyTaskStatus.terlewat:
+        return ('Terlewat', AppThemeColors.dangerSoft, AppThemeColors.danger);
+      case MyTaskStatus.unknown:
+        // Status baru dari server yang belum dikenal: pakai namanya apa adanya.
+        return (
+          task.statusNama,
+          AppThemeColors.grey4,
+          AppThemeColors.secondaryText,
+        );
+      case MyTaskStatus.berjalan:
+        if (!task.bisaDikerjakan) {
+          return (
+            'Menunggu',
+            AppThemeColors.grey4,
+            AppThemeColors.secondaryText,
+          );
+        }
         return switch (TaskPriorityLogic.urgencyOf(task)) {
           TaskUrgency.overdue => (
             'Terlambat',

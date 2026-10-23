@@ -1,18 +1,14 @@
 enum TaskPhotoSource { camera, gallery }
 
-/// Foto bukti. [path] null berarti foto SIMULASI (belum tersambung kamera).
-///
-/// TODO(tech-debt): DUMMY ENTITY.
+/// Foto bukti yang sudah dipilih dari kamera atau galeri.
 class TaskPhotoEntity {
   const TaskPhotoEntity({
     required this.source,
     required this.capturedAt,
-    this.path,
+    required this.path,
   });
 
   final TaskPhotoSource source;
   final DateTime capturedAt;
-  final String? path;
-
-  bool get isSimulated => path == null;
+  final String path;
 }

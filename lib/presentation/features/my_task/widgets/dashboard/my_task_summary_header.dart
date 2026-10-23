@@ -1,12 +1,10 @@
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 import '../../utils/task_deadline_label.dart';
 import '../../utils/task_type_style.dart';
 import '../../../va_qris/widgets/common/va_qris_hero_header.dart';
 
-/// Ringkasan di atas dashboard: jumlah tugas + tugas aktif terdekat.
-/// Kotak "Mendesak" menyala putih agar terlihat pertama.
 class MyTaskSummaryHeader extends StatelessWidget {
   const MyTaskSummaryHeader({
     super.key,
@@ -22,7 +20,7 @@ class MyTaskSummaryHeader extends StatelessWidget {
   final int activeCount;
   final int priorityCount;
   final int doneCount;
-  final TaskEntity? nearest;
+  final MyTaskEntity? nearest; 
   final VoidCallback onOpenNearest;
 
   String _n(int v) => isLoading ? '-' : '$v';
@@ -35,7 +33,9 @@ class MyTaskSummaryHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: _StatTile(value: _n(activeCount), label: 'Aktif')),
+              Expanded(
+                child: _StatTile(value: _n(activeCount), label: 'Aktif'),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: _StatTile(
@@ -45,7 +45,9 @@ class MyTaskSummaryHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Expanded(child: _StatTile(value: _n(doneCount), label: 'Selesai')),
+              Expanded(
+                child: _StatTile(value: _n(doneCount), label: 'Selesai'),
+              ),
             ],
           ),
           if (nearest != null) ...[
@@ -108,11 +110,12 @@ class _StatTile extends StatelessWidget {
 class _NearestBanner extends StatelessWidget {
   const _NearestBanner({required this.task, required this.onTap});
 
-  final TaskEntity task;
+  final MyTaskEntity task;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final jenis = task.jenisType; 
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(12),
@@ -127,10 +130,10 @@ class _NearestBanner extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: task.type.softColor,
+                  color: jenis.softColor,
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(task.type.icon, size: 19, color: task.type.color),
+                child: Icon(jenis.icon, size: 19, color: jenis.color),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -145,7 +148,7 @@ class _NearestBanner extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${task.type.shortLabel}  \u2022  ${taskDeadlineLabel(task)}',
+                      '${task.jenisNama}  \u2022  ${taskDeadlineLabel(task)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

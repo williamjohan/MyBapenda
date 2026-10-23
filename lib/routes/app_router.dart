@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
 import 'package:mybapenda/domain/entities/va_qris/payment_session_entity.dart';
 import 'package:mybapenda/domain/entities/va_qris/tax_billing_entity.dart';
 import 'package:mybapenda/domain/usecases/auth/auth_usecase.dart';
@@ -36,7 +37,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/di/injection.dart';
 import '../core/services/geo_location/i_geo_location_service.dart';
-import '../domain/entities/my_task/task_entity.dart';
 import '../presentation/features/absensi/cubit/absen/absen_cubit.dart';
 import '../presentation/features/absensi/cubit/absensi/absensi_cubit.dart';
 import '../presentation/features/absensi/pages/absensi_page.dart';
@@ -56,7 +56,6 @@ import '../presentation/features/profile/cubit/ubah_kontak_cubit.dart';
 import '../presentation/features/profile/pages/ubah_kontak_page.dart';
 import '../domain/entities/profile/jenis_kontak.dart';
 import '../presentation/features/my_task/pages/my_task_detail_page.dart';
-import '../presentation/features/my_task/pages/my_task_success_page.dart';
 import '../presentation/features/my_task/pages/my_task_work_page.dart';
 import '../presentation/features/pengiriman/cubit/daftar_tugas/daftar_tugas_cubit.dart';
 import '../presentation/features/pengiriman/cubit/detail_berkas/detail_berkas_cubit.dart';
@@ -778,7 +777,7 @@ class AppRouter {
         name: AppRoutes.myTaskDetail,
         builder: (context, state) {
           final task = state.extra;
-          return task is TaskEntity
+          return task is MyTaskEntity
               ? MyTaskDetailPage(task: task)
               : const MyTaskDashboardPage();
         },
@@ -788,18 +787,8 @@ class AppRouter {
         name: AppRoutes.myTaskWork,
         builder: (context, state) {
           final task = state.extra;
-          return task is TaskEntity
+          return task is MyTaskEntity
               ? MyTaskWorkPage(task: task)
-              : const MyTaskDashboardPage();
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.myTaskSuccess,
-        name: AppRoutes.myTaskSuccess,
-        builder: (context, state) {
-          final task = state.extra;
-          return task is TaskEntity
-              ? MyTaskSuccessPage(task: task)
               : const MyTaskDashboardPage();
         },
       ),

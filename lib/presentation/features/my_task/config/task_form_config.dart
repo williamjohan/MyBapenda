@@ -1,5 +1,4 @@
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
-import 'package:mybapenda/domain/entities/my_task/task_type.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
 
 import 'task_extra_field.dart';
 import 'task_photo_slot.dart';
@@ -54,7 +53,8 @@ class TaskFormConfig {
     TaskPhotoSlot(
       id: 'surat',
       label: 'Foto surat di lokasi',
-      hint: 'Tunjukkan surat dan letak surat diletakkan (mis. ditempel di pagar).',
+      hint:
+          'Tunjukkan surat dan letak surat diletakkan (mis. ditempel di pagar).',
     ),
   ];
 
@@ -82,7 +82,11 @@ class TaskFormConfig {
     key: 'hasil_bongkar',
     label: 'Hasil pembongkaran',
     type: TaskExtraFieldType.choice,
-    options: ['Selesai dibongkar', 'Dibongkar sebagian', 'Tidak dapat dibongkar'],
+    options: [
+      'Selesai dibongkar',
+      'Dibongkar sebagian',
+      'Tidak dapat dibongkar',
+    ],
   );
 
   static const TaskExtraField _supervisionResult = TaskExtraField(
@@ -100,35 +104,31 @@ class TaskFormConfig {
     isRequired: false,
   );
 
-  factory TaskFormConfig.forTask(TaskEntity task) {
-    final base = switch (task.type) {
-      TaskType.himbauanPembayaran || TaskType.teguranPembayaran =>
-        const TaskFormConfig(
-          photoSlots: _letterSlots,
-          photoSectionTitle: 'Foto surat',
-          extraFields: [_letterRecipient],
-        ),
-      TaskType.silang || TaskType.unsilang => const TaskFormConfig(
+  factory TaskFormConfig.forTask(MyTaskEntity task) {
+    final base = switch (task.jenisType) {
+      MyTaskJenis.himbauan || MyTaskJenis.teguran => const TaskFormConfig(
+        photoSlots: _letterSlots,
+        photoSectionTitle: 'Foto surat',
+        extraFields: [_letterRecipient],
+      ),
+      MyTaskJenis.silang || MyTaskJenis.unsilang => const TaskFormConfig(
         photoSlots: _beforeAfterSlots,
         photoSectionTitle: 'Foto sebelum & sesudah',
       ),
-      TaskType.bongkar => const TaskFormConfig(
+      MyTaskJenis.bongkar => const TaskFormConfig(
         photoSlots: _beforeAfterSlots,
         photoSectionTitle: 'Foto sebelum & sesudah',
         extraFields: [_demolitionResult],
       ),
-      TaskType.pengawasanExisting || TaskType.pengawasanTemuanBaru =>
-        const TaskFormConfig(
-          photoSlots: _beforeAfterSlots,
-          photoSectionTitle: 'Foto sebelum & sesudah',
-          extraFields: [_supervisionResult],
-        ),
+      _ => const TaskFormConfig(
+        photoSlots: _letterSlots,
+        photoSectionTitle: 'Foto pendukung',
+      ), // Form default jika MyTaskJenis.unknown
     };
 
-    // ---- Contoh kondisi "IF" berdasarkan jenis pajak -----------------------
-    final isSupervision = task.type == TaskType.pengawasanExisting ||
-        task.type == TaskType.pengawasanTemuanBaru;
-    if (isSupervision && task.taxType == 'Pajak Reklame') {
+    // ---- Contoh kondisi "IF" berdasarkan data task lainnya -----------------------
+    // Menambahkan field tambahan jika jenis reklame ada isinya
+    if (task.jenisReklameNama.isNotEmpty && task.jenisReklameNama != '-') {
       return base.withExtraFields(const [_installedSize]);
     }
 

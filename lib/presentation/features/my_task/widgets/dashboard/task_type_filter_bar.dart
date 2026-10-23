@@ -1,17 +1,28 @@
-import 'package:mybapenda/domain/entities/my_task/task_type.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_header_entity.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors_new.dart';
 
-/// Filter jenis tugas (null = semua). Bisa digeser horizontal.
 class TaskTypeFilterBar extends StatelessWidget {
   const TaskTypeFilterBar({
     super.key,
+    required this.options,
     required this.selected,
     required this.onChanged,
   });
 
-  final TaskType? selected;
-  final ValueChanged<TaskType?> onChanged;
+  final List<MyTaskFilterEntity> options;
+  final String? selected; 
+  final ValueChanged<String?> onChanged;
+
+  static const _all = 'semua'; 
+
+  bool _isSelected(String kode) =>
+      kode == _all ? selected == null : selected == kode;
+
+  void _tap(String kode) {
+    if (kode == _all) return onChanged(null);
+    onChanged(selected == kode ? null : kode); 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +33,12 @@ class TaskTypeFilterBar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         children: [
-          _FilterChip(
-            label: 'Semua',
-            isSelected: selected == null,
-            onTap: () => onChanged(null),
-          ),
-          for (final type in TaskType.values) ...[
-            const SizedBox(width: 8),
+          for (var i = 0; i < options.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
             _FilterChip(
-              label: type.shortLabel,
-              isSelected: selected == type,
-              onTap: () => onChanged(selected == type ? null : type),
+              label: options[i].nama,
+              isSelected: _isSelected(options[i].kode),
+              onTap: () => _tap(options[i].kode),
             ),
           ],
         ],
@@ -55,10 +61,14 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected ? AppThemeColors.primary : AppThemeColors.defaultSurface,
+      color: isSelected
+          ? AppThemeColors.primary
+          : AppThemeColors.defaultSurface,
       shape: StadiumBorder(
         side: BorderSide(
-          color: isSelected ? AppThemeColors.primary : AppThemeColors.defaultBorder,
+          color: isSelected
+              ? AppThemeColors.primary
+              : AppThemeColors.defaultBorder,
         ),
       ),
       child: InkWell(

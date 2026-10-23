@@ -1,18 +1,30 @@
-import 'package:mybapenda/core/utils/app_logger.dart';
-import 'package:mybapenda/domain/entities/my_task/task_entity.dart';
-import 'package:mybapenda/domain/entities/my_task/task_photo_entity.dart';
-import 'package:mybapenda/domain/entities/my_task/task_submission_entity.dart';
-import 'package:mybapenda/routes/app_routes.dart';
+// lib/presentation/features/my_task/pages/my_task_work_page.dart
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mybapenda/core/di/injection.dart';
+import 'package:mybapenda/core/services/geo_location/i_geo_location_service.dart';
+import 'package:mybapenda/core/utils/app_file_picker_utils.dart';
+import 'package:mybapenda/core/utils/app_logger.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_checkin_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/my_task_entity.dart';
+import 'package:mybapenda/domain/entities/my_task/task_photo_entity.dart';
+import 'package:mybapenda/domain/repositories/geocoding/geocoding_repository.dart';
+import 'package:mybapenda/domain/usecases/auth/auth_usecase.dart';
+import 'package:mybapenda/domain/usecases/my_task/my_task_usecase.dart';
+import 'package:mybapenda/presentation/features/my_task/cubit/my_task_checkin_cubit.dart';
+import 'package:mybapenda/presentation/features/my_task/cubit/my_task_work_cubit.dart';
+import 'package:mybapenda/presentation/shared/widgets/mb_dialog.dart';
+import 'package:mybapenda/routes/app_routes.dart';
 import '../../../../core/constants/app_colors_new.dart';
 import '../../va_qris/widgets/common/va_qris_app_bar.dart';
 import '../config/task_form_config.dart';
 import '../config/task_photo_slot.dart';
 import '../logic/task_draft.dart';
 import '../logic/task_validation_logic.dart';
-import '../mock/my_task_mock_data.dart';
-import '../mock/task_media_simulator.dart';
 import '../widgets/work/checkin_section.dart';
 import '../widgets/work/extra_fields_section.dart';
 import '../widgets/work/location_section.dart';
@@ -22,24 +34,47 @@ import '../widgets/work/photo_source_sheet.dart';
 import '../widgets/work/task_work_summary.dart';
 import '../widgets/work/work_progress_bar.dart';
 
-/// Form pengerjaan tugas (satu halaman scroll). Isi form mengikuti
-/// [TaskFormConfig.forTask], jadi satu halaman ini melayani semua jenis tugas.
-class MyTaskWorkPage extends StatefulWidget {
+class MyTaskWorkPage extends StatelessWidget {
   const MyTaskWorkPage({super.key, required this.task});
 
-  final TaskEntity task;
+  final MyTaskEntity task;
 
   @override
-  State<MyTaskWorkPage> createState() => _MyTaskWorkPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => MyTaskCheckinCubit(
+        useCase: getIt<MyTaskUseCase>(),
+        geocoding: getIt<IGeocodingRepository>(),
+        loadPetugas: _loadPetugas,
+      ),
+      child: BlocProvider(
+        create: (_) => MyTaskWorkCubit(
+          geoLocation: getIt<IGeoLocationService>(),
+        ),
+        child: _MyTaskWorkView(task: task),
+      ),
+    );
+  }
 }
 
-class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
-  late final TaskFormConfig _config;
+Future<TaskPetugasEntity?> _loadPetugas() async {
+  final user = await getIt<AuthUseCase>().getCurrentUserProfile();
+  final nip = user?.nip?.toString().trim() ?? '';
+  if (nip.isEmpty) return null;
+  return TaskPetugasEntity(nip: nip);
+}
 
-  // TODO(tech-debt): pindahkan ke MyTaskWorkState (+ simpan draft lokal).
-  TaskDraft _draft = const TaskDraft();
-  bool _isLocating = false;
-  bool _isSubmitting = false;
+class _MyTaskWorkView extends StatefulWidget {
+  const _MyTaskWorkView({required this.task});
+
+  final MyTaskEntity task;
+
+  @override
+  State<_MyTaskWorkView> createState() => _MyTaskWorkViewState();
+}
+
+class _MyTaskWorkViewState extends State<_MyTaskWorkView> {
+  late final TaskFormConfig _config;
 
   @override
   void initState() {
@@ -56,155 +91,158 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
       if (chosen == null || !mounted) return null;
       source = chosen;
     }
-    // TODO(tech-debt): ganti dengan AppFilePickerUtils.pickImage().
-    final photo = await TaskMediaSimulator.pickPhoto(source);
-    return mounted ? photo : null;
+    File? file;
+    try {
+      file = await AppFilePickerUtils.pickImage(
+        fromCamera: source == TaskPhotoSource.camera,
+        preferredCameraDevice: allowGallery
+            ? CameraDevice.rear
+            : CameraDevice.front,
+        maxMbSize: 5,
+      );
+    } catch (error, st) {
+      AppLogger.error('Gagal memilih foto tugas', error, st);
+      if (mounted) {
+        await BapendaDialog.showError(
+          context,
+          title: 'Gagal Mengambil Foto',
+          message: error.toString().replaceAll('Exception: ', ''),
+        );
+      }
+      return null;
+    }
+    if (!mounted || file == null) return null;
+    return TaskPhotoEntity(
+      source: source,
+      capturedAt: DateTime.now(),
+      path: file.path,
+    );
   }
 
   Future<void> _pickCheckIn() async {
     final photo = await _selectPhoto(allowGallery: false);
-    if (photo != null) setState(() => _draft = _draft.withCheckIn(photo));
+    if (photo != null && mounted) {
+      context.read<MyTaskWorkCubit>().setCheckIn(photo);
+    }
   }
 
   Future<void> _pickSlotPhoto(TaskPhotoSlot slot) async {
     final photo = await _selectPhoto(allowGallery: slot.allowGallery);
     if (photo != null) {
-      setState(() => _draft = _draft.withPhoto(slot.id, photo));
+      if (mounted) context.read<MyTaskWorkCubit>().setPhoto(slot.id, photo);
     }
   }
 
   // ---- Lokasi -------------------------------------------------------------
 
   Future<void> _fetchLocation() async {
-    setState(() => _isLocating = true);
     try {
-      // TODO(tech-debt): ganti dengan geolocator + penanganan izin/GPS mati.
-      final location = await TaskMediaSimulator.getCurrentLocation();
+      await context.read<MyTaskWorkCubit>().fetchLocation();
       if (!mounted) return;
-      setState(() {
-        _draft = _draft.withLocation(location);
-        _isLocating = false;
-      });
+      final error = context.read<MyTaskWorkCubit>().state.locationError;
+      if (error == null) return;
+      final retry = await BapendaDialog.showError(
+        context,
+        title: 'Lokasi Belum Bisa Diambil',
+        message: error,
+        retryLabel: 'Coba Lagi',
+      );
+      if (retry && mounted) await _fetchLocation();
     } catch (e, st) {
       AppLogger.error('Gagal mengambil lokasi', e, st);
       if (!mounted) return;
-      setState(() => _isLocating = false);
-      _showSnack('Lokasi belum bisa diambil. Coba lagi.');
+      final retry = await BapendaDialog.showError(
+        context,
+        title: 'Lokasi Belum Bisa Diambil',
+        message:
+            'Pastikan GPS menyala dan izin lokasi diberikan, lalu coba lagi.',
+        retryLabel: 'Coba Lagi',
+      );
+      if (retry && mounted) _fetchLocation();
     }
   }
 
   // ---- Kirim --------------------------------------------------------------
 
   Future<void> _submit() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Kirim hasil tugas?'),
-        content: const Text(
+    final confirmed = await BapendaDialog.showConfirm(
+      context,
+      title: 'Kirim hasil tugas?',
+      message:
           'Setelah dikirim, tugas dinyatakan selesai dan hasilnya tidak bisa diubah.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Periksa lagi'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Kirim'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Kirim',
+      cancelLabel: 'Periksa lagi',
+      icon: Icons.send_rounded,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
-    setState(() => _isSubmitting = true);
-    try {
-      // TODO(tech-debt): ganti dengan MyTaskCubit.submitTask(). Tangani juga
-      // tanpa sinyal: simpan sebagai draft & kirim ulang otomatis.
-      await MyTaskMockData.submit(
-        TaskSubmissionEntity(
-          taskId: widget.task.id,
-          submittedAt: DateTime.now(),
-          checkInPhoto: _draft.checkInPhoto,
-          location: _draft.location,
-          photos: _draft.photos,
-          extraValues: _draft.extraValues,
-          notes: _draft.notes.trim(),
-        ),
-      );
-      if (!mounted) return;
-      context.pushReplacement(AppRoutes.myTaskSuccess, extra: widget.task);
-    } catch (e, st) {
-      AppLogger.error('Gagal mengirim tugas ${widget.task.taskNumber}', e, st);
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      _showSubmitFailed();
-    }
+    await _kirim();
   }
 
-  void _showSubmitFailed() {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Gagal mengirim'),
-        content: const Text(
-          'Periksa koneksi internet, lalu coba lagi. Isian Anda masih tersimpan di halaman ini.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Tutup'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              _submit();
-            },
-            child: const Text('Coba lagi'),
-          ),
-        ],
+  /// Dipisah dari _submit supaya "Coba Lagi" tidak mengulang konfirmasi.
+  Future<void> _kirim() async {
+    final res = await BapendaDialog.runWithLoading(
+      context,
+      (_) => context.read<MyTaskCheckinCubit>().submit(
+        task: widget.task,
+        draft: context.read<MyTaskWorkCubit>().state.draft,
+        slots: _config.photoSlots,
       ),
+      title: 'Mengirim hasil tugas',
+      message: 'Foto dan laporan sedang dikirim. Mohon tunggu.',
     );
+    if (!mounted) return;
+
+    if (res.ok) {
+      await BapendaDialog.showSuccess(
+        context,
+        title: 'Tugas Terkirim',
+        message:
+            'Hasil pengerjaan ${widget.task.noSkpd} berhasil dikirim.',
+        primaryLabel: 'Kembali ke My Task',
+        primaryIcon: Icons.check_rounded,
+        barrierDismissible: false,
+      );
+      if (mounted) context.go(AppRoutes.myTask);
+      return;
+    }
+    final error = res.error;
+    if (error != null) await _showSubmitFailed(error);
+  }
+
+  /// Pesan error dari server (atau penyiapan data) ikut ditampilkan.
+  Future<void> _showSubmitFailed(String message) async {
+    final retry = await BapendaDialog.showError(
+      context,
+      title: 'Gagal Mengirim',
+      message: '$message\n\nIsian Anda masih tersimpan di halaman ini.',
+      retryLabel: 'Coba Lagi',
+    );
+    if (retry && mounted) await _kirim();
   }
 
   // ---- Keluar -------------------------------------------------------------
 
   Future<void> _handleBack() async {
-    if (!_draft.hasAnyData) {
+    if (!context.read<MyTaskWorkCubit>().state.draft.hasAnyData) {
       Navigator.of(context).pop();
       return;
     }
-    // TODO(tech-debt): tawarkan "Simpan draft" setelah penyimpanan lokal ada.
-    final leave = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Keluar dari form?'),
-        content: const Text('Isian yang sudah dibuat akan hilang.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Tetap di sini'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppThemeColors.danger),
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
+    final leave = await BapendaDialog.showConfirm(
+      context,
+      title: 'Keluar dari form?',
+      message: 'Isian yang sudah dibuat akan hilang.',
+      confirmLabel: 'Keluar',
+      cancelLabel: 'Tetap di sini',
+      destructive: true,
+      icon: Icons.logout_rounded,
     );
-    if (leave == true && mounted) Navigator.of(context).pop();
-  }
-
-  void _showSnack(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    if (leave && mounted) Navigator.of(context).pop();
   }
 
   // ---- Build --------------------------------------------------------------
 
-  List<Widget> _buildSections() {
+  List<Widget> _buildSections(TaskDraft draft, bool isLocating) {
     final sections = <Widget>[];
     var step = 0;
 
@@ -212,9 +250,9 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
       sections.add(
         CheckInSection(
           step: ++step,
-          photo: _draft.checkInPhoto,
+          photo: draft.checkInPhoto,
           onPick: _pickCheckIn,
-          onRemove: () => setState(() => _draft = _draft.withCheckIn(null)),
+          onRemove: () => context.read<MyTaskWorkCubit>().setCheckIn(null),
         ),
       );
     }
@@ -222,8 +260,8 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
       sections.add(
         LocationSection(
           step: ++step,
-          location: _draft.location,
-          isLoading: _isLocating,
+          location: draft.location,
+          isLoading: isLocating,
           onFetch: _fetchLocation,
         ),
       );
@@ -233,10 +271,10 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
         step: ++step,
         title: _config.photoSectionTitle,
         slots: _config.photoSlots,
-        photos: _draft.photos,
+        photos: draft.photos,
         onPick: _pickSlotPhoto,
         onRemove: (slot) =>
-            setState(() => _draft = _draft.withPhoto(slot.id, null)),
+            context.read<MyTaskWorkCubit>().setPhoto(slot.id, null),
       ),
     );
     if (_config.extraFields.isNotEmpty) {
@@ -244,19 +282,18 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
         ExtraFieldsSection(
           step: ++step,
           fields: _config.extraFields,
-          values: _draft.extraValues,
-          onChanged: (key, value) =>
-              setState(() => _draft = _draft.withExtra(key, value)),
+          values: draft.extraValues,
+          onChanged: context.read<MyTaskWorkCubit>().setExtra,
         ),
       );
     }
     sections.add(
       NotesSection(
         step: ++step,
-        initial: _draft.notes,
+        initial: draft.notes,
         isRequired: _config.notesRequired,
         minLength: _config.notesMinLength,
-        onChanged: (v) => setState(() => _draft = _draft.withNotes(v)),
+        onChanged: context.read<MyTaskWorkCubit>().setNotes,
       ),
     );
 
@@ -265,13 +302,16 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
 
   @override
   Widget build(BuildContext context) {
-    final progress = TaskValidationLogic.evaluate(_config, _draft);
-    final sections = _buildSections();
+    final workState = context.watch<MyTaskWorkCubit>().state;
+    final draft = workState.draft;
+    final progress = TaskValidationLogic.evaluate(_config, draft);
+    final sections = _buildSections(draft, workState.isLocating);
+    final isSubmitting = context.watch<MyTaskCheckinCubit>().state;
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && !_isSubmitting) _handleBack();
+        if (!didPop && !isSubmitting) _handleBack();
       },
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -279,8 +319,8 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
           backgroundColor: AppThemeColors.defaultBackground,
           appBar: VaQrisAppBar(
             title: 'Kerjakan tugas',
-            subtitle: widget.task.taskNumber,
-            onBackPressed: _isSubmitting ? () {} : _handleBack,
+            subtitle: widget.task.noSkpd,
+            onBackPressed: isSubmitting ? () {} : _handleBack,
           ),
           body: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -303,7 +343,7 @@ class _MyTaskWorkPageState extends State<MyTaskWorkPage> {
           ),
           bottomNavigationBar: WorkProgressBar(
             progress: progress,
-            isSubmitting: _isSubmitting,
+            isSubmitting: isSubmitting,
             onSubmit: _submit,
           ),
         ),

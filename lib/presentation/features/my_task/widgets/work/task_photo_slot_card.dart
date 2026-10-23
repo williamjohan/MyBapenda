@@ -122,10 +122,7 @@ class _FilledPreview extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (path != null)
-            Image.file(File(path), fit: BoxFit.cover)
-          else
-            const _SimulatedImage(),
+          Image.file(File(path), fit: BoxFit.cover),
           Positioned(
             left: 0,
             right: 0,
@@ -166,36 +163,6 @@ class _FilledPreview extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SimulatedImage extends StatelessWidget {
-  const _SimulatedImage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppThemeColors.grey7, AppThemeColors.grey9],
-        ),
-      ),
-      child: const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.image_outlined, size: 40, color: AppThemeColors.tertiaryText),
-            SizedBox(height: 6),
-            Text(
-              'Foto simulasi',
-              style: TextStyle(fontSize: 12.5, color: AppThemeColors.secondaryText),
-            ),
-          ],
-        ),
       ),
     );
   }
