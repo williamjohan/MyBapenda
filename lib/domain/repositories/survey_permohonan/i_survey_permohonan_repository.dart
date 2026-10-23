@@ -25,4 +25,15 @@ abstract class ISurveyPermohonanRepository {
   Future<Either<Failure, List<CariNorEntity>>> cariNor({required String nor});
 
   Future<Either<Failure, SurveySummaryEntity>> getSurveySummary();
+
+  /// Radius maksimal pin reklame (meter) dari `pengaturan-radius-survey`.
+  /// Di-cache di memori & disk; [forceRefresh] = abaikan cache yang masih
+  /// baru.
+  Future<Either<Failure, int>> getRadiusSurvey({bool forceRefresh = false});
+
+  /// Radius baru dari push SignalR: simpan ke cache & kabari [radiusBerubah].
+  Future<void> perbaruiRadius(int meter);
+
+  /// Radius berubah selama app berjalan (push SignalR / `survey-form`).
+  Stream<int> get radiusBerubah;
 }

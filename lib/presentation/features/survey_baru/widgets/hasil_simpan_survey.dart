@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../domain/entities/cek_reklames/survey_permohonan_baru/simpan_survey_hasil_entity.dart';
 import '../../../../routes/app_routes.dart';
+import '../utils/survey_lokasi_ui_helper.dart';
 
 Future<void> tampilkanHasilSimpanSurvey(
   BuildContext context,
@@ -43,6 +44,36 @@ Future<void> tampilkanHasilSimpanSurvey(
       BapendaDialogAction<bool>.primary(label: 'Mengerti', result: true),
     ],
   );
+}
+
+/// Tampilkan penolakan `simpan-survey` apa adanya. Penolakan jarak titik
+/// reklame ("sisi ke-N lebih dari X m dari lokasi petugas") memberi tombol
+/// pindahkan pin: return N bila dipilih, selain itu null.
+Future<int?> tampilkanGagalSimpanSurvey(
+  BuildContext context,
+  String pesan,
+) async {
+  final sisi = SurveyLokasiUiHelper.sisiDiLuarRadius(pesan);
+  if (sisi == null) {
+    await BapendaDialog.showError(
+      context,
+      title: 'Survey Belum Tersimpan',
+      message: pesan,
+    );
+    return null;
+  }
+  final pindah = await BapendaDialog.show<bool>(
+    context,
+    tone: BapendaDialogTone.error,
+    icon: Icons.wrong_location_rounded,
+    title: 'Titik Reklame Terlalu Jauh',
+    message: pesan,
+    actions: const [
+      BapendaDialogAction<bool>.primary(label: 'Pindahkan Pin', result: true),
+      BapendaDialogAction<bool>.secondary(label: 'Tutup', result: false),
+    ],
+  );
+  return pindah == true ? sisi : null;
 }
 
 /// [BARU] Daftar isian yang masih kurang (menggantikan baris "•  " manual).

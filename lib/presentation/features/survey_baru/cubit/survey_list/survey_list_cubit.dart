@@ -54,6 +54,7 @@ class SurveyListCubit extends Cubit<SurveyListState> {
         (detail) {
           final prefill = _infoPrefill(detail);
           header['isDraft'] = detail.isDraft;
+          header['jarakMaksMeter'] = detail.jarakMaksMeter;
           return (
             sisi: detail.sisiList
                 .map((s) => _sisiToMap(s, e, header, prefill))

@@ -6,10 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
+import '../cubit/survey_radius/survey_radius_cubit.dart';
 import '../cubit/survey_submit/survey_submit_cubit.dart';
 import '../widgets/hasil_simpan_survey.dart';
 import '../widgets/tombol_simpan_draft.dart';
 import '../widgets/survey_sisi_tile.dart';
+import '../utils/survey_lokasi_ui_helper.dart';
 import 'survey_foto_page.dart';
 
 class SurveySisiPage extends StatefulWidget {
@@ -31,6 +33,14 @@ class SurveySisiPage extends StatefulWidget {
 class _SurveySisiPageState extends State<SurveySisiPage> {
   // TODO: pindahin ke Cubit. Key = seq sisi
   final Map<int, SurveyResult> _results = {};
+
+  /// Seq sisi yang pinnya di luar radius saat ini (radius mengecil setelah
+  /// pin dipasang). Simpan dicegah sampai pin dipindah; pin tidak dihapus.
+  List<int> _luarRadius(int radius) => [
+    for (final s in widget.sisiList)
+      if (SurveyLokasiUiHelper.diLuarRadius(_results[s['seq']]?.lokasi, radius))
+        s['seq'] as int,
+  ];
 
   /// Semua sisi lengkap (bukan draft): boleh Review & Kirim.
   bool get _allDone =>
@@ -67,7 +77,6 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
   /// Simpan sisi yang sudah selesai sebagai draft. Server tetap langsung
   /// submit ke penilaian bila ternyata semua isian sudah lengkap.
   Future<void> _simpanDraft() async {
-    final messenger = ScaffoldMessenger.of(context);
     final res = await context.read<SurveySubmitCubit>().submit(
       info: widget.info,
       sisiList: widget.sisiList,
@@ -77,11 +86,11 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
 
     final hasil = res.hasil;
     if (hasil == null) {
-      if (res.error != null) {
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(res.error!)));
-      }
+      final error = res.error;
+      if (error == null) return;
+      final n = await tampilkanGagalSimpanSurvey(context, error);
+      final sisi = n == null ? null : sisiKe(widget.sisiList, n);
+      if (sisi != null && mounted) await _openSisi(sisi);
       return;
     }
     await tampilkanHasilSimpanSurvey(context, hasil);
@@ -107,6 +116,8 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
   @override
   Widget build(BuildContext context) {
     final list = widget.sisiList;
+    final radius = context.watch<SurveyRadiusCubit>().state;
+    final luar = _luarRadius(radius);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6F8),
@@ -188,6 +199,9 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                       _results.containsKey(seq) &&
                       !isDataDraft(_results[seq]!.data),
                   draft: isDataDraft(_results[seq]?.data),
+                  peringatan: luar.contains(seq)
+                      ? 'Titik reklame di luar radius $radius m, pindahkan pin'
+                      : null,
                   onTap: () => _openSisi(s),
                 );
               },
@@ -203,7 +217,21 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
             builder: (context, menyimpan) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (_bolehDraft && !_siapDraft)
+                if (luar.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Titik reklame sisi ${luar.join(', ')} di luar radius '
+                      '$radius m. Pindahkan pin sebelum menyimpan.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFC62828),
+                      ),
+                    ),
+                  )
+                else if (_bolehDraft && !_siapDraft)
                   const Padding(
                     padding: EdgeInsets.only(bottom: 8),
                     child: Text(
@@ -221,7 +249,8 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                     if (_bolehDraft) ...[
                       TombolSimpanDraft(
                         isLoading: menyimpan,
-                        onPressed: _results.isEmpty || !_siapDraft
+                        onPressed:
+                            _results.isEmpty || !_siapDraft || luar.isNotEmpty
                             ? null
                             : _simpanDraft,
                       ),
@@ -232,7 +261,9 @@ class _SurveySisiPageState extends State<SurveySisiPage> {
                         label: 'Review & Kirim',
                         icon: Icons.arrow_forward_rounded,
                         iconAtEnd: true,
-                        onPressed: _allDone && !menyimpan ? _openReview : null,
+                        onPressed: _allDone && luar.isEmpty && !menyimpan
+                            ? _openReview
+                            : null,
                       ),
                     ),
                   ],

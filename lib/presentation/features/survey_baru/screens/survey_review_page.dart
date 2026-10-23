@@ -16,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/bapenda_sliver_header.dart';
 import '../widgets/hasil_simpan_survey.dart';
+import '../utils/survey_lokasi_ui_helper.dart';
 import '../widgets/peta_lokasi_reklame.dart';
 import 'survey_foto_page.dart';
 
@@ -95,15 +96,24 @@ class _SurveyReviewPageState extends State<SurveyReviewPage> {
     final hasil = res.hasil;
     if (hasil == null) {
       final error = res.error;
-      if (error != null) {
-        final ulang = await BapendaDialog.showError(
-          context,
-          title: 'Gagal Mengirim Survey',
-          message: error,
-          retryLabel: 'Coba Lagi',
-        );
-        if (ulang && context.mounted) await _kirim(context);
+      if (error == null) return;
+      // Titik sisi ditolak server (jarak): kembali ke daftar sisi lalu buka
+      // halaman Lokasi sisi itu (mekanisme sama dengan tombol Edit).
+      if (SurveyLokasiUiHelper.sisiDiLuarRadius(error) != null) {
+        final n = await tampilkanGagalSimpanSurvey(context, error);
+        final sisi = n == null ? null : sisiKe(widget.sisiList, n);
+        if (sisi != null && context.mounted) {
+          context.pop<int>(sisi['seq'] as int);
+        }
+        return;
       }
+      final ulang = await BapendaDialog.showError(
+        context,
+        title: 'Gagal Mengirim Survey',
+        message: error,
+        retryLabel: 'Coba Lagi',
+      );
+      if (ulang && context.mounted) await _kirim(context);
       return;
     }
 
@@ -594,7 +604,6 @@ class _InfoReviewCard extends StatefulWidget {
 }
 
 class _InfoReviewCardState extends State<_InfoReviewCard> {
-
   @override
   Widget build(BuildContext context) {
     final info = widget.info;

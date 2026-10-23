@@ -25,6 +25,9 @@ abstract class ISurveyPermohonanRemoteDataSource {
   Future<List<CariNorModel>> cariNor({required String nor});
 
   Future<SurveySummaryModel> getSurveySummary();
+
+  // Radius maksimal pin reklame dari posisi petugas (meter); null = kosong
+  Future<int?> getRadiusSurvey();
 }
 
 @LazySingleton(as: ISurveyPermohonanRemoteDataSource)
@@ -170,5 +173,27 @@ class SurveyPermohonanRemoteDataSourceImpl
       throw const ServerException(500, 'Respons ringkasan survey kosong.');
     }
     return data;
+  }
+
+  // ===========================================================================
+  // 6. GET PENGATURAN RADIUS SURVEY
+  // ===========================================================================
+  @override
+  Future<int?> getRadiusSurvey() async {
+    final response = await _dio.get(ApiEndpoints.surveyPengaturanRadius);
+
+    final apiResponse = BaseApiResponseModel<int?>.fromJson(response.data, (
+      json,
+    ) {
+      final v = json is Map ? json['jarakMaksMeter'] : null;
+      if (v is num) return v.toInt();
+      return int.tryParse('${v ?? ''}'.trim());
+    });
+
+    if (!apiResponse.isSuccess) {
+      throw ServerException(apiResponse.status, apiResponse.errorMessage);
+    }
+
+    return apiResponse.data;
   }
 }

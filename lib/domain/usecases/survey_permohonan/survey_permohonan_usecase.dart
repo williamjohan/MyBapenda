@@ -50,4 +50,29 @@ class SurveyPermohonanUseCase {
   Future<Either<Failure, SurveySummaryEntity>> getSurveySummary() {
     return _repository.getSurveySummary();
   }
+
+  // 6. RADIUS MAKSIMAL PIN REKLAME
+  /// Dipakai bila server belum punya setting dan belum pernah ada cache
+  /// (keputusan user 2026-10-17, diperketat dari 50 m).
+  static const radiusBawaanMeter = 20;
+
+  Future<Either<Failure, int>> getRadiusSurvey({bool forceRefresh = false}) {
+    return _repository.getRadiusSurvey(forceRefresh: forceRefresh);
+  }
+
+  /// Radius baru dari push SignalR (`PENGATURAN_SURVEY`).
+  Future<void> perbaruiRadius(int meter) => _repository.perbaruiRadius(meter);
+
+  /// Radius berubah selama app berjalan; halaman Lokasi yang terbuka ikut
+  /// memakai nilai baru.
+  Stream<int> get radiusBerubah => _repository.radiusBerubah;
+
+  /// Radius maksimal pin reklame dari posisi petugas (meter). Urutan:
+  /// [dariForm] (`survey-form`), lalu `pengaturan-radius-survey` (cache
+  /// memori/disk), lalu [radiusBawaanMeter]. Tidak pernah gagal.
+  Future<int> radiusSurvey({int? dariForm}) async {
+    if (dariForm != null && dariForm > 0) return dariForm;
+    final result = await _repository.getRadiusSurvey();
+    return result.fold((_) => radiusBawaanMeter, (meter) => meter);
+  }
 }

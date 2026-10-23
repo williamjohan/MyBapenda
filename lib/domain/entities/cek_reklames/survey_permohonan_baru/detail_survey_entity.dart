@@ -13,6 +13,10 @@ class SurveyDetailEntity extends Equatable {
 
   /// true = header & isian sisi berasal dari draft tersimpan.
   final bool isDraft;
+
+  /// Radius maksimal pin reklame dari posisi petugas (meter); null bila
+  /// server belum mengirim.
+  final int? jarakMaksMeter;
   final DetailHeaderEntity? header;
   final DetailCheckinEntity? checkin;
   final List<SisiListEntity> sisiList;
@@ -25,6 +29,7 @@ class SurveyDetailEntity extends Equatable {
     this.kategoriPenyelenggaraanNama,
     this.statusPermohonan,
     this.isDraft = false,
+    this.jarakMaksMeter,
     this.header,
     this.checkin,
     required this.sisiList,
@@ -39,6 +44,7 @@ class SurveyDetailEntity extends Equatable {
     kategoriPenyelenggaraanNama,
     statusPermohonan,
     isDraft,
+    jarakMaksMeter,
     header,
     checkin,
     sisiList,
